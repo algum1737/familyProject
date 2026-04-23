@@ -13,7 +13,7 @@
 5. `docs/MVP_SCOPE.md`
 6. `docs/TECH_STACK.md`
 7. `docs/WEB_TO_APP_TRANSITION.md`
-8. `docs/exec-plans/active/2026-04-23-current-plan-highlight.md`
+8. `docs/exec-plans/active/2026-04-23-plan-editing.md`
 9. `src/ui/planner/circular-planner.tsx`
 10. `src/app/globals.css`
 
@@ -21,7 +21,7 @@
 
 - 현재 브랜치: `main`
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
-- 최근 반영 작업: `current plan highlight ui merged + handoff sync policy added`
+- 최근 반영 작업: `edit form layout refined`
 
 ## Current Product State
 
@@ -33,6 +33,8 @@
 - 계획 수정 모드가 구현돼 있다.
 - 수정 모드에서는 섹션 제목이 `계획 수정`, 제출 버튼이 `계획 저장`으로 바뀐다.
 - 등록 모드의 `계획 추가` 버튼 최소 너비는 `180px`다.
+- 계획 폼의 액션 버튼은 입력 필드들과 같은 라인에 정렬된다.
+- 선택된 색상 미리보기는 폼 하단 별도 블록으로 유지된다.
 - 시간 입력은 자유 분 단위다.
 - 기존 일정과 겹치는 시간대는 저장되지 않는다.
 - 색상 선택은 기본 팔레트 드롭다운과 `사용자 지정` 컬러 피커 흐름으로 정리돼 있다.
@@ -52,10 +54,9 @@
 
 ## Suggested Next Work
 
-1. 수정 모드 버튼과 색상 필드 레이아웃 미세 조정
-2. 일정 충돌 오류 메시지 상세화
-3. 사용자 흐름 테스트 확장
-4. `HANDOFF` 갱신 흐름이 실제 커밋 루프에서 잘 지켜지는지 점검
+1. 일정 충돌 오류 메시지 상세화
+2. 사용자 흐름 테스트 확장
+3. `HANDOFF` 갱신 흐름이 실제 커밋 루프에서 잘 지켜지는지 점검
 
 ## Handoff Prompt
 
@@ -72,20 +73,22 @@
 5. docs/MVP_SCOPE.md
 6. docs/TECH_STACK.md
 7. docs/WEB_TO_APP_TRANSITION.md
-8. docs/exec-plans/active/2026-04-23-current-plan-highlight.md
+8. docs/exec-plans/active/2026-04-23-plan-editing.md
 9. src/ui/planner/circular-planner.tsx
 10. src/app/globals.css
 
 현재 기준:
 - branch: `git branch --show-current`
 - commit: `git rev-parse --short HEAD`
-- latest progress: current plan highlight ui merged + handoff sync policy added
+- latest progress: edit form layout refined
 
 현재 구현 상태:
 - Next.js + TypeScript 기반 웹 MVP
 - 24시간 원형 플래너
 - 계획 등록/삭제/완료 토글/수정
 - 현재 계획 강조 강화
+- 계획 폼 액션 버튼 같은 라인 정렬
+- 색상 미리보기 하단 별도 블록 유지
 - 자유 분 단위 시간 입력
 - 시간 겹침 일정 저장 차단
 - 기본 팔레트 + 사용자 지정 색상 흐름

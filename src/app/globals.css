@@ -197,7 +197,7 @@ body {
     minmax(180px, 1fr)
     auto;
   gap: 14px;
-  align-items: end;
+  align-items: flex-end;
 }
 
 .field {
@@ -288,6 +288,7 @@ body {
   display: flex;
   flex-direction: row;
   gap: 8px;
+  align-items: flex-end;
   align-self: end;
   justify-content: flex-end;
   justify-self: end;
@@ -314,10 +315,12 @@ body {
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border: 1px solid transparent;
-  border-radius: 999px;
+  border: 1px solid #ece4dd;
+  border-radius: 16px;
   background: var(--panel-strong);
   white-space: nowrap;
+  color: var(--text);
+  justify-content: flex-start;
 }
 
 .color-preview-badge-clickable {
@@ -474,15 +477,16 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .form-actions,
   .form-submit {
     width: 100%;
   }
 
-  .color-select {
-    width: 100%;
+  .form-actions {
+    justify-self: stretch;
   }
 
-  .color-select-wrap {
+  .color-select {
     width: 100%;
   }
 

@@ -421,7 +421,6 @@ export function CircularPlanner() {
       <section className="composer-section">
         <div className="section-head">
           <h2>{editingPlanId ? "계획 수정" : "계획 등록"}</h2>
-          <span>시간 자유 입력</span>
         </div>
         <form className="plan-form" onSubmit={handleSubmit}>
           <label className="field field-title">
