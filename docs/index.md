@@ -14,6 +14,7 @@
 
 - [DESIGN.md](./DESIGN.md)
 - [FRONTEND.md](./FRONTEND.md)
+- [HANDOFF.md](./HANDOFF.md)
 - [MVP_SCOPE.md](./MVP_SCOPE.md)
 - [TECH_STACK.md](./TECH_STACK.md)
 - [WEB_TO_APP_TRANSITION.md](./WEB_TO_APP_TRANSITION.md)
