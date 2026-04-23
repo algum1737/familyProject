@@ -9,6 +9,7 @@ required_files=(
   "docs/index.md"
   "docs/DESIGN.md"
   "docs/FRONTEND.md"
+  "docs/HANDOFF.md"
   "docs/MVP_SCOPE.md"
   "docs/PLANS.md"
   "docs/PRODUCT_SENSE.md"
@@ -39,6 +40,16 @@ fi
 
 if ! grep -q "Assumptions" docs/product-specs/today-did-you-finish.md && ! grep -q "Unknowns" docs/product-specs/today-did-you-finish.md; then
   echo "product spec must contain assumptions or unknowns" >&2
+  exit 1
+fi
+
+if ! grep -q 'git branch --show-current' docs/HANDOFF.md; then
+  echo "handoff must reference git branch command instead of hard-coded branch context" >&2
+  exit 1
+fi
+
+if ! grep -q 'git rev-parse --short HEAD' docs/HANDOFF.md; then
+  echo "handoff must reference git rev-parse command instead of hard-coded commit hash" >&2
   exit 1
 fi
 
