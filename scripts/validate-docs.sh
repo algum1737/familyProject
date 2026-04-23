@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+required_files=(
+  "README.md"
+  "AGENTS.md"
+  "ARCHITECTURE.md"
+  "docs/index.md"
+  "docs/DESIGN.md"
+  "docs/FRONTEND.md"
+  "docs/MVP_SCOPE.md"
+  "docs/PLANS.md"
+  "docs/PRODUCT_SENSE.md"
+  "docs/QUALITY_SCORE.md"
+  "docs/RELIABILITY.md"
+  "docs/SECURITY.md"
+  "docs/TECH_STACK.md"
+  "docs/WEB_TO_APP_TRANSITION.md"
+  "docs/design-docs/core-beliefs.md"
+  "docs/product-specs/today-did-you-finish.md"
+  "docs/exec-plans/active/2026-04-17-bootstrap-harness.md"
+  "package.json"
+  "tsconfig.json"
+)
+
+for path in "${required_files[@]}"; do
+  if [[ ! -f "$path" ]]; then
+    echo "missing required file: $path" >&2
+    exit 1
+  fi
+done
+
+agents_lines="$(wc -l < AGENTS.md | tr -d ' ')"
+if [[ "$agents_lines" -gt 120 ]]; then
+  echo "AGENTS.md is too long: ${agents_lines} lines" >&2
+  exit 1
+fi
+
+if ! grep -q "Assumptions" docs/product-specs/today-did-you-finish.md && ! grep -q "Unknowns" docs/product-specs/today-did-you-finish.md; then
+  echo "product spec must contain assumptions or unknowns" >&2
+  exit 1
+fi
+
+echo "docs validation passed"

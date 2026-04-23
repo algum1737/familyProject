@@ -1,0 +1,36 @@
+{
+  "name": "today-did-you-finish",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "validate:docs": "./scripts/validate-docs.sh",
+    "validate": "npm run validate:docs && npm run typecheck"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "next": "^15.3.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "eslint": "^9.25.0",
+    "eslint-config-next": "^15.3.2",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
+  }
+}

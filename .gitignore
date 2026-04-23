@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+dist/
+build/
+.next/
+.env
+.env.*
+coverage/
+.idea/
+.vscode/
+tsconfig.tsbuildinfo
