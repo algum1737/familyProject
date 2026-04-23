@@ -142,22 +142,37 @@ body {
 }
 
 .planner-hour {
-  fill: #9d9eaa;
+  fill: #656873;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
+}
+
+.planner-icon {
+  pointer-events: none;
+}
+
+.planner-icon line {
+  stroke: #f7b347;
+  stroke-linecap: round;
+  stroke-width: 2.2px;
 }
 
 .planner-label {
   font-size: 18px;
   font-weight: 700;
   paint-order: stroke;
-  stroke: rgba(255, 255, 255, 0.2);
-  stroke-width: 4px;
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 5px;
   stroke-linejoin: round;
+  transition:
+    opacity 160ms ease,
+    stroke 160ms ease,
+    stroke-width 160ms ease;
 }
 
 .planner-label-current {
-  stroke: rgba(29, 29, 35, 0.18);
+  stroke: rgba(29, 29, 35, 0.46);
+  stroke-width: 6px;
 }
 
 .composer-section,
@@ -371,11 +386,19 @@ body {
   border: 1px solid transparent;
   border-radius: 22px;
   background: var(--panel-strong);
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .plan-item-current {
-  border-color: #f2c5b4;
-  background: #fff4ef;
+  border-color: #efb197;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 243, 235, 0.96));
+  box-shadow: 0 14px 28px rgba(240, 124, 97, 0.14);
+  transform: translateY(-1px);
 }
 
 .plan-color {
@@ -401,6 +424,11 @@ body {
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
+}
+
+.plan-item-current .plan-state {
+  background: #ffe5d9;
+  color: #a24c32;
 }
 
 .plan-state-done {

@@ -28,6 +28,9 @@ import { demoPlans } from "@/ui/planner/planner-demo-data";
 const CENTER = 240;
 const RADIUS = 180;
 const SECTOR_RADIUS = 190;
+const CURRENT_SECTOR_RADIUS = 198;
+const CURRENT_SECTOR_HALO_RADIUS = 206;
+const INACTIVE_SECTOR_OPACITY = 0.42;
 const PLAN_COLORS = [
   { value: "#767676", label: "그레이" },
   { value: "#9a80eb", label: "보라" },
@@ -71,6 +74,7 @@ const defaultFormState: PlanFormState = {
 
 function ClockFace() {
   const ticks = Array.from({ length: 24 }, (_, index) => index);
+  const visibleHours = new Set([0, 3, 6, 9, 12, 15, 18, 21]);
 
   return (
     <>
@@ -79,6 +83,7 @@ function ClockFace() {
         const outer = polarToCartesian(angle, RADIUS + 22);
         const inner = polarToCartesian(angle, RADIUS + 8);
         const labelPoint = polarToCartesian(angle, RADIUS + 45);
+        const isMajorHour = visibleHours.has(hour);
 
         return (
           <g key={hour}>
@@ -88,20 +93,56 @@ function ClockFace() {
               x2={CENTER + outer.x}
               y2={CENTER + outer.y}
               stroke="#d6d7dd"
-              strokeWidth="2"
+              strokeWidth={isMajorHour ? 2.6 : 1.4}
             />
-            <text
-              x={CENTER + labelPoint.x}
-              y={CENTER + labelPoint.y}
-              className="planner-hour"
-              textAnchor="middle"
-              dominantBaseline="middle"
-            >
-              {hour}
-            </text>
+            {isMajorHour ? (
+              <text
+                x={CENTER + labelPoint.x}
+                y={CENTER + labelPoint.y}
+                className="planner-hour"
+                textAnchor="middle"
+                dominantBaseline="middle"
+              >
+                {hour}
+              </text>
+            ) : null}
           </g>
         );
       })}
+      <g
+        aria-hidden="true"
+        className="planner-icon planner-icon-moon"
+        transform={`translate(${CENTER + 25} ${CENTER - (RADIUS + 45)})`}
+      >
+        <circle cx="0" cy="0" fill="#f0bf3f" r="9.2" />
+        <circle cx="-7.1" cy="-6.4" fill="#ffd76a" r="1.25" />
+        <circle cx="-4" cy="-10" fill="#ffd76a" r="1" />
+        <circle cx="-1.7" cy="-5.4" fill="#ffd76a" r="0.85" />
+      </g>
+      <g
+        aria-hidden="true"
+        className="planner-icon planner-icon-sun"
+        transform={`translate(${CENTER + 31} ${CENTER + (RADIUS + 45)})`}
+      >
+        <circle cx="0" cy="0" fill="#f7b347" r="6.3" />
+        {Array.from({ length: 8 }, (_, index) => {
+          const rayAngle = (Math.PI / 4) * index;
+          const innerX = Math.cos(rayAngle) * 9.2;
+          const innerY = Math.sin(rayAngle) * 9.2;
+          const outerX = Math.cos(rayAngle) * 13.8;
+          const outerY = Math.sin(rayAngle) * 13.8;
+
+          return (
+            <line
+              key={index}
+              x1={innerX}
+              y1={innerY}
+              x2={outerX}
+              y2={outerY}
+            />
+          );
+        })}
+      </g>
     </>
   );
 }
@@ -115,20 +156,34 @@ function PlanSegment({
 }) {
   const current = isCurrentPlan(plan, currentMinute);
   const labelMinute = plan.startMinute + (plan.endMinute - plan.startMinute) / 2;
-  const labelPoint = polarToCartesian(minuteToAngle(labelMinute), SECTOR_RADIUS * 0.63);
+  const sectorRadius = current ? CURRENT_SECTOR_RADIUS : SECTOR_RADIUS;
+  const labelPoint = polarToCartesian(minuteToAngle(labelMinute), sectorRadius * 0.63);
   const fontSize = getSectorLabelFontSize(plan);
   const label = formatSectorLabel(plan);
   const rotation = getSectorLabelRotation(labelMinute);
 
   return (
     <>
+      {current ? (
+        <path
+          d={createSectorPath(
+            plan.startMinute,
+            plan.endMinute,
+            CURRENT_SECTOR_HALO_RADIUS,
+            CENTER,
+            CENTER
+          )}
+          fill="#fff3ea"
+          opacity="0.92"
+        />
+      ) : null}
       <path
-        d={createSectorPath(plan.startMinute, plan.endMinute, SECTOR_RADIUS, CENTER, CENTER)}
+        d={createSectorPath(plan.startMinute, plan.endMinute, sectorRadius, CENTER, CENTER)}
         fill={plan.color}
-        opacity={current ? 1 : 0.88}
-        stroke={current ? "#ffffff" : "transparent"}
+        opacity={current ? 1 : INACTIVE_SECTOR_OPACITY}
+        stroke={current ? "#fffaf5" : "rgba(255,255,255,0.36)"}
         strokeLinejoin="round"
-        strokeWidth="3"
+        strokeWidth={current ? 6 : 2}
       />
       <text
         x={CENTER + labelPoint.x}
@@ -147,7 +202,7 @@ function PlanSegment({
 }
 
 function CurrentHand({ currentMinute }: { currentMinute: number }) {
-  const hand = polarToCartesian(minuteToAngle(currentMinute), SECTOR_RADIUS * 0.72);
+  const hand = polarToCartesian(minuteToAngle(currentMinute), CURRENT_SECTOR_RADIUS * 0.79);
 
   return (
     <>
@@ -158,7 +213,7 @@ function CurrentHand({ currentMinute }: { currentMinute: number }) {
         y2={CENTER + hand.y}
         stroke="#ffffff"
         strokeLinecap="round"
-        strokeWidth="10"
+        strokeWidth="12"
       />
       <circle cx={CENTER} cy={CENTER} fill="#ffffff" r="18" stroke="#d7d8de" strokeWidth="6" />
     </>
