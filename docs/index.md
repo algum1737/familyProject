@@ -26,3 +26,4 @@
 ## Active Work
 
 - [Bootstrap Harness Plan](./exec-plans/active/2026-04-17-bootstrap-harness.md)
+- [Plan Editing UI Plan](./exec-plans/active/2026-04-23-plan-editing.md)

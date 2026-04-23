@@ -56,6 +56,22 @@ describe("planner domain", () => {
     ).toThrow("이미 등록된 시간과 겹치는 일정은 저장할 수 없습니다.");
   });
 
+  it("allows adjacent plans without overlap", () => {
+    expect(
+      validatePlanner([
+        ...plans,
+        {
+          id: "adjacent",
+          title: "인접",
+          color: "#000000",
+          startMinute: 360,
+          endMinute: 420,
+          status: "pending" as const
+        }
+      ])
+    ).toHaveLength(3);
+  });
+
   it("finds the active plan for the current minute", () => {
     expect(getCurrentPlan(plans, 330)?.title).toBe("영어 공부");
   });

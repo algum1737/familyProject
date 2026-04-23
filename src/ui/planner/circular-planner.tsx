@@ -12,6 +12,7 @@ import {
   getSectorLabelFontSize,
   getSectorLabelRotation,
   isCurrentPlan,
+  minuteToTimeString,
   minuteToAngle,
   polarToCartesian,
   sortPlans,
@@ -164,12 +165,19 @@ function CurrentHand({ currentMinute }: { currentMinute: number }) {
   );
 }
 
+function getColorModeForColor(color: string): string {
+  return PLAN_COLORS.some((paletteColor) => paletteColor.value === color)
+    ? color
+    : "custom";
+}
+
 export function CircularPlanner() {
   const colorInputRef = useRef<HTMLInputElement | null>(null);
   const [plans, setPlans] = useState<DailyPlan[]>(() => validatePlanner(demoPlans));
   const [form, setForm] = useState<PlanFormState>(defaultFormState);
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
   const currentMinute = useCurrentMinute();
   const resolvedCurrentMinute = currentMinute ?? 0;
   const sortedPlans = useMemo(() => sortPlans(plans), [plans]);
@@ -215,22 +223,31 @@ export function CircularPlanner() {
 
     try {
       const nextPlan: DailyPlan = {
-        id: crypto.randomUUID(),
+        id: editingPlanId ?? crypto.randomUUID(),
         title: form.title.trim(),
         color: form.color,
         startMinute: timeStringToMinute(form.startTime),
         endMinute: timeStringToMinute(form.endTime),
         status: "pending"
       };
-      const nextPlans = sortPlans(validatePlanner([...plans, nextPlan]));
+      const basePlans =
+        editingPlanId === null
+          ? plans
+          : plans.filter((plan) => plan.id !== editingPlanId);
+      const previousPlan = plans.find((plan) => plan.id === editingPlanId);
+      const nextPlans = sortPlans(
+        validatePlanner([
+          ...basePlans,
+          {
+            ...nextPlan,
+            status: previousPlan?.status ?? "pending"
+          }
+        ])
+      );
 
       setPlans(nextPlans);
-      setForm((currentForm) => ({
-        ...defaultFormState,
-        startTime: currentForm.startTime,
-        endTime: currentForm.endTime,
-        color: currentForm.color
-      }));
+      setForm(defaultFormState);
+      setEditingPlanId(null);
       setError(null);
     } catch (validationError) {
       if (validationError instanceof Error) {
@@ -255,7 +272,30 @@ export function CircularPlanner() {
   }
 
   function deletePlan(id: string) {
+    if (editingPlanId === id) {
+      setEditingPlanId(null);
+      setForm(defaultFormState);
+    }
+
     setPlans((currentPlans) => currentPlans.filter((plan) => plan.id !== id));
+  }
+
+  function startEditingPlan(plan: DailyPlan) {
+    setEditingPlanId(plan.id);
+    setForm({
+      title: plan.title,
+      startTime: minuteToTimeString(plan.startMinute),
+      endTime: minuteToTimeString(plan.endMinute),
+      color: plan.color,
+      colorMode: getColorModeForColor(plan.color)
+    });
+    setError(null);
+  }
+
+  function cancelEditing() {
+    setEditingPlanId(null);
+    setForm(defaultFormState);
+    setError(null);
   }
 
   return (
@@ -325,7 +365,7 @@ export function CircularPlanner() {
       </section>
       <section className="composer-section">
         <div className="section-head">
-          <h2>계획 등록</h2>
+          <h2>{editingPlanId ? "계획 수정" : "계획 등록"}</h2>
           <span>시간 자유 입력</span>
         </div>
         <form className="plan-form" onSubmit={handleSubmit}>
@@ -415,9 +455,27 @@ export function CircularPlanner() {
               value={form.color}
             />
           </label>
-          <button className="submit-button form-submit" type="submit">
-            계획 추가
-          </button>
+          <div className={editingPlanId ? "form-actions form-actions-editing" : "form-actions"}>
+            <button
+              className={
+                editingPlanId
+                  ? "submit-button form-submit form-submit-editing"
+                  : "submit-button form-submit"
+              }
+              type="submit"
+            >
+              {editingPlanId ? "계획 저장" : "계획 추가"}
+            </button>
+            {editingPlanId ? (
+              <button
+                className="cancel-button cancel-button-editing"
+                onClick={cancelEditing}
+                type="button"
+              >
+                수정 취소
+              </button>
+            ) : null}
+          </div>
         </form>
         <div className="color-preview">
           <span>선택된 색상</span>
@@ -473,6 +531,13 @@ export function CircularPlanner() {
                   </span>
                 </div>
                 <div className="plan-actions">
+                  <button
+                    className="plan-edit"
+                    onClick={() => startEditingPlan(plan)}
+                    type="button"
+                  >
+                    수정
+                  </button>
                   <button
                     className={plan.status === "done" ? "plan-state plan-state-done" : "plan-state"}
                     onClick={() => togglePlanStatus(plan.id)}
