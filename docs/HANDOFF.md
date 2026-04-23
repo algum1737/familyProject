@@ -13,21 +13,22 @@
 5. `docs/MVP_SCOPE.md`
 6. `docs/TECH_STACK.md`
 7. `docs/WEB_TO_APP_TRANSITION.md`
-8. `docs/exec-plans/active/2026-04-23-plan-editing.md`
+8. `docs/exec-plans/active/2026-04-23-current-plan-highlight.md`
 9. `src/ui/planner/circular-planner.tsx`
 10. `src/app/globals.css`
 
 ## Current Baseline
 
 - 현재 브랜치: `main`
-- 기준 커밋: `e1059d4`
-- 최근 반영 작업: `plan editing ui progress`
+- 기준 커밋: `git rev-parse --short HEAD`로 확인
+- 최근 반영 작업: `current plan highlight ui merged + handoff sync policy added`
 
 ## Current Product State
 
 - Next.js + TypeScript 기반 웹 MVP가 있다.
 - 24시간 원형 플래너가 렌더링된다.
 - 현재 시간 포인터와 현재 계획 판정이 동작한다.
+- 현재 계획 부채꼴은 비현재 구간보다 더 강하게 강조된다.
 - 계획 등록, 삭제, 완료 토글이 구현돼 있다.
 - 계획 수정 모드가 구현돼 있다.
 - 수정 모드에서는 섹션 제목이 `계획 수정`, 제출 버튼이 `계획 저장`으로 바뀐다.
@@ -35,6 +36,8 @@
 - 시간 입력은 자유 분 단위다.
 - 기존 일정과 겹치는 시간대는 저장되지 않는다.
 - 색상 선택은 기본 팔레트 드롭다운과 `사용자 지정` 컬러 피커 흐름으로 정리돼 있다.
+- 시계 숫자 라벨은 `0, 3, 6, 9, 12, 15, 18, 21`만 보인다.
+- `0` 옆에는 달 아이콘, `12` 옆에는 해 아이콘이 표시된다.
 - 저장은 현재 브라우저 `localStorage`를 사용한다.
 
 ## Working Rules
@@ -43,14 +46,16 @@
 - 그 전에는 분석, 원인 파악, 제안까지만 한다.
 - 새 실제 작업은 `main`에서 직접 하지 않고, 사용자가 승인하면 작업 브랜치를 만든다.
 - `main` 머지는 사용자가 명시적으로 요청할 때만 한다.
+- 커밋 후에는 `docs/HANDOFF.md`의 최근 반영 작업, 현재 상태, 다음 작업을 검토하고 갱신한다.
+- 커밋 해시는 문서에 고정하지 말고 git 명령으로 확인하게 유지한다.
 - 리포지터리 밖에만 있는 지식은 없는 것으로 간주한다.
 
 ## Suggested Next Work
 
 1. 수정 모드 버튼과 색상 필드 레이아웃 미세 조정
 2. 일정 충돌 오류 메시지 상세화
-3. 현재 계획 부채꼴 강조 강화
-4. 사용자 흐름 테스트 확장
+3. 사용자 흐름 테스트 확장
+4. `HANDOFF` 갱신 흐름이 실제 커밋 루프에서 잘 지켜지는지 점검
 
 ## Handoff Prompt
 
@@ -67,28 +72,32 @@
 5. docs/MVP_SCOPE.md
 6. docs/TECH_STACK.md
 7. docs/WEB_TO_APP_TRANSITION.md
-8. docs/exec-plans/active/2026-04-23-plan-editing.md
+8. docs/exec-plans/active/2026-04-23-current-plan-highlight.md
 9. src/ui/planner/circular-planner.tsx
 10. src/app/globals.css
 
 현재 기준:
-- branch: main
-- commit: e1059d4
-- latest progress: plan editing ui progress
+- branch: `git branch --show-current`
+- commit: `git rev-parse --short HEAD`
+- latest progress: current plan highlight ui merged + handoff sync policy added
 
 현재 구현 상태:
 - Next.js + TypeScript 기반 웹 MVP
 - 24시간 원형 플래너
 - 계획 등록/삭제/완료 토글/수정
+- 현재 계획 강조 강화
 - 자유 분 단위 시간 입력
 - 시간 겹침 일정 저장 차단
 - 기본 팔레트 + 사용자 지정 색상 흐름
+- 3시간 단위 숫자 라벨
+- 0/12 라벨 보조 아이콘
 - localStorage 저장
 
 중요 규칙:
 - 구현 변경은 내가 명시적으로 진행하라고 할 때만 수행해라.
 - 그 전에는 분석과 제안까지만 해라.
 - 새 실제 작업은 브랜치를 만들어서 진행하고, main 머지는 내가 요청할 때만 해라.
+- 커밋 후에는 docs/HANDOFF.md를 갱신하되, 커밋 해시는 git 명령으로 확인하게 유지해라.
 
 먼저 현재 상태를 요약하고, 내가 승인할 때만 실제 수정을 시작해라.
 ```

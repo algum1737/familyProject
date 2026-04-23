@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+changed_files="$(git show --name-only --pretty='' HEAD)"
+
+if [[ -z "$changed_files" ]]; then
+  exit 0
+fi
+
+if grep -qv '^docs/HANDOFF.md$' <<<"$changed_files"; then
+  echo "[post-commit] Review docs/HANDOFF.md and update recent progress/current state if this commit changed session context."
+fi
