@@ -52,8 +52,31 @@ describe("planner domain", () => {
           endMinute: 420,
           status: "pending" as const
         }
-      ])
-    ).toThrow("이미 등록된 시간과 겹치는 일정은 저장할 수 없습니다.");
+      ], {
+        focusPlanId: "overlap"
+      })
+    ).toThrow("이미 등록된 일정 '영어 공부'(05:00 - 06:00)과 겹쳐 저장할 수 없습니다.");
+  });
+
+  it("shows the existing plan when a new earlier plan overlaps", () => {
+    expect(() =>
+      validatePlanner(
+        [
+          ...plans,
+          {
+            id: "earlier-overlap",
+            title: "아침 준비",
+            color: "#111111",
+            startMinute: 290,
+            endMinute: 310,
+            status: "pending" as const
+          }
+        ],
+        {
+          focusPlanId: "earlier-overlap"
+        }
+      )
+    ).toThrow("이미 등록된 일정 '취침'(00:00 - 05:00)과 겹쳐 저장할 수 없습니다.");
   });
 
   it("allows adjacent plans without overlap", () => {

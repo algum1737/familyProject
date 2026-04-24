@@ -291,13 +291,18 @@ export function CircularPlanner() {
           : plans.filter((plan) => plan.id !== editingPlanId);
       const previousPlan = plans.find((plan) => plan.id === editingPlanId);
       const nextPlans = sortPlans(
-        validatePlanner([
-          ...basePlans,
+        validatePlanner(
+          [
+            ...basePlans,
+            {
+              ...nextPlan,
+              status: previousPlan?.status ?? "pending"
+            }
+          ],
           {
-            ...nextPlan,
-            status: previousPlan?.status ?? "pending"
+            focusPlanId: nextPlan.id
           }
-        ])
+        )
       );
 
       setPlans(nextPlans);

@@ -21,7 +21,7 @@
 
 - 현재 브랜치: `main`
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
-- 최근 반영 작업: `edit form layout refined`
+- 최근 반영 작업: `overlap error message clarified`
 
 ## Current Product State
 
@@ -37,6 +37,8 @@
 - 선택된 색상 미리보기는 폼 하단 별도 블록으로 유지된다.
 - 시간 입력은 자유 분 단위다.
 - 기존 일정과 겹치는 시간대는 저장되지 않는다.
+- 일정 충돌 메시지는 등록하려는 일정이 아니라 기존 등록 일정의 제목과 시간대로 안내된다.
+- 여러 기존 일정과 겹치더라도 첫 번째로 감지된 충돌 일정 1건만 안내된다.
 - 색상 선택은 기본 팔레트 드롭다운과 `사용자 지정` 컬러 피커 흐름으로 정리돼 있다.
 - 시계 숫자 라벨은 `0, 3, 6, 9, 12, 15, 18, 21`만 보인다.
 - `0` 옆에는 달 아이콘, `12` 옆에는 해 아이콘이 표시된다.
@@ -54,9 +56,9 @@
 
 ## Suggested Next Work
 
-1. 일정 충돌 오류 메시지 상세화
-2. 사용자 흐름 테스트 확장
-3. `HANDOFF` 갱신 흐름이 실제 커밋 루프에서 잘 지켜지는지 점검
+1. 사용자 흐름 테스트 확장
+2. `HANDOFF` 갱신 흐름이 실제 커밋 루프에서 잘 지켜지는지 점검
+3. 충돌 메시지 정책을 실행 계획 문서에도 명시할지 검토
 
 ## Handoff Prompt
 
@@ -80,7 +82,7 @@
 현재 기준:
 - branch: `git branch --show-current`
 - commit: `git rev-parse --short HEAD`
-- latest progress: edit form layout refined
+- latest progress: overlap error message clarified
 
 현재 구현 상태:
 - Next.js + TypeScript 기반 웹 MVP
@@ -91,6 +93,8 @@
 - 색상 미리보기 하단 별도 블록 유지
 - 자유 분 단위 시간 입력
 - 시간 겹침 일정 저장 차단
+- 충돌 메시지는 기존 등록 일정 제목/시간 기준
+- 첫 충돌 일정 1건만 안내
 - 기본 팔레트 + 사용자 지정 색상 흐름
 - 3시간 단위 숫자 라벨
 - 0/12 라벨 보조 아이콘

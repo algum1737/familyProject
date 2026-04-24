@@ -19,7 +19,14 @@ export const dailyPlanSchema = z
 
 export const plannerSchema = z.array(dailyPlanSchema);
 
-export function validatePlanner(plans: DailyPlan[]): DailyPlan[] {
+type ValidatePlannerOptions = {
+  focusPlanId?: string;
+};
+
+export function validatePlanner(
+  plans: DailyPlan[],
+  options: ValidatePlannerOptions = {}
+): DailyPlan[] {
   const parsedPlans = plannerSchema.parse(plans);
   const sortedPlans = sortPlans(parsedPlans);
 
@@ -28,11 +35,22 @@ export function validatePlanner(plans: DailyPlan[]): DailyPlan[] {
     const current = sortedPlans[index];
 
     if (current.startMinute < previous.endMinute) {
-      throw new Error("이미 등록된 시간과 겹치는 일정은 저장할 수 없습니다.");
+      throw new Error(getOverlapErrorMessage(previous, current, options.focusPlanId));
     }
   }
 
   return parsedPlans;
+}
+
+function getOverlapErrorMessage(
+  previous: DailyPlan,
+  current: DailyPlan,
+  focusPlanId?: string
+): string {
+  const conflictingPlan =
+    focusPlanId === previous.id ? current : focusPlanId === current.id ? previous : previous;
+
+  return `이미 등록된 일정 '${conflictingPlan.title}'(${describeMinute(conflictingPlan.startMinute)} - ${describeMinute(conflictingPlan.endMinute)})과 겹쳐 저장할 수 없습니다.`;
 }
 
 export function minuteToAngle(minute: number): number {
