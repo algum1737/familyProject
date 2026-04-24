@@ -6,6 +6,7 @@ build/
 .env
 .env.*
 coverage/
+test-results/
 .idea/
 .vscode/
 tsconfig.tsbuildinfo

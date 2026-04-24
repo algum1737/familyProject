@@ -21,7 +21,7 @@
 
 - 현재 브랜치: `main`
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
-- 최근 반영 작업: `overlap error message clarified`
+- 최근 반영 작업: `user flow tests expanded`
 
 ## Current Product State
 
@@ -43,6 +43,9 @@
 - 시계 숫자 라벨은 `0, 3, 6, 9, 12, 15, 18, 21`만 보인다.
 - `0` 옆에는 달 아이콘, `12` 옆에는 해 아이콘이 표시된다.
 - 저장은 현재 브라우저 `localStorage`를 사용한다.
+- Vitest 기반 UI 사용자 흐름 테스트가 추가돼 있다.
+- Playwright 기반 브라우저 E2E 흐름 테스트가 추가돼 있다.
+- 브라우저 테스트는 `build + start` 서버와 시스템 Chrome 채널 기준으로 실행된다.
 
 ## Working Rules
 
@@ -56,9 +59,9 @@
 
 ## Suggested Next Work
 
-1. 사용자 흐름 테스트 확장
-2. `HANDOFF` 갱신 흐름이 실제 커밋 루프에서 잘 지켜지는지 점검
-3. 충돌 메시지 정책을 실행 계획 문서에도 명시할지 검토
+1. `HANDOFF` 갱신 흐름이 실제 커밋 루프에서 잘 지켜지는지 점검
+2. 충돌 메시지 정책을 실행 계획 문서에도 명시할지 검토
+3. CI에서 `npm test`와 `npm run test:e2e`를 자동 실행할지 결정
 
 ## Handoff Prompt
 
@@ -82,7 +85,7 @@
 현재 기준:
 - branch: `git branch --show-current`
 - commit: `git rev-parse --short HEAD`
-- latest progress: overlap error message clarified
+- latest progress: user flow tests expanded
 
 현재 구현 상태:
 - Next.js + TypeScript 기반 웹 MVP
@@ -99,6 +102,9 @@
 - 3시간 단위 숫자 라벨
 - 0/12 라벨 보조 아이콘
 - localStorage 저장
+- Vitest UI 사용자 흐름 테스트 추가
+- Playwright 브라우저 E2E 테스트 추가
+- E2E는 `build + start`와 시스템 Chrome 기준
 
 중요 규칙:
 - 구현 변경은 내가 명시적으로 진행하라고 할 때만 수행해라.

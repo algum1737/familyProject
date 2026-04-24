@@ -1,0 +1,110 @@
+import { test, expect } from "@playwright/test";
+
+test.describe("planner browser flows", () => {
+  const seededPlans = [
+    {
+      id: "sleep",
+      title: "취침",
+      color: "#767676",
+      startMinute: 0,
+      endMinute: 300,
+      status: "pending"
+    },
+    {
+      id: "study",
+      title: "영어 공부",
+      color: "#ef8d75",
+      startMinute: 300,
+      endMinute: 360,
+      status: "pending"
+    }
+  ];
+
+  async function fillPlanForm(
+    page: import("@playwright/test").Page,
+    values: {
+      title: string;
+      startTime: string;
+      endTime: string;
+    }
+  ) {
+    await page.locator('input[name="title"]').fill(values.title);
+    await page.locator('input[name="startTime"]').fill(values.startTime);
+    await page.locator('input[name="endTime"]').fill(values.endTime);
+  }
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate((plans) => {
+      window.localStorage.clear();
+      window.localStorage.setItem(
+        "today-did-you-finish:plans",
+        JSON.stringify(plans)
+      );
+    }, seededPlans);
+
+    await page.reload();
+    await expect(
+      page.getByRole("heading", { name: "지금 해야 할 계획을 시계처럼 바로 보게 만드는 MVP" })
+    ).toBeVisible();
+  });
+
+  test("adds a plan and blocks an overlapping plan with the existing schedule name", async ({
+    page
+  }) => {
+    await fillPlanForm(page, {
+      title: "아침 산책",
+      startTime: "06:30",
+      endTime: "07:00"
+    });
+    await page.getByRole("button", { name: "계획 추가" }).click();
+
+    const planList = page.locator(".plan-list");
+    await expect(planList.getByText("아침 산책")).toBeVisible();
+    await expect(page.locator(".summary-tile strong").first()).toHaveText("0/3");
+
+    await fillPlanForm(page, {
+      title: "아침 준비",
+      startTime: "04:50",
+      endTime: "05:10"
+    });
+    await page.getByRole("button", { name: "계획 추가" }).click();
+
+    await expect(
+      page.getByText("이미 등록된 일정 '취침'(00:00 - 05:00)과 겹쳐 저장할 수 없습니다.")
+    ).toBeVisible();
+    await expect(planList.getByText("아침 준비")).toHaveCount(0);
+  });
+
+  test("edits, completes, and deletes a plan", async ({ page }) => {
+    const studyItem = page.locator(".plan-item", {
+      has: page.locator(".plan-meta strong", { hasText: "영어 공부" })
+    });
+
+    await studyItem.getByRole("button", { name: "수정" }).click();
+    await expect(page.getByRole("heading", { name: "계획 수정" })).toBeVisible();
+
+    await fillPlanForm(page, {
+      title: "영어 회화",
+      startTime: "05:30",
+      endTime: "06:30"
+    });
+    await page.getByRole("button", { name: "계획 저장" }).click();
+
+    const editedItem = page.locator(".plan-item", {
+      has: page.locator(".plan-meta strong", { hasText: "영어 회화" })
+    });
+
+    await expect(editedItem).toBeVisible();
+    await expect(page.getByRole("heading", { name: "계획 등록" })).toBeVisible();
+
+    await editedItem.getByRole("button", { name: "대기" }).click();
+    await expect(editedItem.getByRole("button", { name: "완료" })).toBeVisible();
+    await expect(page.locator(".summary-tile strong").first()).toHaveText("1/2");
+
+    await editedItem.getByRole("button", { name: "삭제" }).click();
+    await expect(page.locator(".plan-item", {
+      has: page.locator(".plan-meta strong", { hasText: "영어 회화" })
+    })).toHaveCount(0);
+  });
+});

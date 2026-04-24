@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "validate:docs": "./scripts/validate-docs.sh",
     "validate": "npm run validate:docs && npm run typecheck"
   },
