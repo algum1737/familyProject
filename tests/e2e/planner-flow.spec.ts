@@ -47,6 +47,11 @@ test.describe("planner browser flows", () => {
     await expect(
       page.getByRole("heading", { name: "지금 해야 할 계획을 시계처럼 바로 보게 만드는 MVP" })
     ).toBeVisible();
+    await expect(
+      page.locator(".plan-item", {
+        has: page.locator(".plan-meta strong", { hasText: "영어 공부" })
+      })
+    ).toBeVisible();
   });
 
   test("adds a plan and blocks an overlapping plan with the existing schedule name", async ({
