@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "check:handoff-loop": "./scripts/check-handoff-loop.sh HEAD",
+    "test:handoff-loop": "./scripts/test-check-handoff-loop.sh",
     "validate:docs": "./scripts/validate-docs.sh",
     "validate": "npm run validate:docs && npm run typecheck"
   },

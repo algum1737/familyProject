@@ -1,9 +1,10 @@
 import { validatePlanner } from "@/domains/plans/service/planner";
 import type { DailyPlan } from "@/domains/plans/types";
+import type { PlansStore } from "@/providers/plans/plans-store";
 
-const STORAGE_KEY = "today-did-you-finish:plans";
+export const STORAGE_KEY = "today-did-you-finish:plans";
 
-export function loadPlans(): DailyPlan[] | null {
+function loadPlansFromLocalStorage(): DailyPlan[] | null {
   if (typeof window === "undefined") {
     return null;
   }
@@ -21,7 +22,7 @@ export function loadPlans(): DailyPlan[] | null {
   }
 }
 
-export function savePlans(plans: DailyPlan[]): void {
+function savePlansToLocalStorage(plans: DailyPlan[]): void {
   if (typeof window === "undefined") {
     return;
   }
@@ -29,3 +30,7 @@ export function savePlans(plans: DailyPlan[]): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
 }
 
+export const localPlansStore: PlansStore = {
+  load: loadPlansFromLocalStorage,
+  save: savePlansToLocalStorage
+};

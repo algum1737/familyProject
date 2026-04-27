@@ -3,8 +3,8 @@
 이 리포지터리는 하네스 엔지니어링 방식으로 프로그램을 구축하기 위한 초기 작업 공간이다.
 
 현재 상태:
-- 코드베이스는 아직 없다.
-- 제품 요구사항은 초기 기획서 텍스트 기준으로 1차 확인했다.
+- Next.js + TypeScript 기반 웹 MVP와 검증 하네스가 있다.
+- 제품 요구사항은 초기 기획서 텍스트 기준으로 1차 확인했고, 웹 MVP는 앱 전환 전 검증 단계로 본다.
 - 제품명은 `오늘 다 했니?`다.
 
 작업 원칙:
@@ -18,5 +18,5 @@
 - [ARCHITECTURE.md](./ARCHITECTURE.md)
 - [docs/index.md](./docs/index.md)
 - [docs/TECH_STACK.md](./docs/TECH_STACK.md)
-- [docs/exec-plans/active/2026-04-17-bootstrap-harness.md](./docs/exec-plans/active/2026-04-17-bootstrap-harness.md)
+- [docs/exec-plans/completed/2026-04-17-bootstrap-harness.md](./docs/exec-plans/completed/2026-04-17-bootstrap-harness.md)
 - [기획서 텍스트](./기획/오늘_다했니_기획서.txt)

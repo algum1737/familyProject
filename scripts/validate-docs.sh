@@ -20,7 +20,8 @@ required_files=(
   "docs/WEB_TO_APP_TRANSITION.md"
   "docs/design-docs/core-beliefs.md"
   "docs/product-specs/today-did-you-finish.md"
-  "docs/exec-plans/active/2026-04-17-bootstrap-harness.md"
+  "docs/exec-plans/completed/2026-04-17-bootstrap-harness.md"
+  "scripts/check-handoff-loop.sh"
   "package.json"
   "tsconfig.json"
 )
@@ -50,6 +51,11 @@ fi
 
 if ! grep -q 'git rev-parse --short HEAD' docs/HANDOFF.md; then
   echo "handoff must reference git rev-parse command instead of hard-coded commit hash" >&2
+  exit 1
+fi
+
+if ! grep -q 'check-handoff-loop.sh' .githooks/post-commit; then
+  echo "post-commit hook must run scripts/check-handoff-loop.sh" >&2
   exit 1
 fi
 

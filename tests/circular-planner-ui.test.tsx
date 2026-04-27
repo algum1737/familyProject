@@ -4,10 +4,9 @@ import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 
-import { CircularPlanner } from "@/ui/planner/circular-planner";
 import type { DailyPlan } from "@/domains/plans/types";
-
-const STORAGE_KEY = "today-did-you-finish:plans";
+import { localPlansStore, STORAGE_KEY } from "@/providers/plans/local-plans";
+import { PlannerShell } from "@/ui/planner/planner-shell";
 
 const basePlans: DailyPlan[] = [
   {
@@ -28,11 +27,9 @@ const basePlans: DailyPlan[] = [
   }
 ];
 
-vi.mock("@/providers/time/time-source", () => ({
-  systemTimeSource: {
-    now: () => new Date("2026-04-24T05:30:00+09:00")
-  }
-}));
+const fixedTimeSource = {
+  now: () => new Date("2026-04-24T05:30:00+09:00")
+};
 
 function seedPlans(plans: DailyPlan[] = basePlans) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
@@ -83,7 +80,7 @@ afterEach(() => {
 
 describe("circular planner user flows", () => {
   it("adds a new plan and persists it in sorted order", async () => {
-    render(<CircularPlanner />);
+    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
 
     fillPlanForm({
       title: "아침 산책",
@@ -125,7 +122,7 @@ describe("circular planner user flows", () => {
       basePlans[1]
     ]);
 
-    render(<CircularPlanner />);
+    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
 
     const sleepItem = getPlanItem("취침");
     expect(sleepItem).toBeTruthy();
@@ -149,7 +146,7 @@ describe("circular planner user flows", () => {
   });
 
   it("shows the existing conflicting plan in the overlap error", async () => {
-    render(<CircularPlanner />);
+    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
 
     fillPlanForm({
       title: "아침 준비",
@@ -168,7 +165,7 @@ describe("circular planner user flows", () => {
   });
 
   it("resets the form when deleting the plan currently being edited", async () => {
-    render(<CircularPlanner />);
+    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
 
     const studyItem = getPlanItem("영어 공부");
     expect(studyItem).toBeTruthy();

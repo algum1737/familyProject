@@ -26,5 +26,11 @@
 
 ## Active Work
 
-- [Bootstrap Harness Plan](./exec-plans/active/2026-04-17-bootstrap-harness.md)
+- [App Transition Decision Plan](./exec-plans/active/2026-04-24-app-transition-decision.md)
+- [Harness Template Kit Plan](./exec-plans/active/2026-04-17-harness-template-kit.md)
 - [Plan Editing UI Plan](./exec-plans/active/2026-04-23-plan-editing.md)
+
+## Completed Work
+
+- [Bootstrap Harness Plan](./exec-plans/completed/2026-04-17-bootstrap-harness.md)
+- [Current Plan Highlight Plan](./exec-plans/completed/2026-04-23-current-plan-highlight.md)

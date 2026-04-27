@@ -16,14 +16,14 @@ import {
   minuteToAngle,
   polarToCartesian,
   sortPlans,
-  timeStringToMinute,
   validatePlanner
 } from "@/domains/plans/service/planner";
 import type { DailyPlan } from "@/domains/plans/types";
-import { loadPlans, savePlans } from "@/providers/plans/local-plans";
-import { systemTimeSource } from "@/providers/time/time-source";
+import type { PlansStore } from "@/providers/plans/plans-store";
+import type { TimeSource } from "@/providers/time/time-source";
 import { getMinutesSinceMidnight } from "@/shared/time/minutes";
-import { demoPlans } from "@/ui/planner/planner-demo-data";
+import { PLAN_COLORS } from "@/ui/planner/planner-colors";
+import { usePlannerState } from "@/ui/planner/use-planner-state";
 
 const CENTER = 240;
 const RADIUS = 180;
@@ -31,46 +31,21 @@ const SECTOR_RADIUS = 190;
 const CURRENT_SECTOR_RADIUS = 198;
 const CURRENT_SECTOR_HALO_RADIUS = 206;
 const INACTIVE_SECTOR_OPACITY = 0.42;
-const PLAN_COLORS = [
-  { value: "#767676", label: "그레이" },
-  { value: "#9a80eb", label: "보라" },
-  { value: "#f7b347", label: "옐로" },
-  { value: "#ef668f", label: "핑크" },
-  { value: "#ef8d75", label: "코랄" },
-  { value: "#5bb7aa", label: "민트" }
-];
-
-function useCurrentMinute() {
+function useCurrentMinute(timeSource: TimeSource) {
   const [minute, setMinute] = useState<number | null>(null);
 
   useEffect(() => {
-    setMinute(getMinutesSinceMidnight(systemTimeSource.now()));
+    setMinute(getMinutesSinceMidnight(timeSource.now()));
 
     const timer = window.setInterval(() => {
-      setMinute(getMinutesSinceMidnight(systemTimeSource.now()));
+      setMinute(getMinutesSinceMidnight(timeSource.now()));
     }, 30_000);
 
     return () => window.clearInterval(timer);
-  }, []);
+  }, [timeSource]);
 
   return minute;
 }
-
-type PlanFormState = {
-  title: string;
-  startTime: string;
-  endTime: string;
-  color: string;
-  colorMode: string;
-};
-
-const defaultFormState: PlanFormState = {
-  title: "",
-  startTime: "08:00",
-  endTime: "09:00",
-  color: PLAN_COLORS[0].value,
-  colorMode: PLAN_COLORS[0].value
-};
 
 function ClockFace() {
   const ticks = Array.from({ length: 24 }, (_, index) => index);
@@ -220,43 +195,32 @@ function CurrentHand({ currentMinute }: { currentMinute: number }) {
   );
 }
 
-function getColorModeForColor(color: string): string {
-  return PLAN_COLORS.some((paletteColor) => paletteColor.value === color)
-    ? color
-    : "custom";
-}
+type CircularPlannerProps = {
+  plansStore: PlansStore;
+  timeSource: TimeSource;
+};
 
-export function CircularPlanner() {
+export function CircularPlanner({ plansStore, timeSource }: CircularPlannerProps) {
   const colorInputRef = useRef<HTMLInputElement | null>(null);
-  const [plans, setPlans] = useState<DailyPlan[]>(() => validatePlanner(demoPlans));
-  const [form, setForm] = useState<PlanFormState>(defaultFormState);
-  const [error, setError] = useState<string | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
-  const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
-  const currentMinute = useCurrentMinute();
+  const {
+    plans,
+    form,
+    error,
+    editingPlanId,
+    setError,
+    updateForm,
+    submitPlan,
+    togglePlanStatus,
+    deletePlan,
+    startEditingPlan,
+    cancelEditing
+  } = usePlannerState(plansStore);
+  const currentMinute = useCurrentMinute(timeSource);
   const resolvedCurrentMinute = currentMinute ?? 0;
   const sortedPlans = useMemo(() => sortPlans(plans), [plans]);
   const currentPlan =
     currentMinute === null ? null : getCurrentPlan(sortedPlans, resolvedCurrentMinute);
   const summary = getPlannerSummary(plans);
-
-  useEffect(() => {
-    const storedPlans = loadPlans();
-
-    if (storedPlans) {
-      setPlans(sortPlans(storedPlans));
-    }
-
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-
-    savePlans(plans);
-  }, [isHydrated, plans]);
 
   function openCustomColorPicker() {
     const input = colorInputRef.current;
@@ -277,38 +241,7 @@ export function CircularPlanner() {
     event.preventDefault();
 
     try {
-      const nextPlan: DailyPlan = {
-        id: editingPlanId ?? crypto.randomUUID(),
-        title: form.title.trim(),
-        color: form.color,
-        startMinute: timeStringToMinute(form.startTime),
-        endMinute: timeStringToMinute(form.endTime),
-        status: "pending"
-      };
-      const basePlans =
-        editingPlanId === null
-          ? plans
-          : plans.filter((plan) => plan.id !== editingPlanId);
-      const previousPlan = plans.find((plan) => plan.id === editingPlanId);
-      const nextPlans = sortPlans(
-        validatePlanner(
-          [
-            ...basePlans,
-            {
-              ...nextPlan,
-              status: previousPlan?.status ?? "pending"
-            }
-          ],
-          {
-            focusPlanId: nextPlan.id
-          }
-        )
-      );
-
-      setPlans(nextPlans);
-      setForm(defaultFormState);
-      setEditingPlanId(null);
-      setError(null);
+      submitPlan();
     } catch (validationError) {
       if (validationError instanceof Error) {
         setError(validationError.message);
@@ -317,45 +250,6 @@ export function CircularPlanner() {
 
       setError("계획을 저장하지 못했습니다.");
     }
-  }
-
-  function togglePlanStatus(id: string) {
-    setPlans((currentPlans) =>
-      sortPlans(
-        currentPlans.map((plan) =>
-          plan.id === id
-            ? { ...plan, status: plan.status === "done" ? "pending" : "done" }
-            : plan
-        )
-      )
-    );
-  }
-
-  function deletePlan(id: string) {
-    if (editingPlanId === id) {
-      setEditingPlanId(null);
-      setForm(defaultFormState);
-    }
-
-    setPlans((currentPlans) => currentPlans.filter((plan) => plan.id !== id));
-  }
-
-  function startEditingPlan(plan: DailyPlan) {
-    setEditingPlanId(plan.id);
-    setForm({
-      title: plan.title,
-      startTime: minuteToTimeString(plan.startMinute),
-      endTime: minuteToTimeString(plan.endMinute),
-      color: plan.color,
-      colorMode: getColorModeForColor(plan.color)
-    });
-    setError(null);
-  }
-
-  function cancelEditing() {
-    setEditingPlanId(null);
-    setForm(defaultFormState);
-    setError(null);
   }
 
   return (
@@ -432,9 +326,7 @@ export function CircularPlanner() {
             <span>제목</span>
             <input
               name="title"
-              onChange={(event) =>
-                setForm((currentForm) => ({ ...currentForm, title: event.target.value }))
-              }
+              onChange={(event) => updateForm({ title: event.target.value })}
               placeholder="예: 영어 공부"
               required
               value={form.title}
@@ -444,9 +336,7 @@ export function CircularPlanner() {
             <span>시작 시간</span>
             <input
               name="startTime"
-              onChange={(event) =>
-                setForm((currentForm) => ({ ...currentForm, startTime: event.target.value }))
-              }
+              onChange={(event) => updateForm({ startTime: event.target.value })}
               required
               type="time"
               value={form.startTime}
@@ -456,9 +346,7 @@ export function CircularPlanner() {
             <span>종료 시간</span>
             <input
               name="endTime"
-              onChange={(event) =>
-                setForm((currentForm) => ({ ...currentForm, endTime: event.target.value }))
-              }
+              onChange={(event) => updateForm({ endTime: event.target.value })}
               required
               type="time"
               value={form.endTime}
@@ -473,21 +361,17 @@ export function CircularPlanner() {
                 const nextMode = event.target.value;
 
                 if (nextMode === "custom") {
-                  setForm((currentForm) => ({
-                    ...currentForm,
-                    colorMode: "custom"
-                  }));
+                  updateForm({ colorMode: "custom" });
                   queueMicrotask(() => {
                     openCustomColorPicker();
                   });
                   return;
                 }
 
-                setForm((currentForm) => ({
-                  ...currentForm,
+                updateForm({
                   colorMode: nextMode,
                   color: nextMode
-                }));
+                });
               }}
               value={form.colorMode}
             >
@@ -503,11 +387,10 @@ export function CircularPlanner() {
               id="custom-plan-color"
               name="customColor"
               onChange={(event) =>
-                setForm((currentForm) => ({
-                  ...currentForm,
+                updateForm({
                   color: event.target.value,
                   colorMode: "custom"
-                }))
+                })
               }
               ref={colorInputRef}
               type="color"
