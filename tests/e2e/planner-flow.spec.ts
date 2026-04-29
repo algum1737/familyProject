@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { TEST_NOW_STORAGE_KEY } from "../../src/providers/time/time-source";
 
 test.describe("planner browser flows", () => {
-  const testNowIso = "2026-04-24T05:30:00+09:00";
+  const testNowIso = "local:2026-04-24T05:30:00";
   const seededPlans = [
     {
       id: "sleep",
