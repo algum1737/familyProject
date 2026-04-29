@@ -201,7 +201,7 @@ describe("circular planner user flows", () => {
         "이미 등록된 일정 '취침'(00:00 - 05:00)과 겹쳐 저장할 수 없습니다."
       )
     ).toBeTruthy();
-    expect(screen.queryByText("아침 준비")).toBeNull();
+    expect(getPlanItem("아침 준비")).toBeNull();
   });
 
   it("shows a start reminder banner and lets the user complete the plan from it", async () => {
@@ -737,6 +737,6 @@ describe("circular planner user flows", () => {
 
     expect(await screen.findByRole("heading", { name: "계획 등록" })).toBeTruthy();
     expect((screen.getByLabelText("제목") as HTMLInputElement).value).toBe("");
-    expect(screen.queryByText("영어 공부")).toBeNull();
+    expect(getPlanItem("영어 공부")).toBeNull();
   });
 });
