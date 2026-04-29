@@ -459,7 +459,13 @@ describe("circular planner user flows", () => {
     fireEvent.click(panelToggle);
 
     const panel = panelToggle.closest("details") as HTMLElement;
-    expect(within(panel).getAllByText("회고 다시 보기")).toHaveLength(2);
+    expect(
+      within(panel).getAllByText("회고 다시 보기", { selector: ".observation-summary-tile span" })
+    ).toHaveLength(1);
+    expect(within(panel).getByText("1회")).toBeTruthy();
+    expect(
+      within(panel).getAllByText("회고 다시 보기", { selector: ".observation-item strong" })
+    ).toHaveLength(1);
     expect(within(panel).getByText("관찰 더 필요")).toBeTruthy();
     expect(
       within(panel).getByText("기록이 더 필요합니다. 어떤 재강조가 가장 자주 쌓이는지 조금 더 보십시오.")
@@ -526,7 +532,8 @@ describe("circular planner user flows", () => {
   it("shows reminder observation summary metrics for policy checks", async () => {
     await renderPlanner(reminderTimeSource);
 
-    fireEvent.click(screen.getByRole("button", { name: "지금 완료" }));
+    const reminderBanner = await screen.findByRole("status");
+    fireEvent.click(within(reminderBanner).getByRole("button", { name: "지금 완료" }));
     const panelToggle = screen.getByText("리마인드 관찰 로그");
     fireEvent.click(panelToggle);
 
