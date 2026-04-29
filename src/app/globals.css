@@ -318,8 +318,8 @@ body {
 }
 
 .form-submit-editing {
-  min-width: 132px;
-  padding: 0 14px;
+  min-width: 84px;
+  padding: 0 10px;
 }
 
 .cancel-button {
@@ -580,7 +580,10 @@ body {
 }
 
 .plan-recovery {
+  min-height: 38px;
   padding: 8px 12px;
+  border: 1px solid #e4dfd8;
+  border-radius: 16px;
   background: #ffffff;
   color: #4f5360;
   cursor: pointer;
