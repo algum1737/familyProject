@@ -90,6 +90,14 @@ function getPlanItem(title: string) {
   return items.find((item) => item.querySelector(".plan-meta strong")?.textContent === title) ?? null;
 }
 
+async function waitForPlanItem(title: string) {
+  await waitFor(() => {
+    expect(getPlanItem(title)).toBeTruthy();
+  });
+
+  return getPlanItem(title) as HTMLElement;
+}
+
 async function renderPlanner(timeSource = fixedTimeSource) {
   render(<PlannerShell plansStore={localPlansStore} timeSource={timeSource} />);
 
@@ -261,8 +269,7 @@ describe("circular planner user flows", () => {
 
     expect(screen.queryByRole("heading", { name: "놓침 회고" })).toBeNull();
     expect(window.localStorage.getItem(STORAGE_KEY)).toContain("잠들기 전 준비 시간이 부족했다.");
-    const updatedSleepItem = getPlanItem("취침");
-    expect(updatedSleepItem).toBeTruthy();
+    const updatedSleepItem = await waitForPlanItem("취침");
     expect(within(updatedSleepItem as HTMLElement).getByText("회고 저장됨")).toBeTruthy();
     expect(
       within(updatedSleepItem as HTMLElement).getByText("잠들기 전 준비 시간이 부족했다.")
@@ -287,10 +294,8 @@ describe("circular planner user flows", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "다시 지정 저장" }));
 
-    const rescheduledItem = getPlanItem("취침 보충");
-    expect(rescheduledItem).toBeTruthy();
-    const missedSleepItem = getPlanItem("취침");
-    expect(missedSleepItem).toBeTruthy();
+    const rescheduledItem = await waitForPlanItem("취침 보충");
+    const missedSleepItem = await waitForPlanItem("취침");
     expect(within(missedSleepItem as HTMLElement).getByText("다시 지정 1/3")).toBeTruthy();
     expect(within(rescheduledItem as HTMLElement).getByText("다시 지정 1/3")).toBeTruthy();
     expect(window.localStorage.getItem(STORAGE_KEY)).toContain('"sourcePlanId":"sleep"');
@@ -318,8 +323,7 @@ describe("circular planner user flows", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "다시 지정 저장" }));
 
-    const updatedSleepItem = getPlanItem("취침");
-    expect(updatedSleepItem).toBeTruthy();
+    const updatedSleepItem = await waitForPlanItem("취침");
     expect(within(updatedSleepItem as HTMLElement).getByText("다시 지정 곧 시작")).toBeTruthy();
     expect(
       within(updatedSleepItem as HTMLElement).getByText(
@@ -352,8 +356,7 @@ describe("circular planner user flows", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "다시 지정 저장" }));
 
-    const updatedSleepItem = getPlanItem("취침");
-    expect(updatedSleepItem).toBeTruthy();
+    const updatedSleepItem = await waitForPlanItem("취침");
     expect(within(updatedSleepItem as HTMLElement).getByText("다시 지정됨")).toBeTruthy();
     expect(
       within(updatedSleepItem as HTMLElement).getByText(
