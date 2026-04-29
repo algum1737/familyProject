@@ -21,9 +21,9 @@
 
 ## Current Baseline
 
-- 현재 브랜치: `feature/web-reminder-prototype`
+- 현재 브랜치: `git branch --show-current`로 확인
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
-- 최근 반영 작업: `label settings popup flow and 10-char cap added`
+- 최근 반영 작업: `recovery observation runbook and end-5-minute review checklist added`
 
 ## Current Product State
 
@@ -106,8 +106,8 @@
 
 ## Suggested Next Work
 
-1. 실제 사용 관찰에서 `회고 다시 보기`와 `다시 지정 곧 시작` 재강조가 과한지 점검
-2. 앱 전환 시 종료 5분 전 회복 알림 정책이 실제 사용자 흐름에 과하지 않은지 검토
+1. `Recovery Observation Runbook` 기준으로 실제 사용 관찰 로그를 최소 3회 이상 모으기
+2. `End-5-Minute Alert Review Checklist` 기준으로 종료 5분 전 회복 알림 정책을 검토
 3. 실제 운영 중 커밋 루프 점검 경고 노이즈가 과한지 관찰하고 필요하면 조건을 조정
 
 ## Handoff Prompt
@@ -134,7 +134,7 @@
 현재 기준:
 - branch: `git branch --show-current`
 - commit: `git rev-parse --short HEAD`
-- latest progress: recovery observation policy and fixed app-safe label scope added
+- latest progress: recovery observation runbook and end-5-minute review checklist added
 
 현재 구현 상태:
 - Next.js + TypeScript 기반 웹 MVP
