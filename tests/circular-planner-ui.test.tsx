@@ -84,7 +84,7 @@ function fillPlanForm({
 }
 
 function getPlanItem(title: string) {
-  const list = document.querySelector(".plan-list");
+  const list = screen.queryByTestId("plan-list");
   const items = Array.from(list?.querySelectorAll("li") ?? []);
 
   return items.find((item) => item.querySelector(".plan-meta strong")?.textContent === title) ?? null;
@@ -215,10 +215,10 @@ describe("circular planner user flows", () => {
   it("shows a start reminder banner and lets the user complete the plan from it", async () => {
     await renderPlanner(reminderTimeSource);
 
-    const reminderBanner = await screen.findByRole("status");
+    const reminderBanner = await screen.findByTestId("reminder-banner");
     expect(within(reminderBanner).getByText("시작 리마인드")).toBeTruthy();
     expect(within(reminderBanner).getByText("영어 공부")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "지금 완료" }));
+    fireEvent.click(within(reminderBanner).getByRole("button", { name: "지금 완료" }));
 
     expect(screen.queryByText("시작 리마인드")).toBeNull();
 
@@ -231,7 +231,7 @@ describe("circular planner user flows", () => {
   it("shows the reminder shortly before start time and keeps it dismissed for the same reminder window", async () => {
     await renderPlanner(earlyReminderTimeSource);
 
-    const reminderBanner = await screen.findByRole("status");
+    const reminderBanner = await screen.findByTestId("reminder-banner");
     expect(within(reminderBanner).getByText("시작 리마인드")).toBeTruthy();
     expect(within(reminderBanner).getByText("영어 공부")).toBeTruthy();
     expect(within(reminderBanner).queryByRole("button", { name: "지금 완료" })).toBeNull();
@@ -461,14 +461,11 @@ describe("circular planner user flows", () => {
     const panelToggle = screen.getByText("회복 관찰 로그");
     fireEvent.click(panelToggle);
 
-    const panel = panelToggle.closest("details") as HTMLElement;
-    expect(
-      within(panel).getAllByText("회고 다시 보기", { selector: ".observation-summary-tile span" })
-    ).toHaveLength(1);
-    expect(within(panel).getByText("1회")).toBeTruthy();
-    expect(
-      within(panel).getAllByText("회고 다시 보기", { selector: ".observation-item strong" })
-    ).toHaveLength(1);
+    const panel = screen.getByTestId("recovery-observation-panel");
+    const reflectionSummary = within(panel).getByTestId("recovery-summary-reflection");
+    expect(within(reflectionSummary).getByText("회고 다시 보기")).toBeTruthy();
+    expect(within(reflectionSummary).getByText("1회")).toBeTruthy();
+    expect(within(panel).getAllByText("회고 다시 보기", { selector: ".observation-item strong" })).toHaveLength(1);
     expect(within(panel).getByText("관찰 더 필요")).toBeTruthy();
     expect(
       within(panel).getByText("기록이 더 필요합니다. 어떤 재강조가 가장 자주 쌓이는지 조금 더 보십시오.")
@@ -517,7 +514,7 @@ describe("circular planner user flows", () => {
     const panelToggle = screen.getByText("회복 관찰 로그");
     fireEvent.click(panelToggle);
 
-    const panel = panelToggle.closest("details") as HTMLElement;
+    const panel = screen.getByTestId("recovery-observation-panel");
     expect(within(panel).getByText("조정 검토")).toBeTruthy();
     expect(
       within(panel).getByText(
@@ -535,18 +532,23 @@ describe("circular planner user flows", () => {
   it("shows reminder observation summary metrics for policy checks", async () => {
     await renderPlanner(reminderTimeSource);
 
-    const reminderBanner = await screen.findByRole("status");
+    const reminderBanner = await screen.findByTestId("reminder-banner");
     fireEvent.click(within(reminderBanner).getByRole("button", { name: "지금 완료" }));
     const panelToggle = screen.getByText("리마인드 관찰 로그");
     fireEvent.click(panelToggle);
 
-    const panel = panelToggle.closest("details") as HTMLElement;
-    expect(within(panel).getByText("표시")).toBeTruthy();
-    expect(within(panel).getAllByText("1회")).toHaveLength(2);
-    expect(within(panel).getByText("닫기 비율")).toBeTruthy();
-    expect(within(panel).getByText("0%")).toBeTruthy();
-    expect(within(panel).getByText("완료 전환율")).toBeTruthy();
-    expect(within(panel).getByText("100%")).toBeTruthy();
+    const panel = screen.getByTestId("reminder-observation-panel");
+    const shownSummary = within(panel).getByTestId("reminder-summary-shown");
+    const completedSummary = within(panel).getByTestId("reminder-summary-completed");
+    const dismissRateSummary = within(panel).getByTestId("reminder-summary-dismiss-rate");
+    const completionRateSummary = within(panel).getByTestId("reminder-summary-completion-rate");
+    expect(within(shownSummary).getByText("표시")).toBeTruthy();
+    expect(within(shownSummary).getByText("1회")).toBeTruthy();
+    expect(within(completedSummary).getByText("1회")).toBeTruthy();
+    expect(within(dismissRateSummary).getByText("닫기 비율")).toBeTruthy();
+    expect(within(dismissRateSummary).getByText("0%")).toBeTruthy();
+    expect(within(completionRateSummary).getByText("완료 전환율")).toBeTruthy();
+    expect(within(completionRateSummary).getByText("100%")).toBeTruthy();
     expect(within(panel).getByText("관찰 더 필요")).toBeTruthy();
     expect(
       within(panel).getByText("표본이 아직 적습니다. 최소 3회 이상 표시된 뒤 다시 판단하십시오.")
@@ -612,7 +614,7 @@ describe("circular planner user flows", () => {
     const panelToggle = screen.getByText("리마인드 관찰 로그");
     fireEvent.click(panelToggle);
 
-    const panel = panelToggle.closest("details") as HTMLElement;
+    const panel = screen.getByTestId("reminder-observation-panel");
     expect(within(panel).getByText("조정 검토")).toBeTruthy();
     expect(
       within(panel).getByText("닫기 비율이 높습니다. 시간 창을 더 늦추거나 배너 표현을 낮출 후보입니다.")
@@ -683,7 +685,7 @@ describe("circular planner user flows", () => {
     const panelToggle = screen.getByText("리마인드 관찰 로그");
     fireEvent.click(panelToggle);
 
-    const panel = panelToggle.closest("details") as HTMLElement;
+    const panel = screen.getByTestId("reminder-observation-panel");
     expect(within(panel).getByText("우선 유지")).toBeTruthy();
     expect(
       within(panel).getByText("완료 전환이 닫기보다 유지됩니다. 현재 시간 창은 우선 유지해도 됩니다.")
@@ -718,9 +720,10 @@ describe("circular planner user flows", () => {
     const panelToggle = screen.getByText("리마인드 관찰 로그");
     fireEvent.click(panelToggle);
 
-    const panel = panelToggle.closest("details") as HTMLElement;
+    const panel = screen.getByTestId("reminder-observation-panel");
+    const shownSummary = within(panel).getByTestId("reminder-summary-shown");
     expect(within(panel).getAllByText("배너 표시")).toHaveLength(1);
-    expect(within(panel).getByText("1회")).toBeTruthy();
+    expect(within(shownSummary).getByText("1회")).toBeTruthy();
 
     const storedObservations = JSON.parse(
       window.localStorage.getItem(REMINDER_OBSERVATIONS_KEY) ?? "[]"

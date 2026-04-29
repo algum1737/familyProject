@@ -34,6 +34,38 @@ const CURRENT_SECTOR_HALO_RADIUS = 206;
 const INACTIVE_SECTOR_OPACITY = 0.42;
 const RESCHEDULE_UNAVAILABLE_MESSAGE = "오늘 남은 빈 시간에 다시 지정할 수 있는 구간이 없습니다.";
 
+function getRecoveryObservationSummaryTestId(label: string) {
+  switch (label) {
+    case "회고 다시 보기":
+      return "recovery-summary-reflection";
+    case "다시 지정 다시 보기":
+      return "recovery-summary-reschedule";
+    case "다시 지정 불가":
+      return "recovery-summary-reschedule-unavailable";
+    case "다시 지정됨":
+      return "recovery-summary-followup-scheduled";
+    case "다시 지정 곧 시작":
+      return "recovery-summary-followup-soon";
+    default:
+      return "recovery-summary-followup-active";
+  }
+}
+
+function getReminderObservationSummaryTestId(label: string) {
+  switch (label) {
+    case "표시":
+      return "reminder-summary-shown";
+    case "닫기":
+      return "reminder-summary-dismissed";
+    case "완료":
+      return "reminder-summary-completed";
+    case "닫기 비율":
+      return "reminder-summary-dismiss-rate";
+    default:
+      return "reminder-summary-completion-rate";
+  }
+}
+
 function buildLabelSettingsDraft(settings: PlannerLabelSettings): PlannerLabelSettings {
   return {
     actionLabels: {
@@ -380,6 +412,7 @@ export function CircularPlanner({
             <div
               aria-live="polite"
               className="reminder-banner"
+              data-testid="reminder-banner"
               role="status"
             >
               <div className="reminder-copy">
@@ -591,7 +624,7 @@ export function CircularPlanner({
           <h2>오늘 계획</h2>
           <span>{listCurrentTimeText}</span>
         </div>
-        <ul className="plan-list">
+        <ul className="plan-list" data-testid="plan-list">
           {planItems.map(
             ({
               canReschedule,
@@ -607,11 +640,12 @@ export function CircularPlanner({
             return (
               <li
                 className={isCurrent ? "plan-item plan-item-current" : "plan-item"}
+                data-testid={`plan-item-${plan.id}`}
                 key={plan.id}
               >
                 <span className="plan-color" style={{ backgroundColor: plan.color }} />
                 <div className="plan-meta">
-                  <strong>{plan.title}</strong>
+                  <strong data-testid={`plan-title-${plan.id}`}>{plan.title}</strong>
                   <span>{timeText}</span>
                   {recoveryBadges.length > 0 ? (
                     <div className="plan-recovery-badges">
@@ -628,6 +662,7 @@ export function CircularPlanner({
                   {recoveryHighlight ? (
                     <div
                       className={`plan-recovery-highlight plan-recovery-highlight-${recoveryHighlight.tone}`}
+                      data-testid={`recovery-highlight-${plan.id}`}
                     >
                       <strong>{recoveryHighlight.label}</strong>
                       <span>{recoveryHighlight.detail}</span>
@@ -828,7 +863,7 @@ export function CircularPlanner({
             </div>
           </div>
         ) : null}
-        <details className="observation-panel">
+        <details className="observation-panel" data-testid="recovery-observation-panel">
           <summary>회복 관찰 로그</summary>
           <div className="observation-panel-body">
             <div className="observation-panel-head">
@@ -846,7 +881,11 @@ export function CircularPlanner({
             </div>
             <div className="observation-summary">
               {recoveryHighlightObservationSummaryItems.map((item) => (
-                <div className="observation-summary-tile" key={item.label}>
+                <div
+                  className="observation-summary-tile"
+                  data-testid={getRecoveryObservationSummaryTestId(item.label)}
+                  key={item.label}
+                >
                   <span>{item.label}</span>
                   <strong>{item.value}</strong>
                 </div>
@@ -875,7 +914,7 @@ export function CircularPlanner({
             )}
           </div>
         </details>
-        <details className="observation-panel">
+        <details className="observation-panel" data-testid="reminder-observation-panel">
           <summary>리마인드 관찰 로그</summary>
           <div className="observation-panel-body">
             <div className="observation-panel-head">
@@ -893,7 +932,11 @@ export function CircularPlanner({
             </div>
             <div className="observation-summary">
               {reminderObservationSummaryItems.map((item) => (
-                <div className="observation-summary-tile" key={item.label}>
+                <div
+                  className="observation-summary-tile"
+                  data-testid={getReminderObservationSummaryTestId(item.label)}
+                  key={item.label}
+                >
                   <span>{item.label}</span>
                   <strong>{item.value}</strong>
                 </div>

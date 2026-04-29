@@ -23,7 +23,7 @@
 
 - 현재 브랜치: `git branch --show-current`로 확인
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
-- 최근 반영 작업: `CI node24 update and async reminder test wait added`
+- 최근 반영 작업: `Vitest CI 안정화를 위해 planner UI 테스트를 testid와 범위 제한 기반으로 보강 중`
 
 ## Current Product State
 
