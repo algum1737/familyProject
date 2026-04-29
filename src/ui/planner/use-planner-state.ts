@@ -40,8 +40,14 @@ function getColorModeForColor(color: string): string {
     : "custom";
 }
 
+function getInitialPlans(plansStore: PlansStore) {
+  const storedPlans = plansStore.load();
+
+  return sortPlans(storedPlans ?? validatePlanner(demoPlans));
+}
+
 export function usePlannerState(plansStore: PlansStore) {
-  const [plans, setPlans] = useState<DailyPlan[]>(() => validatePlanner(demoPlans));
+  const [plans, setPlans] = useState<DailyPlan[]>(() => getInitialPlans(plansStore));
   const [form, setForm] = useState<PlanFormState>(defaultFormState);
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -51,12 +57,6 @@ export function usePlannerState(plansStore: PlansStore) {
   const [reflectionNoteDraft, setReflectionNoteDraft] = useState("");
 
   useEffect(() => {
-    const storedPlans = plansStore.load();
-
-    if (storedPlans) {
-      setPlans(sortPlans(storedPlans));
-    }
-
     setIsHydrated(true);
   }, [plansStore]);
 
