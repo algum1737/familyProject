@@ -32,6 +32,15 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Debug test revision
+        run: |
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          git rev-parse HEAD
+          git branch --show-current || true
+          grep -n 'data-testid="reminder-banner"' src/ui/planner/circular-planner.tsx
+          grep -n 'findByTestId("reminder-banner")' tests/circular-planner-ui.test.tsx
+          grep -n 'recovery-summary-followup-scheduled' tests/circular-planner-ui.test.tsx
+
       - name: Run Vitest
         run: npm test
 
