@@ -21,9 +21,9 @@
 
 ## Current Baseline
 
-- 현재 브랜치: `feature/web-reminder-prototype`
+- 현재 브랜치: `git branch --show-current`로 확인
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
-- 최근 반영 작업: `label settings popup flow and 10-char cap added`
+- 최근 반영 작업: `CI node24 update and async reminder test wait added`
 
 ## Current Product State
 
@@ -83,6 +83,7 @@
 - Playwright 기반 브라우저 E2E 흐름 테스트가 추가돼 있다.
 - 브라우저 테스트는 `build + start` 서버 기준으로 실행되며, 로컬은 시스템 Chrome 채널, CI는 번들 `chromium`을 사용한다.
 - GitHub Actions CI에서 문서 검증, 타입체크, Vitest, Playwright E2E가 자동 실행된다.
+- GitHub Actions CI는 `actions/checkout@v6`, `actions/setup-node@v6`, `Node 24` 기준으로 맞췄다.
 - `.githooks/post-commit`은 `scripts/check-handoff-loop.sh`를 호출해 `HANDOFF` 갱신과 완료 계획 이동 점검을 함께 경고한다.
 - `npm run check:handoff-loop`로 같은 점검을 수동 실행할 수 있다.
 - `npm run test:handoff-loop`로 점검 스크립트의 대표 경고 시나리오를 검증할 수 있다.
@@ -106,8 +107,8 @@
 
 ## Suggested Next Work
 
-1. 실제 사용 관찰에서 `회고 다시 보기`와 `다시 지정 곧 시작` 재강조가 과한지 점검
-2. 앱 전환 시 종료 5분 전 회복 알림 정책이 실제 사용자 흐름에 과하지 않은지 검토
+1. `Recovery Observation Runbook` 기준으로 실제 사용 관찰 로그를 최소 3회 이상 모으기
+2. `End-5-Minute Alert Review Checklist` 기준으로 종료 5분 전 회복 알림 정책을 검토
 3. 실제 운영 중 커밋 루프 점검 경고 노이즈가 과한지 관찰하고 필요하면 조건을 조정
 
 ## Handoff Prompt
@@ -134,7 +135,7 @@
 현재 기준:
 - branch: `git branch --show-current`
 - commit: `git rev-parse --short HEAD`
-- latest progress: recovery observation policy and fixed app-safe label scope added
+- latest progress: recovery observation runbook and end-5-minute review checklist added
 
 현재 구현 상태:
 - Next.js + TypeScript 기반 웹 MVP
