@@ -297,6 +297,7 @@
 - 사용자가 실제로 다음 행동으로 이어졌는지
 - 거슬리거나 부담스럽다는 반응이 있었는지
 - `회복 관찰 로그`의 정책 상태가 무엇이었는지
+- 실제 기록은 `docs/RECOVERY_OBSERVATION_LOGBOOK.md` 템플릿을 사용해 남긴다.
 
 ## Recovery Decision Thresholds
 
@@ -335,6 +336,7 @@
 - 시작 리마인드 직후 완료로 이어지지 않은 일정이 종료 후 `missed` 전환과 회복 UI를 이해하는지 본다.
 - 회복 UI 자체가 무겁게 느껴지면 종료 5분 전 알림에 세 가지 액션을 모두 싣는 것은 과할 가능성이 높다.
 - 반대로 사용자가 `missed` 이후 회고와 다시 지정을 자연스럽게 선택하면, 종료 5분 전 알림도 같은 액션 구성이 유지될 가능성이 높다.
+- 체크 결과는 `docs/RECOVERY_OBSERVATION_LOGBOOK.md`의 `End-5-Minute Alert Review` 항목으로 같이 남긴다.
 
 ## UX Validation Priorities
 

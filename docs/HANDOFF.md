@@ -23,7 +23,7 @@
 
 - 현재 브랜치: `git branch --show-current`로 확인
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
-- 최근 반영 작업: `Vitest와 Playwright CI 안정화를 위해 planner ready 신호와 타임존 독립 테스트 시간 소스를 추가`
+- 최근 반영 작업: `회복 관찰 로그북 템플릿과 종료 5분 전 알림 검토 기록 형식을 추가`
 
 ## Current Product State
 
@@ -107,8 +107,8 @@
 
 ## Suggested Next Work
 
-1. `Recovery Observation Runbook` 기준으로 실제 사용 관찰 로그를 최소 3회 이상 모으기
-2. `End-5-Minute Alert Review Checklist` 기준으로 종료 5분 전 회복 알림 정책을 검토
+1. `docs/RECOVERY_OBSERVATION_LOGBOOK.md` 템플릿으로 실제 사용 관찰 로그를 최소 3세트 이상 모으기
+2. `End-5-Minute Alert Review Checklist` 기준과 로그북의 `End-5-Minute Alert Review` 항목으로 종료 5분 전 회복 알림 정책을 검토
 3. 실제 운영 중 커밋 루프 점검 경고 노이즈가 과한지 관찰하고 필요하면 조건을 조정
 
 ## Handoff Prompt
