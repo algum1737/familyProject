@@ -23,7 +23,7 @@
 
 - 현재 브랜치: `git branch --show-current`로 확인
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
-- 최근 반영 작업: `Vitest CI 안정화를 위해 planner ready 신호와 testid 기반 선택자를 추가`
+- 최근 반영 작업: `Vitest CI 안정화를 위해 planner ready 신호, testid 선택자, 타임존 독립 테스트 시간 소스를 추가`
 
 ## Current Product State
 

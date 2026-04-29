@@ -35,24 +35,28 @@ const basePlans: DailyPlan[] = [
   }
 ];
 
+function createLocalTestDate(hours: number, minutes: number) {
+  return new Date(2026, 3, 24, hours, minutes, 0, 0);
+}
+
 const fixedTimeSource = {
-  now: () => new Date("2026-04-24T05:30:00+09:00")
+  now: () => createLocalTestDate(5, 30)
 };
 
 const reminderTimeSource = {
-  now: () => new Date("2026-04-24T05:05:00+09:00")
+  now: () => createLocalTestDate(5, 5)
 };
 
 const earlyReminderTimeSource = {
-  now: () => new Date("2026-04-24T04:56:00+09:00")
+  now: () => createLocalTestDate(4, 56)
 };
 
 const rescheduleSoonTimeSource = {
-  now: () => new Date("2026-04-24T09:30:00+09:00")
+  now: () => createLocalTestDate(9, 30)
 };
 
 const blockedRescheduleTimeSource = {
-  now: () => new Date("2026-04-24T20:30:00+09:00")
+  now: () => createLocalTestDate(20, 30)
 };
 
 function seedPlans(plans: DailyPlan[] = basePlans) {
