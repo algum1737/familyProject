@@ -2,7 +2,7 @@
 
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 
 import type { DailyPlan } from "@/domains/plans/types";
 import { LABEL_SETTINGS_STORAGE_KEY } from "@/providers/labels/local-planner-label-settings";
@@ -90,6 +90,14 @@ function getPlanItem(title: string) {
   return items.find((item) => item.querySelector(".plan-meta strong")?.textContent === title) ?? null;
 }
 
+async function renderPlanner(timeSource = fixedTimeSource) {
+  render(<PlannerShell plansStore={localPlansStore} timeSource={timeSource} />);
+
+  await waitFor(() => {
+    expect(document.querySelectorAll(".plan-list li")).toHaveLength(2);
+  });
+}
+
 beforeEach(() => {
   window.localStorage.clear();
   seedPlans();
@@ -108,7 +116,7 @@ afterEach(() => {
 
 describe("circular planner user flows", () => {
   it("adds a new plan and persists it in sorted order", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     fillPlanForm({
       title: "아침 산책",
@@ -154,7 +162,7 @@ describe("circular planner user flows", () => {
       basePlans[1]
     ]);
 
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     const sleepItem = getPlanItem("취침");
     expect(sleepItem).toBeTruthy();
@@ -178,7 +186,7 @@ describe("circular planner user flows", () => {
   });
 
   it("shows the existing conflicting plan in the overlap error", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     fillPlanForm({
       title: "아침 준비",
@@ -197,7 +205,7 @@ describe("circular planner user flows", () => {
   });
 
   it("shows a start reminder banner and lets the user complete the plan from it", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={reminderTimeSource} />);
+    await renderPlanner(reminderTimeSource);
 
     const reminderBanner = await screen.findByRole("status");
     expect(within(reminderBanner).getByText("시작 리마인드")).toBeTruthy();
@@ -213,7 +221,7 @@ describe("circular planner user flows", () => {
   });
 
   it("shows the reminder shortly before start time and keeps it dismissed for the same reminder window", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={earlyReminderTimeSource} />);
+    await renderPlanner(earlyReminderTimeSource);
 
     const reminderBanner = await screen.findByRole("status");
     expect(within(reminderBanner).getByText("시작 리마인드")).toBeTruthy();
@@ -235,7 +243,7 @@ describe("circular planner user flows", () => {
   });
 
   it("allows saving a reflection note for a missed plan", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     const initialSleepItem = getPlanItem("취침");
     expect(initialSleepItem).toBeTruthy();
@@ -263,7 +271,7 @@ describe("circular planner user flows", () => {
   });
 
   it("creates a new rescheduled plan from a missed plan", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     const sleepItem = getPlanItem("취침");
     expect(sleepItem).toBeTruthy();
@@ -290,7 +298,7 @@ describe("circular planner user flows", () => {
   });
 
   it("re-emphasizes a missed plan when its rescheduled follow-up is starting soon", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={rescheduleSoonTimeSource} />);
+    await renderPlanner(rescheduleSoonTimeSource);
 
     const sleepItem = getPlanItem("취침");
     expect(sleepItem).toBeTruthy();
@@ -324,7 +332,7 @@ describe("circular planner user flows", () => {
   });
 
   it("shows a scheduled follow-up when the rescheduled time is still far away", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     const sleepItem = getPlanItem("취침");
     expect(sleepItem).toBeTruthy();
@@ -379,7 +387,7 @@ describe("circular planner user flows", () => {
       }
     ]);
 
-    render(<PlannerShell plansStore={localPlansStore} timeSource={blockedRescheduleTimeSource} />);
+    await renderPlanner(blockedRescheduleTimeSource);
 
     const exerciseItem = getPlanItem("운동");
     expect(exerciseItem).toBeTruthy();
@@ -394,7 +402,7 @@ describe("circular planner user flows", () => {
   });
 
   it("persists customized status and action labels", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={reminderTimeSource} />);
+    await renderPlanner(reminderTimeSource);
 
     expect(
       screen.getByText("앱에서도 유지할 범위는 상태 4개와 핵심 액션 3개, 총 7개 키로 제한합니다.")
@@ -445,7 +453,7 @@ describe("circular planner user flows", () => {
   });
 
   it("records recovery re-exposure prompts for later observation", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     const panelToggle = screen.getByText("회복 관찰 로그");
     fireEvent.click(panelToggle);
@@ -495,7 +503,7 @@ describe("circular planner user flows", () => {
       ])
     );
 
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     const panelToggle = screen.getByText("회복 관찰 로그");
     fireEvent.click(panelToggle);
@@ -516,7 +524,7 @@ describe("circular planner user flows", () => {
   });
 
   it("shows reminder observation summary metrics for policy checks", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={reminderTimeSource} />);
+    await renderPlanner(reminderTimeSource);
 
     fireEvent.click(screen.getByRole("button", { name: "지금 완료" }));
     const panelToggle = screen.getByText("리마인드 관찰 로그");
@@ -589,7 +597,7 @@ describe("circular planner user flows", () => {
       }
     ]);
 
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     const panelToggle = screen.getByText("리마인드 관찰 로그");
     fireEvent.click(panelToggle);
@@ -660,7 +668,7 @@ describe("circular planner user flows", () => {
       }
     ]);
 
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     const panelToggle = screen.getByText("리마인드 관찰 로그");
     fireEvent.click(panelToggle);
@@ -695,7 +703,7 @@ describe("circular planner user flows", () => {
       }
     ]);
 
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     const panelToggle = screen.getByText("리마인드 관찰 로그");
     fireEvent.click(panelToggle);
@@ -711,7 +719,7 @@ describe("circular planner user flows", () => {
   });
 
   it("resets the form when deleting the plan currently being edited", async () => {
-    render(<PlannerShell plansStore={localPlansStore} timeSource={fixedTimeSource} />);
+    await renderPlanner(fixedTimeSource);
 
     const studyItem = getPlanItem("영어 공부");
     expect(studyItem).toBeTruthy();
