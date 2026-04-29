@@ -756,6 +756,7 @@ export function usePlannerViewModel({
     canCompleteActiveReminder,
     composerTitle,
     currentMinute,
+    isCurrentMinuteReady: currentMinute !== null,
     currentPlan,
     currentPlanTimeText,
     deletePlan,
