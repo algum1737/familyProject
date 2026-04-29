@@ -104,6 +104,10 @@ async function renderPlanner(timeSource = fixedTimeSource) {
   await waitFor(() => {
     expect(document.querySelectorAll(".plan-list li")).toHaveLength(2);
   });
+
+  await waitFor(() => {
+    expect(screen.getByTestId("planner-root").getAttribute("data-planner-ready")).toBe("true");
+  });
 }
 
 beforeEach(() => {

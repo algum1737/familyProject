@@ -254,6 +254,7 @@ export function CircularPlanner({
     editingPlanId,
     error,
     form,
+    isCurrentMinuteReady,
     labelSettings,
     listCurrentTimeText,
     planItems,
@@ -394,7 +395,11 @@ export function CircularPlanner({
   const showRescheduleUnavailableGuidance = error === RESCHEDULE_UNAVAILABLE_MESSAGE;
 
   return (
-    <main className="shell">
+    <main
+      className="shell"
+      data-planner-ready={isCurrentMinuteReady ? "true" : "false"}
+      data-testid="planner-root"
+    >
       <section className="hero">
         <div className="hero-copy">
           <p className="eyebrow">Today Did You Finish?</p>
