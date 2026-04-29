@@ -23,7 +23,7 @@
 
 - 현재 브랜치: `git branch --show-current`로 확인
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
-- 최근 반영 작업: `recovery observation runbook and end-5-minute review checklist added`
+- 최근 반영 작업: `CI node24 update and async reminder test wait added`
 
 ## Current Product State
 
@@ -83,6 +83,7 @@
 - Playwright 기반 브라우저 E2E 흐름 테스트가 추가돼 있다.
 - 브라우저 테스트는 `build + start` 서버 기준으로 실행되며, 로컬은 시스템 Chrome 채널, CI는 번들 `chromium`을 사용한다.
 - GitHub Actions CI에서 문서 검증, 타입체크, Vitest, Playwright E2E가 자동 실행된다.
+- GitHub Actions CI는 `actions/checkout@v6`, `actions/setup-node@v6`, `Node 24` 기준으로 맞췄다.
 - `.githooks/post-commit`은 `scripts/check-handoff-loop.sh`를 호출해 `HANDOFF` 갱신과 완료 계획 이동 점검을 함께 경고한다.
 - `npm run check:handoff-loop`로 같은 점검을 수동 실행할 수 있다.
 - `npm run test:handoff-loop`로 점검 스크립트의 대표 경고 시나리오를 검증할 수 있다.

@@ -199,7 +199,7 @@ describe("circular planner user flows", () => {
   it("shows a start reminder banner and lets the user complete the plan from it", async () => {
     render(<PlannerShell plansStore={localPlansStore} timeSource={reminderTimeSource} />);
 
-    const reminderBanner = screen.getByRole("status");
+    const reminderBanner = await screen.findByRole("status");
     expect(within(reminderBanner).getByText("시작 리마인드")).toBeTruthy();
     expect(within(reminderBanner).getByText("영어 공부")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "지금 완료" }));
@@ -215,7 +215,7 @@ describe("circular planner user flows", () => {
   it("shows the reminder shortly before start time and keeps it dismissed for the same reminder window", async () => {
     render(<PlannerShell plansStore={localPlansStore} timeSource={earlyReminderTimeSource} />);
 
-    const reminderBanner = screen.getByRole("status");
+    const reminderBanner = await screen.findByRole("status");
     expect(within(reminderBanner).getByText("시작 리마인드")).toBeTruthy();
     expect(within(reminderBanner).getByText("영어 공부")).toBeTruthy();
     expect(within(reminderBanner).queryByRole("button", { name: "지금 완료" })).toBeNull();
