@@ -7,8 +7,9 @@ import {
   formatSectorLabel,
   getCurrentPlan,
   getPlannerSummary,
-  getSectorLabelRotation,
   getSectorLabelFontSize,
+  getSectorLabelRotation,
+  markMissedPlans,
   minuteToTimeString,
   sortPlans,
   timeStringToMinute,
@@ -23,6 +24,7 @@ const plans: DailyPlan[] = [
     color: "#777777",
     startMinute: 0,
     endMinute: 300,
+    rescheduleCount: 0,
     status: "pending"
   },
   {
@@ -31,6 +33,7 @@ const plans: DailyPlan[] = [
     color: "#ff9966",
     startMinute: 300,
     endMinute: 360,
+    rescheduleCount: 0,
     status: "done"
   }
 ];
@@ -50,6 +53,7 @@ describe("planner domain", () => {
           color: "#000000",
           startMinute: 350,
           endMinute: 420,
+          rescheduleCount: 0,
           status: "pending" as const
         }
       ], {
@@ -69,6 +73,7 @@ describe("planner domain", () => {
             color: "#111111",
             startMinute: 290,
             endMinute: 310,
+            rescheduleCount: 0,
             status: "pending" as const
           }
         ],
@@ -89,6 +94,7 @@ describe("planner domain", () => {
           color: "#000000",
           startMinute: 360,
           endMinute: 420,
+          rescheduleCount: 0,
           status: "pending" as const
         }
       ])
@@ -136,6 +142,7 @@ describe("planner domain", () => {
         color: "#000000",
         startMinute: 300,
         endMinute: 330,
+        rescheduleCount: 0,
         status: "pending"
       })
     ).toBeLessThan(14);
@@ -149,9 +156,20 @@ describe("planner domain", () => {
         color: "#000000",
         startMinute: 300,
         endMinute: 330,
+        rescheduleCount: 0,
         status: "pending"
       })
     ).toContain("…");
+  });
+
+  it("marks expired pending plans as missed", () => {
+    expect(markMissedPlans(plans, 360)).toEqual([
+      {
+        ...plans[0],
+        status: "missed"
+      },
+      plans[1]
+    ]);
   });
 
   it("keeps sector label rotation readable", () => {

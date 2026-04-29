@@ -11,7 +11,10 @@ export const dailyPlanSchema = z
     color: z.string().min(1),
     startMinute: z.number().int().min(0).max(MINUTES_PER_DAY - 1),
     endMinute: z.number().int().min(1).max(MINUTES_PER_DAY),
-    status: z.enum(["pending", "done"])
+    rescheduleCount: z.number().int().min(0).max(3).default(0),
+    sourcePlanId: z.string().min(1).optional(),
+    reflectionNote: z.string().max(500).optional(),
+    status: z.enum(["pending", "done", "missed"])
   })
   .refine((plan) => plan.endMinute > plan.startMinute, {
     message: "Plan end time must be later than start time."
@@ -93,6 +96,47 @@ export function getPlannerSummary(plans: DailyPlan[]): PlannerSummary {
     completed,
     completionRate: total === 0 ? 0 : Math.round((completed / total) * 100)
   };
+}
+
+export function markMissedPlans(plans: DailyPlan[], currentMinute: number): DailyPlan[] {
+  return sortPlans(
+    plans.map((plan) =>
+      plan.status === "pending" && currentMinute >= plan.endMinute
+        ? { ...plan, status: "missed" }
+        : plan
+    )
+  );
+}
+
+export function findNextAvailableTimeSlot(
+  plans: DailyPlan[],
+  durationMinutes: number,
+  startMinute: number
+): { endMinute: number; startMinute: number } | null {
+  const sortedPlans = sortPlans(plans);
+  let candidateStart = Math.max(0, Math.min(startMinute, MINUTES_PER_DAY - durationMinutes));
+
+  for (const plan of sortedPlans) {
+    if (candidateStart + durationMinutes <= plan.startMinute) {
+      return {
+        startMinute: candidateStart,
+        endMinute: candidateStart + durationMinutes
+      };
+    }
+
+    if (candidateStart < plan.endMinute) {
+      candidateStart = plan.endMinute;
+    }
+  }
+
+  if (candidateStart + durationMinutes <= MINUTES_PER_DAY) {
+    return {
+      startMinute: candidateStart,
+      endMinute: candidateStart + durationMinutes
+    };
+  }
+
+  return null;
 }
 
 export function isCurrentPlan(plan: DailyPlan, currentMinute: number): boolean {

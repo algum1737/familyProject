@@ -14,15 +14,16 @@
 6. `docs/TECH_STACK.md`
 7. `docs/WEB_TO_APP_TRANSITION.md`
 8. `docs/exec-plans/active/2026-04-24-app-transition-decision.md`
-9. `docs/exec-plans/active/2026-04-23-plan-editing.md`
-10. `src/ui/planner/circular-planner.tsx`
-11. `src/app/globals.css`
+9. `docs/exec-plans/active/2026-04-28-missed-plan-recovery.md`
+10. `docs/exec-plans/active/2026-04-23-plan-editing.md`
+11. `src/ui/planner/circular-planner.tsx`
+12. `src/app/globals.css`
 
 ## Current Baseline
 
-- 현재 브랜치: `docs/handoff-plan-alignment`
+- 현재 브랜치: `feature/web-reminder-prototype`
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
-- 최근 반영 작업: `minimum web reminder prototype scope documented`
+- 최근 반영 작업: `label settings popup flow and 10-char cap added`
 
 ## Current Product State
 
@@ -52,6 +53,32 @@
 - 앱 전환 시 재사용할 계층과 앱에서 재구성할 UI 계층 기준이 문서로 정리돼 있다.
 - 리마인드는 웹에서 얇은 프로토타입으로 의미를 검증하고, 네이티브 로컬 알림은 앱 전환 단계에서 구현하기로 정리돼 있다.
 - 웹 리마인드 프로토타입 최소 범위는 시작 시점 근처 1회 신호, 현재 계획 정보, 완료로 이어지는 짧은 경로로 정리돼 있다.
+- 웹 리마인드 프로토타입은 현재 계획 카드 아래 배너 형태로 연결돼 있고, `지금 완료`와 `닫기` 동작을 가진다.
+- 웹 리마인드 배너의 `지금 완료`는 시작 시각 이후에만 보이고, 시작 전에는 `닫기`만 노출된다.
+- `오늘 계획` 리스트에서도 시작 전 pending 일정의 완료 버튼은 비활성화된다.
+- 종료 시각이 지난 pending 일정은 자동으로 `missed` 상태로 전환된다.
+- 일정 데이터에는 재지정 최대 3회를 위한 `rescheduleCount` 메타데이터가 추가돼 있다.
+- `missed` 일정에는 `회고`와 `다시 지정` 버튼이 보이고, 회고 메모를 저장할 수 있다.
+- `missed` 일정의 `다시 지정`은 같은 날 빈 시간 새 일정으로 생성되며 최대 3회까지만 허용된다.
+- 원래 일정 길이를 채울 연속 빈 시간이 없으면 자동 축약이나 자동 분할 없이 다시 지정 실패로 처리된다.
+- 회고가 저장된 `missed` 일정은 리스트에서 `회고 저장됨` 배지와 메모 미리보기로 다시 보인다.
+- 재지정 이력은 원본 일정과 후속 일정 모두에서 `다시 지정 n/3` 배지로 확인할 수 있다.
+- 상태 버튼과 리마인드/놓침 액션 라벨은 별도 설정 계층과 웹 `localStorage` 저장 구조 뒤에 분리돼 있다.
+- 사용자는 웹 MVP에서 `지금`, `대기`, `완료`, `놓침`, `지금 완료`, `회고`, `다시 지정` 문구를 별도 `표시 문구 변경` 버튼으로 여는 팝업에서 수정하고 기본값으로 복원할 수 있다.
+- 라벨 커스터마이징 값은 각 항목당 최대 10자까지만 입력 및 저장된다.
+- 앱에서도 유지할 라벨 설정 범위는 현재 `current`, `pending`, `done`, `missed`, `completeNow`, `reflection`, `reschedule` 7개 키로 고정돼 있다.
+- 회고가 없는 `missed` 일정은 `회고 다시 보기`, 멀리 떨어진 후속 일정은 `다시 지정됨`, 곧 시작하는 후속 일정은 `다시 지정 곧 시작`, 현재 진행 중인 후속 일정은 `회복 진행 중`으로 다시 강조된다.
+- `회복 관찰 로그`는 재강조 빈도와 함께 `관찰 더 필요`, `조정 검토`, `우선 유지` 판단도 보여준다.
+- 연속 빈 시간이 부족해 다시 지정이 막히면 `다시 지정 불가` 관찰 로그를 남겨 재지정 정책이 너무 엄격한지 나중에 판단할 수 있다.
+- `use-planner-view-model`이 추가돼 현재 계획, 요약, 리마인드 화면 상태를 `CircularPlanner` 밖 공용 계층으로 올렸다.
+- 웹 리마인드 기본 정책은 `시작 5분 전 ~ 시작 후 10분` 창이며, `닫기`는 현재 리마인드 창에만 적용된다.
+- 현재 시각과 리마인드 배너 판정은 10초 간격으로 갱신된다.
+- 현재 계획 시간 문구, 리스트 상태 라벨, 섹션 제목, 제출 버튼 문구도 `use-planner-view-model`에서 조립한다.
+- 최근 5건의 리마인드 표시, 닫기, 완료 이벤트를 `localStorage` 관찰 로그로 남기고 UI에서 지울 수 있다.
+- 관찰 패널은 `표시`, `닫기`, `완료`, `닫기 비율`, `완료 전환율` 요약과 간단한 정책 판단 문구를 함께 보여준다.
+- 관찰 패널은 현재 기록 범위와 `관찰 더 필요`, `조정 검토`, `우선 유지` 정책 상태도 함께 보여준다.
+- 정책 상태는 표본 3회 이상부터 의미를 가지며, `닫기 비율`이 50% 이상이고 완료보다 많을 때 `조정 검토`로 본다.
+- 리마인드 관찰 로그는 로드 시 같은 분 단위 동일 이벤트를 정규화해 중복 key 경고를 막는다.
 - Vitest 기반 UI 사용자 흐름 테스트가 추가돼 있다.
 - Playwright 기반 브라우저 E2E 흐름 테스트가 추가돼 있다.
 - 브라우저 테스트는 `build + start` 서버 기준으로 실행되며, 로컬은 시스템 Chrome 채널, CI는 번들 `chromium`을 사용한다.
@@ -79,8 +106,8 @@
 
 ## Suggested Next Work
 
-1. 웹 리마인드 프로토타입을 배너/인라인 강조/상태 메시지 중 어떤 형태로 둘지 결정
-2. 앱 UI 재사용 전략 기준으로 `use-planner-state` 아래 공용 view-model 계층이 더 필요한지 판단
+1. 실제 사용 관찰에서 `회고 다시 보기`와 `다시 지정 곧 시작` 재강조가 과한지 점검
+2. 앱 전환 시 종료 5분 전 회복 알림 정책이 실제 사용자 흐름에 과하지 않은지 검토
 3. 실제 운영 중 커밋 루프 점검 경고 노이즈가 과한지 관찰하고 필요하면 조건을 조정
 
 ## Handoff Prompt
@@ -99,14 +126,15 @@
 6. docs/TECH_STACK.md
 7. docs/WEB_TO_APP_TRANSITION.md
 8. docs/exec-plans/active/2026-04-24-app-transition-decision.md
-9. docs/exec-plans/active/2026-04-23-plan-editing.md
-10. src/ui/planner/circular-planner.tsx
-11. src/app/globals.css
+9. docs/exec-plans/active/2026-04-28-missed-plan-recovery.md
+10. docs/exec-plans/active/2026-04-23-plan-editing.md
+11. src/ui/planner/circular-planner.tsx
+12. src/app/globals.css
 
 현재 기준:
 - branch: `git branch --show-current`
 - commit: `git rev-parse --short HEAD`
-- latest progress: minimum web reminder prototype scope documented
+- latest progress: recovery observation policy and fixed app-safe label scope added
 
 현재 구현 상태:
 - Next.js + TypeScript 기반 웹 MVP
@@ -131,6 +159,31 @@
 - 앱 전환 시 재사용할 계층과 앱에서 재구성할 UI 계층 기준 정리
 - 리마인드는 웹에서 얇은 프로토타입으로 의미를 검증하고, 네이티브 로컬 알림은 앱 전환 단계에서 구현
 - 웹 리마인드 프로토타입 최소 범위는 시작 시점 근처 1회 신호, 현재 계획 정보, 완료로 이어지는 짧은 경로로 정리
+- 웹 리마인드 프로토타입은 현재 계획 카드 아래 배너 형태로 연결되고, `지금 완료`와 `닫기` 동작을 가진다
+- 웹 리마인드 배너의 `지금 완료`는 시작 시각 이후에만 보이고, 시작 전에는 `닫기`만 노출된다
+- `오늘 계획` 리스트에서도 시작 전 pending 일정의 완료 버튼은 비활성화된다
+- 종료 시각이 지난 pending 일정은 자동으로 `missed` 상태로 전환된다
+- 일정 데이터에는 재지정 최대 3회를 위한 `rescheduleCount` 메타데이터가 추가돼 있다
+- `missed` 일정에는 `회고`와 `다시 지정` 버튼이 보이고, 회고 메모를 저장할 수 있다
+- `missed` 일정의 `다시 지정`은 같은 날 빈 시간 새 일정으로 생성되며 최대 3회까지만 허용된다
+- 원래 일정 길이를 채울 연속 빈 시간이 없으면 자동 축약이나 자동 분할 없이 다시 지정 실패로 처리된다
+- 회고가 저장된 `missed` 일정은 리스트에서 `회고 저장됨` 배지와 메모 미리보기로 다시 보인다
+- 재지정 이력은 원본 일정과 후속 일정 모두에서 `다시 지정 n/3` 배지로 확인할 수 있다
+- 상태 버튼과 리마인드/놓침 액션 라벨은 별도 설정 계층과 웹 localStorage 저장 구조 뒤에 분리돼 있다
+- 사용자는 웹 MVP에서 `지금`, `대기`, `완료`, `놓침`, `지금 완료`, `회고`, `다시 지정` 문구를 직접 수정하고 기본값으로 복원할 수 있다
+- 앱에서도 유지할 라벨 설정 범위는 현재 `current`, `pending`, `done`, `missed`, `completeNow`, `reflection`, `reschedule` 7개 키로 고정돼 있다
+- 회고가 없는 `missed` 일정은 `회고 다시 보기`, 멀리 떨어진 후속 일정은 `다시 지정됨`, 곧 시작하는 후속 일정은 `다시 지정 곧 시작`, 현재 진행 중인 후속 일정은 `회복 진행 중`으로 다시 강조된다
+- `회복 관찰 로그`는 재강조 빈도와 함께 `관찰 더 필요`, `조정 검토`, `우선 유지` 판단도 보여준다
+- 연속 빈 시간이 부족해 다시 지정이 막히면 `다시 지정 불가` 관찰 로그를 남겨 재지정 정책이 너무 엄격한지 나중에 판단할 수 있다
+- `use-planner-view-model`이 추가돼 현재 계획, 요약, 리마인드 화면 상태를 `CircularPlanner` 밖 공용 계층으로 올림
+- 웹 리마인드 기본 정책은 `시작 5분 전 ~ 시작 후 10분` 창이며, `닫기`는 현재 리마인드 창에만 적용
+- 현재 시각과 리마인드 배너 판정은 10초 간격으로 갱신
+- 현재 계획 시간 문구, 리스트 상태 라벨, 섹션 제목, 제출 버튼 문구도 `use-planner-view-model`에서 조립
+- 최근 5건의 리마인드 표시, 닫기, 완료 이벤트를 `localStorage` 관찰 로그로 남기고 UI에서 지울 수 있음
+- 관찰 패널은 `표시`, `닫기`, `완료`, `닫기 비율`, `완료 전환율` 요약과 간단한 정책 판단 문구를 함께 보여줌
+- 관찰 패널은 현재 기록 범위와 `관찰 더 필요`, `조정 검토`, `우선 유지` 정책 상태도 함께 보여줌
+- 정책 상태는 표본 3회 이상부터 의미를 가지며, `닫기 비율`이 50% 이상이고 완료보다 많을 때 `조정 검토`로 봄
+- 리마인드 관찰 로그는 로드 시 같은 분 단위 동일 이벤트를 정규화해 중복 key 경고를 막음
 - Vitest UI 사용자 흐름 테스트 추가
 - Playwright 브라우저 E2E 테스트 추가
 - E2E는 `build + start` 기준, 로컬은 시스템 Chrome 채널, CI는 번들 `chromium`

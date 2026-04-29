@@ -28,6 +28,7 @@
 
 - [App Transition Decision Plan](./exec-plans/active/2026-04-24-app-transition-decision.md)
 - [Harness Template Kit Plan](./exec-plans/active/2026-04-17-harness-template-kit.md)
+- [Missed Plan Recovery Plan](./exec-plans/active/2026-04-28-missed-plan-recovery.md)
 - [Plan Editing UI Plan](./exec-plans/active/2026-04-23-plan-editing.md)
 
 ## Completed Work

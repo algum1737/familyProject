@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test";
+import { TEST_NOW_STORAGE_KEY } from "../../src/providers/time/time-source";
 
 test.describe("planner browser flows", () => {
+  const testNowIso = "2026-04-24T05:30:00+09:00";
   const seededPlans = [
     {
       id: "sleep",
@@ -8,6 +10,7 @@ test.describe("planner browser flows", () => {
       color: "#767676",
       startMinute: 0,
       endMinute: 300,
+      rescheduleCount: 0,
       status: "pending"
     },
     {
@@ -16,6 +19,7 @@ test.describe("planner browser flows", () => {
       color: "#ef8d75",
       startMinute: 300,
       endMinute: 360,
+      rescheduleCount: 0,
       status: "pending"
     }
   ];
@@ -34,19 +38,24 @@ test.describe("planner browser flows", () => {
   }
 
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
-    await page.evaluate((plans) => {
+    await page.addInitScript(({ nowIso, plans, storageKey }) => {
       window.localStorage.clear();
+      window.localStorage.setItem(storageKey, nowIso);
       window.localStorage.setItem(
         "today-did-you-finish:plans",
         JSON.stringify(plans)
       );
-    }, seededPlans);
-
-    await page.reload();
+    }, {
+      nowIso: testNowIso,
+      plans: seededPlans,
+      storageKey: TEST_NOW_STORAGE_KEY
+    });
+    await page.goto("/");
     await expect(
       page.getByRole("heading", { name: "지금 해야 할 계획을 시계처럼 바로 보게 만드는 MVP" })
     ).toBeVisible();
+    await expect(page.locator(".summary-tile strong").first()).toHaveText("0/2");
+    await expect(page.locator(".plan-item")).toHaveCount(2);
     await expect(
       page.locator(".plan-item", {
         has: page.locator(".plan-meta strong", { hasText: "영어 공부" })
@@ -103,7 +112,7 @@ test.describe("planner browser flows", () => {
     await expect(editedItem).toBeVisible();
     await expect(page.getByRole("heading", { name: "계획 등록" })).toBeVisible();
 
-    await editedItem.getByRole("button", { name: "대기" }).click();
+    await editedItem.getByRole("button", { name: "지금" }).click();
     await expect(editedItem.getByRole("button", { name: "완료" })).toBeVisible();
     await expect(page.locator(".summary-tile strong").first()).toHaveText("1/2");
 

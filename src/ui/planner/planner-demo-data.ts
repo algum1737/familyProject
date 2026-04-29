@@ -7,6 +7,7 @@ export const demoPlans: DailyPlan[] = [
     color: "#767676",
     startMinute: 60,
     endMinute: 420,
+    rescheduleCount: 0,
     status: "pending"
   },
   {
@@ -15,6 +16,7 @@ export const demoPlans: DailyPlan[] = [
     color: "#9a80eb",
     startMinute: 1260,
     endMinute: 1320,
+    rescheduleCount: 0,
     status: "pending"
   },
   {
@@ -23,6 +25,7 @@ export const demoPlans: DailyPlan[] = [
     color: "#f7b347",
     startMinute: 1080,
     endMinute: 1140,
+    rescheduleCount: 0,
     status: "pending"
   },
   {
@@ -31,6 +34,7 @@ export const demoPlans: DailyPlan[] = [
     color: "#ef668f",
     startMinute: 870,
     endMinute: 945,
+    rescheduleCount: 0,
     status: "done"
   },
   {
@@ -39,6 +43,7 @@ export const demoPlans: DailyPlan[] = [
     color: "#ef8d75",
     startMinute: 510,
     endMinute: 585,
+    rescheduleCount: 0,
     status: "pending"
   },
   {
@@ -47,7 +52,7 @@ export const demoPlans: DailyPlan[] = [
     color: "#f4bc58",
     startMinute: 720,
     endMinute: 780,
+    rescheduleCount: 0,
     status: "done"
   }
 ];
-

@@ -1,29 +1,30 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useState, useRef } from "react";
 
 import {
   createSectorPath,
-  describeMinute,
   formatSectorLabel,
-  getCurrentPlan,
-  getPlannerSummary,
   getReadableTextColor,
   getSectorLabelFontSize,
   getSectorLabelRotation,
   isCurrentPlan,
-  minuteToTimeString,
   minuteToAngle,
-  polarToCartesian,
-  sortPlans,
-  validatePlanner
+  minuteToTimeString,
+  polarToCartesian
 } from "@/domains/plans/service/planner";
 import type { DailyPlan } from "@/domains/plans/types";
+import {
+  PLANNER_LABEL_MAX_LENGTH,
+  sanitizePlannerLabelSettings,
+  type PlannerLabelSettings,
+  type PlannerLabelSettingsStore
+} from "@/providers/labels/planner-label-settings";
 import type { PlansStore } from "@/providers/plans/plans-store";
+import type { ReminderProvider } from "@/providers/reminders/reminder-provider";
 import type { TimeSource } from "@/providers/time/time-source";
-import { getMinutesSinceMidnight } from "@/shared/time/minutes";
 import { PLAN_COLORS } from "@/ui/planner/planner-colors";
-import { usePlannerState } from "@/ui/planner/use-planner-state";
+import { usePlannerViewModel } from "@/ui/planner/use-planner-view-model";
 
 const CENTER = 240;
 const RADIUS = 180;
@@ -31,20 +32,17 @@ const SECTOR_RADIUS = 190;
 const CURRENT_SECTOR_RADIUS = 198;
 const CURRENT_SECTOR_HALO_RADIUS = 206;
 const INACTIVE_SECTOR_OPACITY = 0.42;
-function useCurrentMinute(timeSource: TimeSource) {
-  const [minute, setMinute] = useState<number | null>(null);
+const RESCHEDULE_UNAVAILABLE_MESSAGE = "오늘 남은 빈 시간에 다시 지정할 수 있는 구간이 없습니다.";
 
-  useEffect(() => {
-    setMinute(getMinutesSinceMidnight(timeSource.now()));
-
-    const timer = window.setInterval(() => {
-      setMinute(getMinutesSinceMidnight(timeSource.now()));
-    }, 30_000);
-
-    return () => window.clearInterval(timer);
-  }, [timeSource]);
-
-  return minute;
+function buildLabelSettingsDraft(settings: PlannerLabelSettings): PlannerLabelSettings {
+  return {
+    actionLabels: {
+      ...settings.actionLabels
+    },
+    statusLabels: {
+      ...settings.statusLabels
+    }
+  };
 }
 
 function ClockFace() {
@@ -196,31 +194,83 @@ function CurrentHand({ currentMinute }: { currentMinute: number }) {
 }
 
 type CircularPlannerProps = {
+  labelSettingsStore: PlannerLabelSettingsStore;
   plansStore: PlansStore;
+  reminderProvider: ReminderProvider;
   timeSource: TimeSource;
 };
 
-export function CircularPlanner({ plansStore, timeSource }: CircularPlannerProps) {
+export function CircularPlanner({
+  labelSettingsStore,
+  plansStore,
+  reminderProvider,
+  timeSource
+}: CircularPlannerProps) {
   const colorInputRef = useRef<HTMLInputElement | null>(null);
+  const [isLabelSettingsModalOpen, setIsLabelSettingsModalOpen] = useState(false);
   const {
-    plans,
-    form,
-    error,
-    editingPlanId,
-    setError,
-    updateForm,
-    submitPlan,
-    togglePlanStatus,
+    activeReminder,
+    cancelEditing,
+    cancelRecovery,
+    clearObservationLog,
+    canCompleteActiveReminder,
+    currentPlan,
+    currentPlanTimeText,
+    composerTitle,
     deletePlan,
+    dismissActiveReminder,
+    editingPlanId,
+    error,
+    form,
+    labelSettings,
+    listCurrentTimeText,
+    planItems,
+    clearRecoveryObservationLog,
+    reflectionNoteDraft,
+    recoveryMode,
+    recoveryPlan,
+    recoveryHighlightObservationHint,
+    recoveryHighlightObservationItems,
+    recoveryHighlightObservationPolicyStatus,
+    recoveryHighlightObservationRecommendation,
+    recoveryHighlightObservationSummaryItems,
+    recoveryHighlightObservationWindowText,
+    reminderObservationHint,
+    reminderObservationItems,
+    reminderObservationSummaryItems,
+    reminderObservationWindowText,
+    reminderPolicyStatus,
+    reminderTimeText,
+    resolvedCurrentMinute,
+    resetLabelSettings,
+    saveLabelSettings,
+    saveReflection,
+    setError,
+    setReflectionNoteDraft,
+    sortedPlans,
     startEditingPlan,
-    cancelEditing
-  } = usePlannerState(plansStore);
-  const currentMinute = useCurrentMinute(timeSource);
-  const resolvedCurrentMinute = currentMinute ?? 0;
-  const sortedPlans = useMemo(() => sortPlans(plans), [plans]);
-  const currentPlan =
-    currentMinute === null ? null : getCurrentPlan(sortedPlans, resolvedCurrentMinute);
-  const summary = getPlannerSummary(plans);
+    startReflection,
+    startRescheduling,
+    submitPlan,
+    submitButtonLabel,
+    summary,
+    togglePlanStatus,
+    updateForm
+  } = usePlannerViewModel({
+    labelSettingsStore,
+    plansStore,
+    reminderProvider,
+    timeSource
+  });
+  const [labelSettingsDraft, setLabelSettingsDraft] = useState<PlannerLabelSettings>(() =>
+    buildLabelSettingsDraft(labelSettings)
+  );
+
+  useEffect(() => {
+    if (!isLabelSettingsModalOpen) {
+      setLabelSettingsDraft(buildLabelSettingsDraft(labelSettings));
+    }
+  }, [isLabelSettingsModalOpen, labelSettings]);
 
   function openCustomColorPicker() {
     const input = colorInputRef.current;
@@ -252,6 +302,65 @@ export function CircularPlanner({ plansStore, timeSource }: CircularPlannerProps
     }
   }
 
+  function handleTogglePlanStatus(planId: string) {
+    togglePlanStatus(planId);
+  }
+
+  function handleDeletePlan(planId: string) {
+    deletePlan(planId);
+  }
+
+  function handleDismissReminder(planId: string) {
+    dismissActiveReminder(planId);
+  }
+
+  function handleCancelComposer() {
+    if (recoveryMode === "reschedule") {
+      cancelRecovery();
+      return;
+    }
+
+    cancelEditing();
+  }
+
+  function handleOpenLabelSettingsModal() {
+    setLabelSettingsDraft(buildLabelSettingsDraft(labelSettings));
+    setIsLabelSettingsModalOpen(true);
+  }
+
+  function handleCloseLabelSettingsModal() {
+    setLabelSettingsDraft(buildLabelSettingsDraft(labelSettings));
+    setIsLabelSettingsModalOpen(false);
+  }
+
+  function handleLabelDraftChange(
+    group: "actionLabels" | "statusLabels",
+    key: string,
+    value: string
+  ) {
+    const nextValue = value.slice(0, PLANNER_LABEL_MAX_LENGTH);
+
+    setLabelSettingsDraft((currentDraft) => ({
+      ...currentDraft,
+      [group]: {
+        ...currentDraft[group],
+        [key]: nextValue
+      }
+    }));
+  }
+
+  function handleApplyLabelSettings() {
+    saveLabelSettings(sanitizePlannerLabelSettings(labelSettingsDraft));
+    setIsLabelSettingsModalOpen(false);
+  }
+
+  function handleResetLabelSettings() {
+    resetLabelSettings();
+    setLabelSettingsDraft(buildLabelSettingsDraft(labelSettings));
+  }
+
+  const showRescheduleUnavailableGuidance = error === RESCHEDULE_UNAVAILABLE_MESSAGE;
+
   return (
     <main className="shell">
       <section className="hero">
@@ -265,14 +374,39 @@ export function CircularPlanner({ plansStore, timeSource }: CircularPlannerProps
           <div className="status-card">
             <span className="status-label">현재 해야 할 계획</span>
             <strong>{currentPlan?.title ?? "계획 없음"}</strong>
-              <span className="status-time">
-              {currentPlan
-                ? `${describeMinute(currentPlan.startMinute)} - ${describeMinute(currentPlan.endMinute)}`
-                : currentMinute === null
-                  ? "현재 시간을 동기화하고 있습니다."
-                  : "현재 시간대에 등록된 계획이 없습니다."}
-            </span>
+            <span className="status-time">{currentPlanTimeText}</span>
           </div>
+          {activeReminder ? (
+            <div
+              aria-live="polite"
+              className="reminder-banner"
+              role="status"
+            >
+              <div className="reminder-copy">
+                <span className="reminder-label">시작 리마인드</span>
+                <strong>{activeReminder.title}</strong>
+                <span className="reminder-time">{reminderTimeText}</span>
+              </div>
+              <div className="reminder-actions">
+                {canCompleteActiveReminder ? (
+                  <button
+                    className="reminder-complete"
+                    onClick={() => handleTogglePlanStatus(activeReminder.id)}
+                    type="button"
+                  >
+                    {labelSettings.actionLabels.completeNow}
+                  </button>
+                ) : null}
+                <button
+                  className="reminder-dismiss"
+                  onClick={() => handleDismissReminder(activeReminder.id)}
+                  type="button"
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          ) : null}
           <div className="summary-row">
             <div className="summary-tile">
               <span>완료</span>
@@ -319,7 +453,7 @@ export function CircularPlanner({ plansStore, timeSource }: CircularPlannerProps
       </section>
       <section className="composer-section">
         <div className="section-head">
-          <h2>{editingPlanId ? "계획 수정" : "계획 등록"}</h2>
+          <h2>{composerTitle}</h2>
         </div>
         <form className="plan-form" onSubmit={handleSubmit}>
           <label className="field field-title">
@@ -400,21 +534,21 @@ export function CircularPlanner({ plansStore, timeSource }: CircularPlannerProps
           <div className={editingPlanId ? "form-actions form-actions-editing" : "form-actions"}>
             <button
               className={
-                editingPlanId
+                editingPlanId || recoveryMode === "reschedule"
                   ? "submit-button form-submit form-submit-editing"
                   : "submit-button form-submit"
               }
               type="submit"
             >
-              {editingPlanId ? "계획 저장" : "계획 추가"}
+              {submitButtonLabel}
             </button>
-            {editingPlanId ? (
+            {editingPlanId || recoveryMode === "reschedule" ? (
               <button
                 className="cancel-button cancel-button-editing"
-                onClick={cancelEditing}
+                onClick={handleCancelComposer}
                 type="button"
               >
-                수정 취소
+                {recoveryMode === "reschedule" ? "다시 지정 취소" : "수정 취소"}
               </button>
             ) : null}
           </div>
@@ -446,31 +580,59 @@ export function CircularPlanner({ plansStore, timeSource }: CircularPlannerProps
           </button>
         </div>
         {error ? <p className="form-error">{error}</p> : null}
+        {showRescheduleUnavailableGuidance ? (
+          <p className="form-help">
+            원래 길이를 그대로 넣을 연속 시간이 없다는 뜻입니다. 더 짧은 새 시간을 직접 입력해 다시 저장해보십시오.
+          </p>
+        ) : null}
       </section>
       <section className="list-section">
         <div className="section-head">
           <h2>오늘 계획</h2>
-          <span>
-            {currentMinute === null
-              ? "시간 동기화 중"
-              : `${describeMinute(resolvedCurrentMinute)} 기준`}
-          </span>
+          <span>{listCurrentTimeText}</span>
         </div>
         <ul className="plan-list">
-          {sortedPlans.map((plan) => {
-            const current =
-              currentMinute === null ? false : isCurrentPlan(plan, resolvedCurrentMinute);
+          {planItems.map(
+            ({
+              canReschedule,
+              canToggleStatus,
+              isCurrent,
+              plan,
+              recoveryBadges,
+              recoveryHighlight,
+              reflectionPreview,
+              statusLabel,
+              timeText
+            }) => {
             return (
               <li
-                className={current ? "plan-item plan-item-current" : "plan-item"}
+                className={isCurrent ? "plan-item plan-item-current" : "plan-item"}
                 key={plan.id}
               >
                 <span className="plan-color" style={{ backgroundColor: plan.color }} />
                 <div className="plan-meta">
                   <strong>{plan.title}</strong>
-                  <span>
-                    {describeMinute(plan.startMinute)} - {describeMinute(plan.endMinute)}
-                  </span>
+                  <span>{timeText}</span>
+                  {recoveryBadges.length > 0 ? (
+                    <div className="plan-recovery-badges">
+                      {recoveryBadges.map((badge) => (
+                        <span className="plan-recovery-badge" key={badge}>
+                          {badge}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  {reflectionPreview ? (
+                    <p className="plan-reflection-preview">{reflectionPreview}</p>
+                  ) : null}
+                  {recoveryHighlight ? (
+                    <div
+                      className={`plan-recovery-highlight plan-recovery-highlight-${recoveryHighlight.tone}`}
+                    >
+                      <strong>{recoveryHighlight.label}</strong>
+                      <span>{recoveryHighlight.detail}</span>
+                    </div>
+                  ) : null}
                 </div>
                 <div className="plan-actions">
                   <button
@@ -482,12 +644,38 @@ export function CircularPlanner({ plansStore, timeSource }: CircularPlannerProps
                   </button>
                   <button
                     className={plan.status === "done" ? "plan-state plan-state-done" : "plan-state"}
-                    onClick={() => togglePlanStatus(plan.id)}
+                    disabled={!canToggleStatus}
+                    onClick={() => handleTogglePlanStatus(plan.id)}
+                    title={!canToggleStatus ? "시작 전 일정은 아직 완료 처리할 수 없습니다." : undefined}
                     type="button"
                   >
-                    {plan.status === "done" ? "완료" : current ? "지금" : "대기"}
+                    {statusLabel}
                   </button>
-                  <button className="plan-delete" onClick={() => deletePlan(plan.id)} type="button">
+                  {plan.status === "missed" ? (
+                    <>
+                      <button
+                        className="plan-recovery"
+                        onClick={() => startReflection(plan)}
+                        type="button"
+                      >
+                        {labelSettings.actionLabels.reflection}
+                      </button>
+                      <button
+                        className="plan-recovery"
+                        disabled={!canReschedule}
+                        onClick={() => startRescheduling(plan)}
+                        title={!canReschedule ? "다시 지정은 최대 3회까지만 가능합니다." : undefined}
+                        type="button"
+                      >
+                        {labelSettings.actionLabels.reschedule}
+                      </button>
+                    </>
+                  ) : null}
+                  <button
+                    className="plan-delete"
+                    onClick={() => handleDeletePlan(plan.id)}
+                    type="button"
+                  >
                     삭제
                   </button>
                 </div>
@@ -495,6 +683,243 @@ export function CircularPlanner({ plansStore, timeSource }: CircularPlannerProps
             );
           })}
         </ul>
+        {recoveryMode === "reflection" && recoveryPlan ? (
+          <div className="recovery-panel">
+            <div className="section-head">
+              <h2>놓침 회고</h2>
+              <span>{recoveryPlan.title}</span>
+            </div>
+            <label className="field">
+              <span>회고 메모</span>
+              <textarea
+                className="reflection-textarea"
+                onChange={(event) => setReflectionNoteDraft(event.target.value)}
+                placeholder="왜 놓쳤는지, 다음에는 어떻게 바꿀지 적어두세요."
+                rows={4}
+                value={reflectionNoteDraft}
+              />
+            </label>
+            <div className="recovery-actions">
+              <button className="submit-button" onClick={saveReflection} type="button">
+                회고 저장
+              </button>
+              <button className="cancel-button" onClick={cancelRecovery} type="button">
+                회고 취소
+              </button>
+            </div>
+          </div>
+        ) : null}
+        <div className="label-settings-panel">
+          <div className="section-head">
+            <h2>표시 문구</h2>
+            <button
+              className="submit-button label-settings-open"
+              onClick={handleOpenLabelSettingsModal}
+              type="button"
+            >
+              표시 문구 변경
+            </button>
+          </div>
+          <p className="label-settings-note">
+            앱에서도 유지할 범위는 상태 4개와 핵심 액션 3개, 총 7개 키로 제한합니다.
+          </p>
+          <p className="label-settings-summary">
+            현재: {labelSettings.statusLabels.current} / {labelSettings.statusLabels.pending} /{" "}
+            {labelSettings.statusLabels.done} / {labelSettings.statusLabels.missed}
+          </p>
+        </div>
+        {isLabelSettingsModalOpen ? (
+          <div
+            aria-modal="true"
+            className="modal-backdrop"
+            role="dialog"
+            aria-labelledby="label-settings-dialog-title"
+          >
+            <div className="modal-panel">
+              <div className="section-head">
+                <h2 id="label-settings-dialog-title">표시 문구 변경</h2>
+                <button className="cancel-button" onClick={handleCloseLabelSettingsModal} type="button">
+                  닫기
+                </button>
+              </div>
+              <p className="label-settings-note">
+                각 문구는 최대 {PLANNER_LABEL_MAX_LENGTH}자까지 입력할 수 있습니다.
+              </p>
+              <div className="label-settings-grid">
+                <label className="field">
+                  <span>지금 라벨</span>
+                  <input
+                    maxLength={PLANNER_LABEL_MAX_LENGTH}
+                    onChange={(event) =>
+                      handleLabelDraftChange("statusLabels", "current", event.target.value)
+                    }
+                    value={labelSettingsDraft.statusLabels.current}
+                  />
+                </label>
+                <label className="field">
+                  <span>대기 라벨</span>
+                  <input
+                    maxLength={PLANNER_LABEL_MAX_LENGTH}
+                    onChange={(event) =>
+                      handleLabelDraftChange("statusLabels", "pending", event.target.value)
+                    }
+                    value={labelSettingsDraft.statusLabels.pending}
+                  />
+                </label>
+                <label className="field">
+                  <span>완료 라벨</span>
+                  <input
+                    maxLength={PLANNER_LABEL_MAX_LENGTH}
+                    onChange={(event) =>
+                      handleLabelDraftChange("statusLabels", "done", event.target.value)
+                    }
+                    value={labelSettingsDraft.statusLabels.done}
+                  />
+                </label>
+                <label className="field">
+                  <span>놓침 라벨</span>
+                  <input
+                    maxLength={PLANNER_LABEL_MAX_LENGTH}
+                    onChange={(event) =>
+                      handleLabelDraftChange("statusLabels", "missed", event.target.value)
+                    }
+                    value={labelSettingsDraft.statusLabels.missed}
+                  />
+                </label>
+                <label className="field">
+                  <span>리마인드 완료 버튼</span>
+                  <input
+                    maxLength={PLANNER_LABEL_MAX_LENGTH}
+                    onChange={(event) =>
+                      handleLabelDraftChange("actionLabels", "completeNow", event.target.value)
+                    }
+                    value={labelSettingsDraft.actionLabels.completeNow}
+                  />
+                </label>
+                <label className="field">
+                  <span>회고 버튼</span>
+                  <input
+                    maxLength={PLANNER_LABEL_MAX_LENGTH}
+                    onChange={(event) =>
+                      handleLabelDraftChange("actionLabels", "reflection", event.target.value)
+                    }
+                    value={labelSettingsDraft.actionLabels.reflection}
+                  />
+                </label>
+                <label className="field">
+                  <span>다시 지정 버튼</span>
+                  <input
+                    maxLength={PLANNER_LABEL_MAX_LENGTH}
+                    onChange={(event) =>
+                      handleLabelDraftChange("actionLabels", "reschedule", event.target.value)
+                    }
+                    value={labelSettingsDraft.actionLabels.reschedule}
+                  />
+                </label>
+              </div>
+              <div className="modal-actions">
+                <button className="cancel-button" onClick={handleResetLabelSettings} type="button">
+                  기본값 복원
+                </button>
+                <button className="submit-button modal-submit" onClick={handleApplyLabelSettings} type="button">
+                  변경 적용
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+        <details className="observation-panel">
+          <summary>회복 관찰 로그</summary>
+          <div className="observation-panel-body">
+            <div className="observation-panel-head">
+              <div className="observation-panel-meta">
+                <span>최근 5건</span>
+                <span>{recoveryHighlightObservationWindowText}</span>
+              </div>
+              <button
+                className="observation-clear"
+                onClick={clearRecoveryObservationLog}
+                type="button"
+              >
+                기록 지우기
+              </button>
+            </div>
+            <div className="observation-summary">
+              {recoveryHighlightObservationSummaryItems.map((item) => (
+                <div className="observation-summary-tile" key={item.label}>
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                </div>
+              ))}
+            </div>
+            <div
+              className={`observation-policy observation-policy-${recoveryHighlightObservationPolicyStatus.tone}`}
+            >
+              <strong>{recoveryHighlightObservationPolicyStatus.label}</strong>
+              <span>{recoveryHighlightObservationPolicyStatus.detail}</span>
+            </div>
+            <p className="observation-hint">{recoveryHighlightObservationHint}</p>
+            <p className="observation-hint"><strong>{recoveryHighlightObservationRecommendation}</strong></p>
+            {recoveryHighlightObservationItems.length === 0 ? (
+              <p className="observation-empty">아직 기록된 회복 재강조 로그가 없습니다.</p>
+            ) : (
+              <ul className="observation-list">
+                {recoveryHighlightObservationItems.map((item) => (
+                  <li className="observation-item" key={item.id}>
+                    <strong>{item.label}</strong>
+                    <span>{item.planTitle}</span>
+                    <span>{item.observedMinuteText}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </details>
+        <details className="observation-panel">
+          <summary>리마인드 관찰 로그</summary>
+          <div className="observation-panel-body">
+            <div className="observation-panel-head">
+              <div className="observation-panel-meta">
+                <span>최근 5건</span>
+                <span>{reminderObservationWindowText}</span>
+              </div>
+              <button
+                className="observation-clear"
+                onClick={clearObservationLog}
+                type="button"
+              >
+                기록 지우기
+              </button>
+            </div>
+            <div className="observation-summary">
+              {reminderObservationSummaryItems.map((item) => (
+                <div className="observation-summary-tile" key={item.label}>
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                </div>
+              ))}
+            </div>
+            <div className={`observation-policy observation-policy-${reminderPolicyStatus.tone}`}>
+              <strong>{reminderPolicyStatus.label}</strong>
+              <span>{reminderPolicyStatus.detail}</span>
+            </div>
+            <p className="observation-hint">{reminderObservationHint}</p>
+            {reminderObservationItems.length === 0 ? (
+              <p className="observation-empty">아직 기록된 리마인드 관찰 로그가 없습니다.</p>
+            ) : (
+              <ul className="observation-list">
+                {reminderObservationItems.map((item) => (
+                  <li className="observation-item" key={item.id}>
+                    <strong>{item.label}</strong>
+                    <span>{item.planTitle}</span>
+                    <span>{item.timeText}</span>
+                    <span>{item.observedMinuteText}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </details>
       </section>
     </main>
   );
