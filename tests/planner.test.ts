@@ -15,6 +15,12 @@ import {
   timeStringToMinute,
   validatePlanner
 } from "../src/domains/plans/service/planner";
+import {
+  resetPlansForNextDay
+} from "../src/providers/plans/record-backed-shared";
+import {
+  getCarryoverPlansForDate
+} from "../src/shared/time/planner-day";
 import type { DailyPlan } from "../src/domains/plans/types";
 
 const plans: DailyPlan[] = [
@@ -105,11 +111,57 @@ describe("planner domain", () => {
     expect(getCurrentPlan(plans, 330)?.title).toBe("영어 공부");
   });
 
+  it("finds an overnight plan after midnight", () => {
+    const overnightPlans: DailyPlan[] = [
+      {
+        id: "overnight",
+        title: "야간 작업",
+        color: "#111111",
+        startMinute: 23 * 60,
+        endMinute: 4 * 60 + 24 * 60,
+        rescheduleCount: 0,
+        status: "pending"
+      }
+    ];
+
+    expect(getCurrentPlan(overnightPlans, 60)?.title).toBe("야간 작업");
+  });
+
   it("summarizes completion", () => {
     expect(getPlannerSummary(plans)).toEqual({
       total: 2,
       completed: 1,
       completionRate: 50
+    });
+  });
+
+  it("treats a recovered reschedule chain as fully completed", () => {
+    const recoveredPlans: DailyPlan[] = [
+      {
+        id: "original",
+        title: "원래 일정",
+        color: "#111111",
+        startMinute: 600,
+        endMinute: 660,
+        rescheduleCount: 0,
+        status: "missed"
+      },
+      {
+        id: "followup",
+        title: "다시 지정 일정",
+        color: "#222222",
+        startMinute: 700,
+        endMinute: 760,
+        rescheduleCount: 1,
+        sourcePlanId: "original",
+        status: "done"
+      }
+    ];
+
+    expect(getPlannerSummary(recoveredPlans)).toEqual({
+      total: 1,
+      completed: 1,
+      completionRate: 100
     });
   });
 
@@ -119,7 +171,52 @@ describe("planner domain", () => {
 
   it("converts time strings to minutes and back", () => {
     expect(timeStringToMinute("08:30")).toBe(510);
+    expect(timeStringToMinute("8")).toBe(480);
+    expect(timeStringToMinute("12")).toBe(720);
+    expect(timeStringToMinute("930")).toBe(570);
+    expect(timeStringToMinute("1230")).toBe(750);
     expect(minuteToTimeString(510)).toBe("08:30");
+    expect(minuteToTimeString(1680)).toBe("04:00");
+  });
+
+  it("rejects unsupported or out-of-range time strings", () => {
+    expect(() => timeStringToMinute("")).toThrow("시간을 입력해 주십시오.");
+    expect(() => timeStringToMinute("2460")).toThrow(
+      "시간은 0:00부터 23:59 사이로 입력해 주십시오."
+    );
+    expect(() => timeStringToMinute("abcd")).toThrow(
+      "시간은 9, 12, 930, 1230, 09:30 형식으로 입력해 주십시오."
+    );
+  });
+
+  it("detects overlap between an overnight plan and an after-midnight plan", () => {
+    expect(() =>
+      validatePlanner(
+        [
+          {
+            id: "overnight",
+            title: "야간 작업",
+            color: "#111111",
+            startMinute: 23 * 60,
+            endMinute: 4 * 60 + 24 * 60,
+            rescheduleCount: 0,
+            status: "pending"
+          },
+          {
+            id: "early",
+            title: "새벽 운동",
+            color: "#222222",
+            startMinute: 2 * 60,
+            endMinute: 3 * 60,
+            rescheduleCount: 0,
+            status: "pending"
+          }
+        ],
+        {
+          focusPlanId: "early"
+        }
+      )
+    ).toThrow("이미 등록된 일정 '야간 작업'(23:00 - 04:00)과 겹쳐 저장할 수 없습니다.");
   });
 
   it("builds centered arc paths for svg segments", () => {
@@ -176,5 +273,87 @@ describe("planner domain", () => {
     expect(getSectorLabelRotation(6 * 60)).toBe(0);
     expect(getSectorLabelRotation(18 * 60)).toBe(0);
     expect(getSectorLabelRotation(22 * 60)).toBe(60);
+  });
+
+  it("drops rescheduled follow-up plans when a new day resets plans", () => {
+    const nextDayPlans = resetPlansForNextDay([
+      {
+        id: "base",
+        title: "기본 일정",
+        color: "#111111",
+        startMinute: 540,
+        endMinute: 600,
+        rescheduleCount: 0,
+        status: "done"
+      },
+      {
+        id: "followup",
+        title: "다시 지정 일정",
+        color: "#222222",
+        startMinute: 700,
+        endMinute: 760,
+        rescheduleCount: 1,
+        sourcePlanId: "base",
+        status: "pending"
+      }
+    ]);
+
+    expect(nextDayPlans).toEqual([
+      {
+        id: "base",
+        title: "기본 일정",
+        color: "#111111",
+        startMinute: 540,
+        endMinute: 600,
+        rescheduleCount: 0,
+        sourcePlanId: undefined,
+        reflectionNote: undefined,
+        status: "pending"
+      }
+    ]);
+  });
+
+  it("does not carry over rescheduled follow-up plans into the next day", () => {
+    const carryoverPlans = getCarryoverPlansForDate(
+      {
+        "2026-05-07": [
+          {
+            id: "base",
+            title: "원래 일정",
+            color: "#111111",
+            date: "2026-05-07",
+            startMinute: 1320,
+            endMinute: 1800,
+            rescheduleCount: 0,
+            status: "pending"
+          },
+          {
+            id: "followup",
+            title: "다시 지정 일정",
+            color: "#222222",
+            date: "2026-05-07",
+            startMinute: 1380,
+            endMinute: 1740,
+            rescheduleCount: 1,
+            sourcePlanId: "base",
+            status: "pending"
+          }
+        ]
+      },
+      new Date("2026-05-08T05:30:00+09:00"),
+      "2026-05-08"
+    );
+
+    expect(carryoverPlans).toEqual([
+      {
+        id: "base",
+        title: "원래 일정",
+        color: "#111111",
+        startMinute: 1320,
+        endMinute: 1800,
+        rescheduleCount: 0,
+        status: "pending"
+      }
+    ]);
   });
 });

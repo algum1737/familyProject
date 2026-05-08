@@ -109,6 +109,43 @@
 
 요약하면, 도메인/규칙은 재사용성이 높고 현재 UI는 웹 전용 결합이 강하다.
 
+## Expo Preview Vs Real App Bootstrap
+
+Expo 전환 과정에서는 `프리뷰 셸`과 `실제 앱 부트스트랩`을 같은 것으로 취급하지 않는다.
+
+- Expo preview shell은 shared selector, shared state transition, RN 화면 계층 검증을 빠르게 반복하는 개발 셸이다.
+- 실제 앱 bootstrap은 저장소 복구, legacy migration, 빈 상태 초기화, 실제 navigator 진입을 담당한다.
+
+현재 기준:
+
+- preview용 demo seed는 `apps/expo/src/app-shell/expo-planner-preview-seed.ts`에 격리한다.
+- 실제 앱 root는 이 seed를 직접 사용하지 않는다.
+- 실제 앱 시작 경로는 `PlannerRecordMap` 복구 -> 필요 시 legacy migration -> 빈 상태 초기화 순서를 따른다.
+
+자세한 기준은 [APP_EXPO_BOOTSTRAP_DATA_STRATEGY.md](./APP_EXPO_BOOTSTRAP_DATA_STRATEGY.md)에 고정한다.
+
+## Expo Navigation Direction
+
+현재 Expo 앱 구조는 `4개 독립 탭`이 아니라 `2 tabs + 2 overlay routes`를 기본 계약으로 본다.
+
+- tabs
+  - `today`
+  - `motivation`
+- overlay routes
+  - `editor`
+  - `reflection`
+
+이유:
+
+- `today`와 `motivation`은 반복 방문하는 1차 공간이다.
+- `editor`와 `reflection`은 짧은 작업 흐름이므로 탭보다 overlay가 더 자연스럽다.
+
+실제 navigator 도입 전 route key, param shape, 저장 후 복귀 규칙은 [APP_EXPO_NAVIGATION_CONTRACT.md](./APP_EXPO_NAVIGATION_CONTRACT.md)에 고정한다.
+
+현재 기본 navigator 채택안은 `expo-router`다.
+
+이유와 도입 순서는 [APP_EXPO_NAVIGATOR_DECISION.md](./APP_EXPO_NAVIGATOR_DECISION.md)에 고정한다.
+
 ## App UI Reuse Strategy
 
 앱 전환 시 UI를 통째로 재사용하는 것이 아니라, 재사용 가능한 층과 재구성해야 하는 층을 분리해서 본다.
@@ -199,6 +236,7 @@
 - 시작/종료 시간 자유 입력과 시간 겹침 차단
 - 현재 시각 포인터와 현재 계획 강조
 - 완료 토글과 하루 완료 현황 요약
+- 월간 동기부여 페이지 또는 월간 유지 요약
 - 로컬 저장소 기반 데이터 유지
 - 최소 1종의 로컬 리마인드 또는 앱 내 리마인드
 
@@ -210,7 +248,14 @@
 - 반복 일정 자동화
 - 서버 기반 협업/동기화
 
-이 범위는 웹 MVP에서 이미 검증 중인 핵심 흐름과 앱에서만 필요한 최소 리마인드 경험을 합친 것이다.
+이 범위는 웹 MVP에서 이미 검증 중인 핵심 흐름, 월간 동기부여 요구, 앱에서만 필요한 최소 리마인드 경험을 합친 것이다.
+
+## Motivation Page Direction
+
+- 월간 동기부여 페이지는 현재 버전 범위에 포함한다.
+- 따라서 저장 모델은 `오늘 계획 배열`만이 아니라 날짜 기반 누적 기록을 감당해야 한다.
+- 첫 앱 저장소는 `AsyncStorage` 계열로 시작할 수 있지만, 데이터 모델은 [APP_MOTIVATION_DATA_MODEL.md](./APP_MOTIVATION_DATA_MODEL.md) 기준으로 날짜 필드와 월간 집계 가능 구조를 가져야 한다.
+- 월간 페이지가 실제 핵심 사용 흐름으로 고정되면 `SQLite` 전환은 중기 기본 후보로 본다.
 
 ## What To Validate On Web First
 
@@ -228,7 +273,7 @@
 - `missed` 일정은 이후 `회고` 또는 같은 날 빈 시간 `다시 지정`으로 이어져야 한다.
 - `다시 지정`은 최대 3회로 제한한다.
 - 원래 일정 길이를 채울 연속 빈 시간이 없으면 자동 축약/분할 없이 다시 지정 실패로 두고, 사용자가 직접 더 짧은 새 시간을 정하게 한다.
-- 앱 전환 시에는 종료 5분 전 알림에서 회고 또는 다시 지정 선택을 유도하는 방향이 맞다.
+- 앱 전환 시 종료 5분 전 알림은 우선 `계속 진행` 1액션만 두고, 회고와 다시 지정은 종료 직후 카드 흐름으로 넘기는 방향이 맞다.
 - 현재 웹 MVP에는 `missed` 일정의 회고 메모 저장과 다시 지정 생성 흐름이 최소 구현으로 연결돼 있다.
 - 현재 웹 MVP에는 회고가 저장된 `missed` 일정의 배지와 메모 미리보기, 그리고 원본/후속 일정의 `다시 지정 n/3` 이력 표시까지 포함돼 있다.
 
@@ -236,12 +281,12 @@
 
 - 앱 전환 시 `pending` 상태 일정이 종료 5분 전 구간에 들어오면 회복 알림 후보로 본다.
 - 이 알림은 아직 완료하지 못한 일정에 한해 한 번만 보낸다.
-- 알림 기본 액션은 `계속 진행`, `다시 지정`, `회고 열기` 3개다.
+- 현재 결론 기준 기본 액션은 `계속 진행` 1개다.
 - `계속 진행`은 알림만 닫고 현재 일정 상태를 유지한다.
-- `다시 지정`은 같은 날 빈 시간 후보를 바로 열고, 사용자가 저장할 때만 `rescheduleCount`를 올린다.
-- `회고 열기`는 종료 전에도 회고 초안을 적을 수 있게 하지만, 일정 상태는 종료 시각이 지나야 `missed`로 바뀐다.
-- 종료 시각이 지나도 완료되지 않으면 기존 규칙대로 `missed`로 자동 전환되고, 알림에서 연 회고 초안은 이어서 편집할 수 있어야 한다.
-- 웹 MVP에서는 이 정책을 문서와 상태 모델로만 고정하고, 실제 네이티브 알림 액션은 앱 전환 단계에서 구현한다.
+- `회고 열기`, `다시 지정`은 종료 5분 전 알림에 싣지 않고, 종료 직후 `missed` 카드 흐름에서 처리한다.
+- 종료 시각이 지나도 완료되지 않으면 기존 규칙대로 `missed`로 자동 전환된다.
+- 웹 MVP 관찰 근거상 `계속 진행` 1액션은 종료 직전 확인 용도로 충분했고, 종료 직후 `회고 다시 보기` 흐름도 방해하지 않았다.
+- 최종 판단 문서는 [END_5_MINUTE_ALERT_DECISION.md](./END_5_MINUTE_ALERT_DECISION.md)에 고정한다.
 
 ## App-Safe Label Settings Scope
 
@@ -325,7 +370,7 @@
 
 종료 5분 전 회복 알림 정책은 아직 앱에서 구현하지 않았으므로, 웹 MVP에서 아래 질문에 먼저 답할 수 있어야 한다.
 
-- 종료 직전 사용자는 `계속 진행`, `다시 지정`, `회고 열기` 3가지 선택지를 한 번에 이해할 수 있는가
+- 종료 직전에는 `계속 진행` 1액션만으로도 충분한가
 - 종료 직전에는 완료보다 회고/재지정이 더 자연스러운가
 - 종료 5분 전이 충분히 늦은가, 아니면 이미 압박으로 느껴지는가
 - 종료 5분 전 알림이 기존 시작 리마인드와 역할이 겹치지 않는가
@@ -334,9 +379,15 @@
 웹에서 직접 검토할 대체 기준:
 
 - 시작 리마인드 직후 완료로 이어지지 않은 일정이 종료 후 `missed` 전환과 회복 UI를 이해하는지 본다.
-- 회복 UI 자체가 무겁게 느껴지면 종료 5분 전 알림에 세 가지 액션을 모두 싣는 것은 과할 가능성이 높다.
-- 반대로 사용자가 `missed` 이후 회고와 다시 지정을 자연스럽게 선택하면, 종료 5분 전 알림도 같은 액션 구성이 유지될 가능성이 높다.
+- 회복 UI 자체가 무겁게 느껴지면 종료 5분 전 알림은 더 가벼워야 한다.
+- 사용자가 `missed` 이후 회고와 다시 지정을 자연스럽게 선택하면, 종료 5분 전에는 굳이 그 액션들을 미리 싣지 않아도 된다.
 - 체크 결과는 `docs/RECOVERY_OBSERVATION_LOGBOOK.md`의 `End-5-Minute Alert Review` 항목으로 같이 남긴다.
+
+## End-5-Minute Final Decision
+
+- 현재 웹 MVP 관찰 기준 결론은 `종료 5분 전 = 계속 진행 1액션`, `회고/다시 지정 = 종료 직후 카드` 분리다.
+- 이 결론은 시작 리마인드와 종료 직전 배너를 동시에 과하게 만들지 않으면서도, 종료 직후 회복 진입을 유지하는 쪽을 우선한 결정이다.
+- 자세한 판단 근거와 재검토 조건은 [END_5_MINUTE_ALERT_DECISION.md](./END_5_MINUTE_ALERT_DECISION.md)에 정리한다.
 
 ## UX Validation Priorities
 
@@ -499,6 +550,69 @@
 - 2단계: 사용자 검증 및 핵심 흐름 측정
 - 3단계: 전환 조건 충족 시 `Expo + React Native` 우선안 기준으로 앱 전환 실행 준비
 - 4단계: 추가 검증에서 치명적 반례가 없으면 앱 전환 방식을 확정
+
+## App Transition Readiness
+
+현재 기준으로는 `앱 전환 검토 단계`를 거의 통과했고, `앱 전환 실행 준비 단계`로 넘어갈 수 있다.
+
+이미 충족한 항목:
+
+- 도메인 로직, 저장소 계약, 시간 소스, 리마인드 provider 경계가 문서와 코드에 반영돼 있다.
+- 핵심 CRUD, 현재 계획 판정, 완료 토글, `missed` 회복 흐름의 기본 테스트가 고정돼 있다.
+- 시작 리마인드 기본 정책과 종료 5분 전 `계속 진행` 1액션 정책이 웹 관찰 기준으로 고정돼 있다.
+- `다시 지정 불가` 상황도 자동 축약 없이 수동 단축으로 유도하는 제품 규칙이 정리돼 있다.
+
+아직 앱 구현 직전 체크가 필요한 항목:
+
+- 원형 플래너를 앱에서도 유지할지, 아니면 모바일에서 다른 표현으로 바꿀지 최종 결정
+- 자유 시간 입력 방식이 앱에서도 그대로 갈 만큼 충분히 단순한지 마지막 확인
+- 앱 저장소 구현 후보와 로컬 알림 구현 후보를 실제 기술 선택 수준으로 좁히기
+
+실무 판단:
+
+- 위 세 항목에서 치명적 반례가 나오지 않으면, 다음 단계는 더 많은 웹 실험이 아니라 앱 구현 명세 작성과 앱 저장소/알림 기술 선정이다.
+
+## First App Build Order
+
+앱 전환을 시작하면 구현 순서는 아래처럼 고정한다.
+
+1. `Expo + React Native` 기준 앱 셸과 화면 골격을 만든다.
+2. 웹과 같은 도메인/계약을 참조하는 앱 저장소 provider를 붙인다.
+3. 오늘 화면의 현재 계획, 리스트, 완료 토글, 요약을 먼저 연결한다.
+4. 원형 플래너 또는 그 대안 표현을 앱에서 구현한다.
+5. 계획 등록/수정/삭제와 시간 겹침 검증을 연결한다.
+6. 시작 리마인드와 종료 5분 전 `계속 진행` 정책을 앱 알림/인앱 UI로 옮긴다.
+7. `missed`, 회고, 다시 지정, `다시 지정 불가` 안내까지 회복 흐름을 옮긴다.
+
+이 순서를 쓰는 이유:
+
+- 현재 계획 인지와 완료 흐름이 제품 핵심이므로 가장 먼저 복구해야 한다.
+- 알림과 회복은 도메인 규칙이 이미 정리돼 있으므로, 앱 셸이 선 뒤에 옮겨도 늦지 않다.
+- 원형 플래너 표현이 앱에서 무리라고 판단되면 4단계에서만 교체하고, 나머지 규칙은 그대로 유지할 수 있다.
+
+## Immediate Next Documentation
+
+앱 구현 직전에는 아래 문서가 추가로 필요하다.
+
+- 앱 화면 트리 초안
+- 앱 저장소 후보 비교와 선택 이유
+- 앱 로컬 알림 구현 방식 초안
+- 웹 공용 계층과 앱 전용 UI 계층의 파일 경계 초안
+
+이 네 가지가 정리되면, 그 다음 작업은 더 이상 제품 탐색이 아니라 실제 앱 프로젝트 초기화와 화면 구현이다.
+
+현재 상태:
+
+- 앱 화면 트리 초안은 [APP_SCREEN_TREE.md](./APP_SCREEN_TREE.md)에 반영돼 있다.
+- 앱 저장소 후보 비교와 권고안은 [APP_STORAGE_OPTIONS.md](./APP_STORAGE_OPTIONS.md)에 반영돼 있다.
+- 월간 selector 계층과 저장 계약 개정 방향은 [APP_SELECTOR_AND_STORE_EVOLUTION.md](./APP_SELECTOR_AND_STORE_EVOLUTION.md)에 반영돼 있다.
+- 앱 로컬 알림 구현 초안은 [APP_LOCAL_REMINDER_PLAN.md](./APP_LOCAL_REMINDER_PLAN.md)에 반영돼 있다.
+- 웹 공용 계층과 앱 전용 UI 계층 경계 초안은 [APP_SHARED_AND_UI_BOUNDARY.md](./APP_SHARED_AND_UI_BOUNDARY.md)에 반영돼 있다.
+- 앱 타입 초안은 [APP_TYPE_DRAFT.md](./APP_TYPE_DRAFT.md)에 반영돼 있다.
+- core view-model 분리 초안은 [APP_VIEW_MODEL_SPLIT_DRAFT.md](./APP_VIEW_MODEL_SPLIT_DRAFT.md)에 반영돼 있다.
+- 앱 프로젝트 초기화 시 첫 파일 배치안은 [APP_BOOTSTRAP_FILE_LAYOUT.md](./APP_BOOTSTRAP_FILE_LAYOUT.md)에 반영돼 있다.
+- 기존 `DailyPlan` 점진 이행 계획은 [APP_DAILY_PLAN_MIGRATION.md](./APP_DAILY_PLAN_MIGRATION.md)에 반영돼 있다.
+- 다음 단계는 실제 앱 초기화 브랜치로 넘어갈지 판단하는 일이다.
 
 ## Required Architecture Rules
 

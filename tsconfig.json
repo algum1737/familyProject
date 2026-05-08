@@ -36,6 +36,7 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
+    "apps/expo",
     "node_modules"
   ]
 }

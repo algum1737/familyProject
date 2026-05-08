@@ -41,9 +41,9 @@
 
 ## Open Work
 
-1. 리마인드 관찰 로그를 기준으로 웹 리마인드 배너의 `시작 5분 전 ~ 시작 후 10분` 창이 과한지 실제 사용 흐름에서 관찰
-2. `use-planner-view-model`에 아직 웹 전용 문구 조립이 과하게 남아 있는지 점검
-3. 실제 운영 중 커밋 루프 점검 경고 노이즈가 과한지 관찰하고 필요하면 조건 조정
+1. 원형 플래너를 앱에서도 유지할지, 모바일 대안 표현으로 바꿀지 최종 결정
+2. 앱 저장소 구현 후보와 로컬 알림 구현 후보를 기술 선택 수준으로 좁히기
+3. 앱 화면 트리와 웹 공용 계층/앱 전용 UI 계층 경계를 첫 구현 단위로 정리
 
 ## Recent Changes
 
@@ -74,10 +74,20 @@
 - `오늘 계획` 리스트에서도 시작 전 pending 일정의 완료 버튼을 비활성화해 같은 규칙으로 맞춤
 - 종료 시각이 지난 pending 일정은 자동으로 `missed` 상태로 전환하는 도메인 기초를 추가
 - `rescheduleCount` 메타데이터와 별도 `Missed Plan Recovery Plan`을 추가해 회고/재지정 후속 작업을 분리
+- 앱 전환 문서에 `App Transition Readiness`, `First App Build Order`, `Immediate Next Documentation` 기준을 추가해 실행 직전 판단과 첫 구현 순서를 고정
+- 앱 저장소 후보 비교 문서를 추가하고, 첫 앱 저장소 기본안은 `AsyncStorage` 계열, 중장기 확장 재검토 후보는 `SQLite` 계열로 정리
+- 월간 동기부여 페이지를 현재 버전에 포함하는 방향을 문서에 반영하고, 날짜 기반 데이터 모델 초안을 추가
+- 월간 selector 계층과 저장 계약 개정 방향 문서를 추가해, 화면이 raw 저장 값을 직접 해석하지 않도록 기준을 고정
+- 앱 로컬 알림 구현 초안을 추가하고, 시작 리마인드는 OS 로컬 알림 + 인앱 배너, 종료 5분 전은 인앱 `계속 진행`만 유지하는 방향을 고정
+- 웹 공용 계층과 앱 전용 UI 계층 경계 초안을 추가해, 어떤 파일을 재사용하고 어떤 파일은 앱에서 새로 만들지 기준을 고정
+- 앱 타입 초안을 추가해 `date` 포함 기록 모델, selector 출력 타입, 저장 계약 이름 초안을 고정
+- `use-planner-view-model` core 분리 초안을 추가해, 계산과 웹 문구/관찰 패널을 어디서 나눌지 기준을 고정
+- 앱 프로젝트 초기화 시 첫 파일 배치안을 추가해, 실제 앱 브랜치에서 어떤 폴더와 파일을 먼저 만들지 기준을 고정
+- 기존 `DailyPlan` 점진 이행 계획을 추가해, 날짜 기반 기록 모델로 넘어가는 순서를 고정
 
 ## Current Focus
 
-- 다음 우선순위는 리마인드 관찰 로그를 기준으로 웹 리마인드 배너의 `시작 5분 전 ~ 시작 후 10분` 창이 과한지 실제 사용 흐름에서 관찰하는 일이다.
+- 다음 우선순위는 [APP_SCREEN_TREE.md](../../APP_SCREEN_TREE.md), [APP_STORAGE_OPTIONS.md](../../APP_STORAGE_OPTIONS.md), [APP_MOTIVATION_DATA_MODEL.md](../../APP_MOTIVATION_DATA_MODEL.md), [APP_SELECTOR_AND_STORE_EVOLUTION.md](../../APP_SELECTOR_AND_STORE_EVOLUTION.md), [APP_LOCAL_REMINDER_PLAN.md](../../APP_LOCAL_REMINDER_PLAN.md), [APP_SHARED_AND_UI_BOUNDARY.md](../../APP_SHARED_AND_UI_BOUNDARY.md), [APP_TYPE_DRAFT.md](../../APP_TYPE_DRAFT.md), [APP_VIEW_MODEL_SPLIT_DRAFT.md](../../APP_VIEW_MODEL_SPLIT_DRAFT.md), [APP_BOOTSTRAP_FILE_LAYOUT.md](../../APP_BOOTSTRAP_FILE_LAYOUT.md), [APP_DAILY_PLAN_MIGRATION.md](../../APP_DAILY_PLAN_MIGRATION.md)로 화면/저장/날짜 모델/selector/알림/경계/타입/view-model/배치/이행 기준을 고정한 뒤, 실제 앱 초기화 브랜치로 넘어갈지 판단하는 일이다.
 
 ## Decision Snapshot
 
@@ -85,6 +95,7 @@
 - 이유 1: 최종 목표가 실제 앱이며, 로컬 알림과 모바일 상호작용 요구에 가장 직접적으로 맞는다.
 - 이유 2: 현재 UI는 웹 전용 결합이 강해 하이브리드 래핑만으로 얻는 재사용 이점이 제한적이다.
 - 이유 3: 도메인 로직과 일정 규칙은 이미 상대적으로 재사용 가능한 구조다.
+- 현재 판단: 웹 검증은 제품 방향을 고정하기에 충분한 수준까지 왔고, 다음 결정의 성격은 UX 탐색보다 앱 구현 준비에 가깝다.
 
 ## Validation
 

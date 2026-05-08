@@ -11,6 +11,7 @@ import {
   isCurrentPlan,
   minuteToAngle,
   minuteToTimeString,
+  PLAN_TITLE_MAX_LENGTH,
   polarToCartesian
 } from "@/domains/plans/service/planner";
 import type { DailyPlan } from "@/domains/plans/types";
@@ -22,8 +23,9 @@ import {
 } from "@/providers/labels/planner-label-settings";
 import type { PlansStore } from "@/providers/plans/plans-store";
 import type { ReminderProvider } from "@/providers/reminders/reminder-provider";
-import type { TimeSource } from "@/providers/time/time-source";
+import { isMutableTimeSource, type TimeSource } from "@/providers/time/time-source";
 import { PLAN_COLORS } from "@/ui/planner/planner-colors";
+import { DevTimeControls } from "@/ui/planner/dev-time-controls";
 import { usePlannerViewModel } from "@/ui/planner/use-planner-view-model";
 
 const CENTER = 240;
@@ -32,12 +34,17 @@ const SECTOR_RADIUS = 190;
 const CURRENT_SECTOR_RADIUS = 198;
 const CURRENT_SECTOR_HALO_RADIUS = 206;
 const INACTIVE_SECTOR_OPACITY = 0.42;
-const RESCHEDULE_UNAVAILABLE_MESSAGE = "오늘 남은 빈 시간에 다시 지정할 수 있는 구간이 없습니다.";
+const RESCHEDULE_UNAVAILABLE_MESSAGE =
+  "오늘 남은 빈 시간에는 이 일정 길이 그대로 다시 지정할 수 없습니다.";
 
 function getRecoveryObservationSummaryTestId(label: string) {
   switch (label) {
     case "회고 다시 보기":
       return "recovery-summary-reflection";
+    case "종료 전 확인":
+      return "recovery-summary-end-recovery";
+    case "계속 진행":
+      return "recovery-summary-end-recovery-continue";
     case "다시 지정 다시 보기":
       return "recovery-summary-reschedule";
     case "다시 지정 불가":
@@ -241,17 +248,22 @@ export function CircularPlanner({
   const colorInputRef = useRef<HTMLInputElement | null>(null);
   const [isLabelSettingsModalOpen, setIsLabelSettingsModalOpen] = useState(false);
   const {
+    activeEndRecoveryReminder,
     activeReminder,
     cancelEditing,
     cancelRecovery,
     clearObservationLog,
     canCompleteActiveReminder,
+    currentMinute,
     currentPlan,
     currentPlanTimeText,
+    createObservationSamplePlan,
     composerTitle,
     deletePlan,
+    dismissActiveEndRecoveryReminder,
     dismissActiveReminder,
     editingPlanId,
+    endRecoveryReminderTimeText,
     error,
     form,
     isCurrentMinuteReady,
@@ -393,6 +405,10 @@ export function CircularPlanner({
   }
 
   const showRescheduleUnavailableGuidance = error === RESCHEDULE_UNAVAILABLE_MESSAGE;
+  const showDevTimeControls =
+    process.env.NODE_ENV !== "production" && isMutableTimeSource(timeSource);
+  const showEndRecoveryReminder =
+    showDevTimeControls && !activeReminder && activeEndRecoveryReminder !== null;
 
   return (
     <main
@@ -400,6 +416,15 @@ export function CircularPlanner({
       data-planner-ready={isCurrentMinuteReady ? "true" : "false"}
       data-testid="planner-root"
     >
+      {showDevTimeControls ? (
+        <DevTimeControls
+          createObservationSamplePlan={() => createObservationSamplePlan(currentMinute)}
+          currentMinute={currentMinute}
+          currentPlan={currentPlan}
+          sortedPlans={sortedPlans}
+          timeSource={timeSource}
+        />
+      ) : null}
       <section className="hero">
         <div className="hero-copy">
           <p className="eyebrow">Today Did You Finish?</p>
@@ -441,6 +466,32 @@ export function CircularPlanner({
                   type="button"
                 >
                   닫기
+                </button>
+              </div>
+            </div>
+          ) : null}
+          {showEndRecoveryReminder ? (
+            <div
+              aria-live="polite"
+              className="reminder-banner reminder-banner-recovery"
+              data-testid="end-recovery-banner"
+              role="status"
+            >
+              <div className="reminder-copy">
+                <span className="reminder-label">종료 전 확인</span>
+                <strong>{activeEndRecoveryReminder.title}</strong>
+                <span className="reminder-time">{endRecoveryReminderTimeText}</span>
+                <span className="reminder-detail">
+                  종료 직전에는 가벼운 확인만 두고, 회고는 종료 후 흐름으로 넘기는 실험 배너입니다.
+                </span>
+              </div>
+              <div className="reminder-actions">
+                <button
+                  className="reminder-complete reminder-continue"
+                  onClick={() => dismissActiveEndRecoveryReminder(activeEndRecoveryReminder.id)}
+                  type="button"
+                >
+                  계속 진행
                 </button>
               </div>
             </div>
@@ -497,6 +548,7 @@ export function CircularPlanner({
           <label className="field field-title">
             <span>제목</span>
             <input
+              maxLength={PLAN_TITLE_MAX_LENGTH}
               name="title"
               onChange={(event) => updateForm({ title: event.target.value })}
               placeholder="예: 영어 공부"
@@ -620,7 +672,8 @@ export function CircularPlanner({
         {error ? <p className="form-error">{error}</p> : null}
         {showRescheduleUnavailableGuidance ? (
           <p className="form-help">
-            원래 길이를 그대로 넣을 연속 시간이 없다는 뜻입니다. 더 짧은 새 시간을 직접 입력해 다시 저장해보십시오.
+            더 짧은 새 시간으로 다시 잡으십시오. 시작 시간이나 종료 시간을 직접 줄인 뒤
+            `다시 지정 저장`을 누르면 됩니다.
           </p>
         ) : null}
       </section>

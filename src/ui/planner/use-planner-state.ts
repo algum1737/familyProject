@@ -7,10 +7,17 @@ import {
   markMissedPlans,
   minuteToTimeString,
   sortPlans,
-  timeStringToMinute,
   validatePlanner
 } from "@/domains/plans/service/planner";
 import type { DailyPlan } from "@/domains/plans/types";
+import {
+  buildPlannerFormValues,
+  RESCHEDULE_UNAVAILABLE_MESSAGE,
+  savePlannerReflection,
+  startPlannerReschedule,
+  submitPlannerPlan,
+  togglePlannerPlanStatus
+} from "@/features/planner/core/planner-state-transitions";
 import type { PlansStore } from "@/providers/plans/plans-store";
 import { demoPlans } from "@/ui/planner/planner-demo-data";
 import { PLAN_COLORS } from "@/ui/planner/planner-colors";
@@ -30,6 +37,7 @@ export const defaultFormState: PlanFormState = {
   color: PLAN_COLORS[0].value,
   colorMode: PLAN_COLORS[0].value
 };
+const OBSERVATION_SAMPLE_DURATION_MINUTES = 30;
 
 type RecoveryMode = "reflection" | "reschedule" | null;
 export type StartReschedulingResult = "started" | "maxed" | "unavailable";
@@ -69,44 +77,16 @@ export function usePlannerState(plansStore: PlansStore) {
   }, [isHydrated, plans, plansStore]);
 
   function submitPlan() {
-    const previousPlan =
-      plans.find((plan) => plan.id === editingPlanId) ??
-      plans.find((plan) => plan.id === recoveryPlanId);
-    const isRescheduling = recoveryMode === "reschedule" && recoveryPlanId !== null;
-    const nextPlan: DailyPlan = {
-      id: isRescheduling ? crypto.randomUUID() : editingPlanId ?? crypto.randomUUID(),
-      title: form.title.trim(),
-      color: form.color,
-      startMinute: timeStringToMinute(form.startTime),
-      endMinute: timeStringToMinute(form.endTime),
-      rescheduleCount: isRescheduling ? (previousPlan?.rescheduleCount ?? 0) + 1 : previousPlan?.rescheduleCount ?? 0,
-      sourcePlanId:
-        isRescheduling && previousPlan
-          ? previousPlan.sourcePlanId ?? previousPlan.id
-          : previousPlan?.sourcePlanId,
-      reflectionNote: previousPlan?.reflectionNote,
-      status: "pending"
-    };
-    const basePlans =
-      editingPlanId === null || isRescheduling
-        ? plans
-        : plans.filter((plan) => plan.id !== editingPlanId);
-    const nextPlans = sortPlans(
-      validatePlanner(
-        [
-          ...basePlans,
-          {
-            ...nextPlan,
-            status: isRescheduling ? "pending" : previousPlan?.status ?? "pending"
-          }
-        ],
-        {
-          focusPlanId: nextPlan.id
-        }
-      )
+    setPlans(
+      submitPlannerPlan({
+        createId: () => crypto.randomUUID(),
+        editingPlanId,
+        form,
+        plans,
+        recoveryMode,
+        recoveryPlanId
+      })
     );
-
-    setPlans(nextPlans);
     setForm(defaultFormState);
     setEditingPlanId(null);
     setRecoveryMode(null);
@@ -120,18 +100,7 @@ export function usePlannerState(plansStore: PlansStore) {
   }
 
   function togglePlanStatus(id: string) {
-    setPlans((currentPlans) =>
-      sortPlans(
-        currentPlans.map((plan) =>
-          plan.id === id
-            ? {
-                ...plan,
-                status: plan.status === "done" ? "pending" : plan.status === "pending" ? "done" : "missed"
-              }
-            : plan
-        )
-      )
-    );
+    setPlans((currentPlans) => togglePlannerPlanStatus(currentPlans, id));
   }
 
   function syncPlanStatuses(currentMinute: number) {
@@ -156,14 +125,7 @@ export function usePlannerState(plansStore: PlansStore) {
     }
 
     setPlans((currentPlans) =>
-      currentPlans.map((plan) =>
-        plan.id === recoveryPlanId
-          ? {
-              ...plan,
-              reflectionNote: reflectionNoteDraft.trim() || undefined
-            }
-          : plan
-      )
+      savePlannerReflection(currentPlans, recoveryPlanId, reflectionNoteDraft)
     );
     setRecoveryMode(null);
     setRecoveryPlanId(null);
@@ -172,20 +134,19 @@ export function usePlannerState(plansStore: PlansStore) {
   }
 
   function startRescheduling(plan: DailyPlan, currentMinute: number | null) {
-    if (plan.rescheduleCount >= 3) {
-      setError("이 일정은 다시 지정 최대 3회를 모두 사용했습니다.");
+    const result = startPlannerReschedule({
+      currentMinute,
+      plan,
+      plans
+    });
+
+    if (result.kind === "maxed") {
+      setError(result.error);
       return "maxed" satisfies StartReschedulingResult;
     }
 
-    const duration = plan.endMinute - plan.startMinute;
-    const suggestedSlot = findNextAvailableTimeSlot(
-      plans.filter((item) => item.id !== plan.id),
-      duration,
-      Math.max(currentMinute ?? plan.endMinute, plan.endMinute)
-    );
-
-    if (!suggestedSlot) {
-      setError("오늘 남은 빈 시간에 다시 지정할 수 있는 구간이 없습니다.");
+    if (result.kind === "unavailable") {
+      setError(result.error);
       return "unavailable" satisfies StartReschedulingResult;
     }
 
@@ -193,10 +154,7 @@ export function usePlannerState(plansStore: PlansStore) {
     setRecoveryPlanId(plan.id);
     setEditingPlanId(null);
     setForm({
-      title: plan.title,
-      startTime: minuteToTimeString(suggestedSlot.startMinute),
-      endTime: minuteToTimeString(suggestedSlot.endMinute),
-      color: plan.color,
+      ...result.formValues,
       colorMode: getColorModeForColor(plan.color)
     });
     setReflectionNoteDraft("");
@@ -239,6 +197,52 @@ export function usePlannerState(plansStore: PlansStore) {
     setError(null);
   }
 
+  function createObservationSamplePlan(currentMinute: number | null) {
+    const suggestedSlot = findNextAvailableTimeSlot(
+      plans,
+      OBSERVATION_SAMPLE_DURATION_MINUTES,
+      Math.max(0, Math.min(23 * 60, (currentMinute ?? 0) + 10))
+    );
+
+    if (!suggestedSlot) {
+      setError("관찰 표본용으로 추가할 수 있는 미래 빈 시간이 없습니다.");
+      return null;
+    }
+
+    const nextSampleNumber =
+      plans.filter((plan) => plan.title.startsWith("관찰 표본")).length + 1;
+    const nextPlan: DailyPlan = {
+      id: crypto.randomUUID(),
+      title: `관찰 표본 ${nextSampleNumber}`,
+      color: PLAN_COLORS[0].value,
+      startMinute: suggestedSlot.startMinute,
+      endMinute: suggestedSlot.endMinute,
+      rescheduleCount: 0,
+      status: "pending"
+    };
+    const nextPlans = sortPlans(
+      validatePlanner([...plans, nextPlan], {
+        focusPlanId: nextPlan.id
+      })
+    );
+
+    setPlans(nextPlans);
+    setForm({
+      title: nextPlan.title,
+      startTime: minuteToTimeString(nextPlan.startMinute),
+      endTime: minuteToTimeString(nextPlan.endMinute),
+      color: nextPlan.color,
+      colorMode: getColorModeForColor(nextPlan.color)
+    });
+    setEditingPlanId(null);
+    setRecoveryMode(null);
+    setRecoveryPlanId(null);
+    setReflectionNoteDraft("");
+    setError(null);
+
+    return nextPlan;
+  }
+
   return {
     plans,
     form,
@@ -259,6 +263,7 @@ export function usePlannerState(plansStore: PlansStore) {
     cancelRecovery,
     deletePlan,
     startEditingPlan,
-    cancelEditing
+    cancelEditing,
+    createObservationSamplePlan
   };
 }

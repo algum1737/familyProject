@@ -3,30 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 
 import type { DailyPlan } from "@/domains/plans/types";
-
-export const REMINDER_LEAD_MINUTES = 5;
-export const REMINDER_LINGER_MINUTES = 10;
-
-function getReminderInstanceKey(plan: DailyPlan) {
-  return `${plan.id}:${plan.startMinute}`;
-}
+import {
+  findActiveStartReminder,
+  getReminderInstanceKey
+} from "@/features/planner/core/planner-reminder-rules";
 
 export function useReminderBanner(plans: DailyPlan[], currentMinute: number | null) {
   const [dismissedReminderKey, setDismissedReminderKey] = useState<string | null>(null);
 
   const activeReminder = useMemo(() => {
-    if (currentMinute === null) {
-      return null;
-    }
-
-    return (
-      plans.find(
-        (plan) =>
-          plan.status === "pending" &&
-          currentMinute >= plan.startMinute - REMINDER_LEAD_MINUTES &&
-          currentMinute <= plan.startMinute + REMINDER_LINGER_MINUTES
-      ) ?? null
-    );
+    return findActiveStartReminder(plans, currentMinute);
   }, [currentMinute, plans]);
 
   useEffect(() => {
