@@ -39,11 +39,14 @@
 - 웹 MVP 잔여 검증 항목과 앱 전환 선행 조건 구분
 - 다음 구현 우선순위 초안
 
+## Completion Status
+
+Completed. The decision work selected `Expo + React Native`, documented the transition boundaries, and produced the initial Expo app shell and route structure. Remaining implementation validation belongs in follow-up active plans, not this decision plan.
+
 ## Open Work
 
-1. 원형 플래너를 앱에서도 유지할지, 모바일 대안 표현으로 바꿀지 최종 결정
-2. 앱 저장소 구현 후보와 로컬 알림 구현 후보를 기술 선택 수준으로 좁히기
-3. 앱 화면 트리와 웹 공용 계층/앱 전용 UI 계층 경계를 첫 구현 단위로 정리
+- None for this decision plan.
+- Follow-up implementation work should use new active plans.
 
 ## Recent Changes
 
@@ -87,7 +90,7 @@
 
 ## Current Focus
 
-- 다음 우선순위는 [APP_SCREEN_TREE.md](../../APP_SCREEN_TREE.md), [APP_STORAGE_OPTIONS.md](../../APP_STORAGE_OPTIONS.md), [APP_MOTIVATION_DATA_MODEL.md](../../APP_MOTIVATION_DATA_MODEL.md), [APP_SELECTOR_AND_STORE_EVOLUTION.md](../../APP_SELECTOR_AND_STORE_EVOLUTION.md), [APP_LOCAL_REMINDER_PLAN.md](../../APP_LOCAL_REMINDER_PLAN.md), [APP_SHARED_AND_UI_BOUNDARY.md](../../APP_SHARED_AND_UI_BOUNDARY.md), [APP_TYPE_DRAFT.md](../../APP_TYPE_DRAFT.md), [APP_VIEW_MODEL_SPLIT_DRAFT.md](../../APP_VIEW_MODEL_SPLIT_DRAFT.md), [APP_BOOTSTRAP_FILE_LAYOUT.md](../../APP_BOOTSTRAP_FILE_LAYOUT.md), [APP_DAILY_PLAN_MIGRATION.md](../../APP_DAILY_PLAN_MIGRATION.md)로 화면/저장/날짜 모델/selector/알림/경계/타입/view-model/배치/이행 기준을 고정한 뒤, 실제 앱 초기화 브랜치로 넘어갈지 판단하는 일이다.
+- Completed. Expo app transition follow-up now lives in the current codebase and should be tracked through new active implementation plans.
 
 ## Decision Snapshot
 

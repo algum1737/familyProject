@@ -43,9 +43,14 @@
 - `npm run check:handoff-loop`로 훅 밖에서도 같은 점검을 수동 실행할 수 있게 함
 - `npm run test:handoff-loop`로 대표 커밋 시나리오에서 경고 품질을 자동 검증할 수 있게 함
 
+## Completion Status
+
+Completed. The plan editing flow is implemented and covered by the fixed unit, UI, and browser flow baselines listed below.
+
 ## Open Work
 
-1. 실제 운영 중 경고 노이즈가 과한지 관찰하고 필요하면 조건을 다시 조정
+- None for this execution plan.
+- Future alert tuning belongs in a new active plan if repeated noise appears.
 
 ## Current Focus
 
@@ -133,6 +138,6 @@ CI 실패 시 후속 조치는 아래 순서를 기본으로 한다.
 1. `AGENTS.md`
 2. `docs/index.md`
 3. `docs/MVP_SCOPE.md`
-4. `docs/exec-plans/active/2026-04-23-plan-editing.md`
+4. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
 5. `src/ui/planner/circular-planner.tsx`
 6. `src/app/globals.css`

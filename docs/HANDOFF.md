@@ -13,11 +13,12 @@
 5. `docs/MVP_SCOPE.md`
 6. `docs/TECH_STACK.md`
 7. `docs/WEB_TO_APP_TRANSITION.md`
-8. `docs/exec-plans/active/2026-04-24-app-transition-decision.md`
-9. `docs/exec-plans/active/2026-04-28-missed-plan-recovery.md`
-10. `docs/exec-plans/active/2026-04-23-plan-editing.md`
-11. `src/ui/planner/circular-planner.tsx`
-12. `src/app/globals.css`
+8. `docs/exec-plans/active/2026-04-17-harness-template-kit.md`
+9. `docs/exec-plans/completed/2026-04-24-app-transition-decision.md`
+10. `docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md`
+11. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
+12. `apps/expo/src/screens/today-screen.tsx`
+13. `apps/expo/src/components/expo-circular-planner.tsx`
 
 ## Current Baseline
 
@@ -32,10 +33,10 @@
 
 ### Immediate Next Work
 
-- Expo 원형 시간판의 크기와 카드 내 배치를 다시 조정해 버튼/중앙 텍스트/해달 아이콘과의 균형을 맞춘다.
-- overnight 일정이 시간판에서 실제로 어떻게 보이는지 시뮬레이터에서 확인하고, 필요하면 섹터 라벨/회전/길이 표현을 조정한다.
-- `Motivation`, `Reflection`, `Plan Editor` 화면도 `Today` 수준으로 앱 톤과 safe area 정리를 맞춘다.
-- 이번 세션 종료 시점 기준으로 개발 서버는 모두 내려둔 상태다. 다음 재개 시 `apps/expo`에서 `npx expo start --localhost --clear`로 다시 시작하면 된다.
+- 새 큰 작업을 시작하기 전에 반드시 `docs/exec-plans/active/`에 실행 계획을 먼저 작성한다.
+- 다음 구현 후보는 `expo-router` 실제 라우트 흐름 검증과 시뮬레이터 QA다. 시작 전 새 active plan으로 범위와 검증 기준을 고정한다.
+- `docs/exec-plans/active/2026-04-17-harness-template-kit.md`는 아직 active다. 산출물 존재 여부를 확인하고 완료/폐기/재범위화 중 하나로 정리해야 한다.
+- 이번 세션 기준으로 커밋과 push 후 문서 정리 커밋이 이어질 수 있다. 현재 브랜치/커밋은 git 명령으로 확인한다.
 
 - 현재 브랜치: `git branch --show-current`로 확인
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
@@ -182,9 +183,9 @@
 
 ## Suggested Next Work
 
-1. `expo-router` 탭/오버레이 route를 preview shell 없이 실제 앱에서 열어보는 실행 검증
-2. Expo actions와 shared state transition helper의 경계를 더 명확히 나누기
-3. 필요하면 `use-planner-state`도 같은 기준으로 core / platform split 초안 작성하기
+1. `docs/exec-plans/active/`에 Expo route validation 계획을 작성한 뒤 실제 시뮬레이터에서 `today -> editor -> reflection -> motivation` 흐름을 검증
+2. `Harness Template Kit Plan` 산출물 존재 여부를 확인하고 완료/폐기/재범위화 결정
+3. Expo actions와 shared state transition helper 경계가 실제 라우트 검증 뒤에도 유지되는지 점검
 
 ## Handoff Prompt
 
@@ -201,16 +202,17 @@
 5. docs/MVP_SCOPE.md
 6. docs/TECH_STACK.md
 7. docs/WEB_TO_APP_TRANSITION.md
-8. docs/exec-plans/active/2026-04-24-app-transition-decision.md
-9. docs/exec-plans/active/2026-04-28-missed-plan-recovery.md
-10. docs/exec-plans/active/2026-04-23-plan-editing.md
-11. src/ui/planner/circular-planner.tsx
-12. src/app/globals.css
+8. docs/exec-plans/active/2026-04-17-harness-template-kit.md
+9. docs/exec-plans/completed/2026-04-24-app-transition-decision.md
+10. docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md
+11. docs/exec-plans/completed/2026-04-23-plan-editing.md
+12. apps/expo/src/screens/today-screen.tsx
+13. apps/expo/src/components/expo-circular-planner.tsx
 
 현재 기준:
 - branch: `git branch --show-current`
 - commit: `git rev-parse --short HEAD`
-- latest progress: recovery observation runbook and end-5-minute review checklist added
+- latest progress: Expo mobile shell and planner policy work pushed; completed exec plans moved out of active after harness cleanup
 
 현재 구현 상태:
 - Next.js + TypeScript 기반 웹 MVP

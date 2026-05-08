@@ -49,11 +49,14 @@
 - 앱 공통 안정 범위는 `current`, `pending`, `done`, `missed`, `completeNow`, `reflection`, `reschedule` 7개 키로 제한한다.
 - 섹션 제목, 안내 문구, 검증 오류 메시지는 초기 앱 범위에서는 제품 고정 문구로 둔다.
 
+## Completion Status
+
+Completed. `missed` state, reflection, rescheduling, recovery highlighting, chain-based completion accounting, and next-day rescheduled follow-up cleanup are implemented and tested.
+
 ## Open Work
 
-1. `docs/END_5_MINUTE_ALERT_DECISION.md` 결론이 실제 운영에 가까운 일정 체인에서도 계속 맞는지 가볍게 추적하기
-2. 앱 전환 시 종료 5분 전 회복 알림 정책은 현재 `계속 진행` 1액션 실험 배너 유지로 결정됐으므로, 재검토 조건이 생길 때만 다시 판단하기
-3. `다시 지정 불가` 안내를 제품 고정 문구로 유지해도 충분한지, 이후 운영에서 추가 설명 요구가 반복되는지만 가볍게 확인
+- None for this execution plan.
+- Future notification or copy policy changes should start as new active plans.
 
 ## Recent Changes
 
