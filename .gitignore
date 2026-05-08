@@ -1,8 +1,12 @@
 .DS_Store
 node_modules/
+apps/expo/node_modules/
 dist/
 build/
 .next/
+apps/expo/.expo/
+apps/expo/ios/Pods/
+apps/expo/ios/.xcode.env.local
 .env
 .env.*
 coverage/

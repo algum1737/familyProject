@@ -25,9 +25,14 @@
 - 일정 규칙과 시간 계산은 `src/domains`와 `src/shared`에 둔다.
 - 저장소와 시간 소스는 provider 인터페이스 뒤로 숨긴다.
 
+## Current App Direction
+
+- 실제 앱 런타임은 `Expo + React Native` 기준으로 진행 중이다.
+- 첫 실제 navigator 기본안은 `expo-router`다.
+- route 구조는 `today`, `motivation` 탭과 `editor`, `reflection` 오버레이를 기본 계약으로 둔다.
+
 ## Initial Dependency Policy
 
 - 상태 관리는 React 기본 상태를 우선 사용한다.
 - 별도 전역 상태 라이브러리는 실제 복잡도가 생길 때만 도입한다.
 - 차트 라이브러리는 사용하지 않는다.
-
