@@ -10,7 +10,7 @@ import type {
 import type {
   RecoveryContributionSummary
 } from "../../../../src/domains/plans/selectors/recovery-contribution-summary";
-import { expoTheme } from "../app-shell/expo-theme";
+import { useExpoTheme } from "../app-shell/expo-theme-provider";
 
 type ExpoMotivationScreenProps = {
   calendarDays: MonthlyCalendarDay[];
@@ -23,6 +23,7 @@ export function ExpoMotivationScreen({
   recoverySummary,
   summary
 }: ExpoMotivationScreenProps) {
+  const { theme: expoTheme } = useExpoTheme();
   const completedCount = summary?.completedCount ?? 0;
   const completionRate = summary?.completionRate ?? 0;
   const missedCount = summary?.missedCount ?? 0;

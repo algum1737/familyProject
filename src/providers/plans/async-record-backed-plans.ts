@@ -4,6 +4,7 @@ import type {
   PlanDateKey,
   PlannerRecordMap
 } from "@/domains/plans/types";
+import { normalizeDailyPlans } from "@/domains/plans/service/plan-color";
 import {
   addPlanDate,
   getCarryoverPlansForDate,
@@ -36,21 +37,24 @@ export function createAsyncRecordBackedPlansStore(options: {
       const dateKey = getPlanDateKey(now);
       const records = await recordsStore.loadAll();
       const datedPlans = records[dateKey];
-      const carryoverPlans = getCarryoverPlansForDate(records, now, dateKey);
+      const carryoverPlans = normalizeDailyPlans(getCarryoverPlansForDate(records, now, dateKey));
 
       if (datedPlans) {
-        return [...stripPlanDate(datedPlans), ...carryoverPlans];
+        return normalizeDailyPlans([...stripPlanDate(datedPlans), ...carryoverPlans]);
       }
 
-      return fallbackStore ? resetPlansForNextDay(await fallbackStore.load()) : [];
+      return fallbackStore
+        ? normalizeDailyPlans(resetPlansForNextDay(await fallbackStore.load()))
+        : [];
     },
     async save(plans) {
       const dateKey = getPlanDateKey(timeSource.now());
+      const normalizedPlans = normalizeDailyPlans(plans);
 
-      await recordsStore.saveForDate(dateKey, addPlanDate(dateKey, plans));
+      await recordsStore.saveForDate(dateKey, addPlanDate(dateKey, normalizedPlans));
 
       if (fallbackStore) {
-        await fallbackStore.save(plans);
+        await fallbackStore.save(normalizedPlans);
       }
     }
   };

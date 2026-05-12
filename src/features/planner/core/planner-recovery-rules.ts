@@ -19,6 +19,14 @@ function getChainRootId(plan: DailyPlan) {
   return plan.sourcePlanId ?? plan.id;
 }
 
+function isLaterChainFollowUp(basePlan: DailyPlan, candidate: DailyPlan) {
+  return (
+    candidate.id !== basePlan.id &&
+    getChainRootId(candidate) === getChainRootId(basePlan) &&
+    candidate.rescheduleCount > basePlan.rescheduleCount
+  );
+}
+
 function isCurrentPlanAtMinute(plan: Pick<DailyPlan, "startMinute" | "endMinute">, currentMinute: number) {
   return currentMinute >= plan.startMinute && currentMinute < plan.endMinute;
 }
@@ -36,27 +44,18 @@ export function getChainRescheduleCount(plans: DailyPlan[], plan: DailyPlan) {
 }
 
 export function findNextPendingFollowUp(plans: DailyPlan[], plan: DailyPlan) {
-  const chainRootId = getChainRootId(plan);
-
   return (
     plans.find(
       (item) =>
-        item.id !== plan.id &&
-        getChainRootId(item) === chainRootId &&
+        isLaterChainFollowUp(plan, item) &&
         item.status === "pending"
     ) ?? null
   );
 }
 
 export function findAnyFollowUp(plans: DailyPlan[], plan: DailyPlan) {
-  const chainRootId = getChainRootId(plan);
-
   const followUps = plans
-    .filter(
-      (item) =>
-        item.id !== plan.id &&
-        getChainRootId(item) === chainRootId
-    )
+    .filter((item) => isLaterChainFollowUp(plan, item))
     .sort((left, right) => left.startMinute - right.startMinute);
 
   return followUps.at(-1) ?? null;

@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 
-import type { DailyPlan, PlannerRecordMap } from "../../../../src/domains/plans/types";
 import {
-  addPlanDate,
-  getCarryoverPlansForDate,
-  stripPlanDate
-} from "../../../../src/providers/plans/record-backed-shared";
+  normalizeDailyPlans,
+  normalizePlannerRecordMap
+} from "../../../../src/domains/plans/service/plan-color";
+import type { DailyPlan, PlannerRecordMap } from "../../../../src/domains/plans/types";
 import type { ExpoPlansStore } from "../providers/plans/expo-async-plans-store";
 import type { ExpoPlannerRecordsStore } from "../providers/plans/expo-async-planner-records-store";
+import {
+  resolveExpoBootstrapState,
+  type ExpoBootstrapSource
+} from "./expo-bootstrap-state";
 
 type BootstrapStatus = "error" | "loading" | "ready";
-type BootstrapSource = "empty" | "legacy-migrated" | "records-restored";
+type BootstrapSource = ExpoBootstrapSource;
 
 type ExpoAppBootstrapState = {
   error: string | null;
@@ -41,58 +44,41 @@ export function useExpoAppBootstrap(options: {
 
     async function bootstrap() {
       try {
-        const loadedRecords = await recordsStore.loadAll();
-        const carryoverPlans = getCarryoverPlansForDate(loadedRecords, new Date(), currentDate);
+        const loadedRecords = normalizePlannerRecordMap(await recordsStore.loadAll());
 
         if (!active) {
           return;
         }
 
-        if (Object.keys(loadedRecords).length > 0 && loadedRecords[currentDate]) {
-          setState({
-            error: null,
-            initialPlans: [...stripPlanDate(loadedRecords[currentDate]), ...carryoverPlans],
-            records: loadedRecords,
-            source: "records-restored",
-            status: "ready"
-          });
-          return;
-        }
-
-        const loadedPlans = await plansStore.load();
+        const loadedPlans = normalizeDailyPlans(await plansStore.load());
 
         if (!active) {
           return;
         }
 
-        if (loadedPlans.length > 0) {
-          const datedPlans = addPlanDate(currentDate, loadedPlans);
-          const migratedRecords = {
-            ...loadedRecords,
-            [currentDate]: datedPlans
-          };
+        const resolved = resolveExpoBootstrapState({
+          currentDate,
+          loadedPlans,
+          loadedRecords,
+          now: new Date()
+        });
 
-          await recordsStore.saveForDate(currentDate, datedPlans);
+        if (resolved.migratedCurrentDatePlans) {
+          await recordsStore.saveForDate(
+            currentDate,
+            normalizeDailyPlans(resolved.migratedCurrentDatePlans)
+          );
 
           if (!active) {
             return;
           }
-
-          setState({
-            error: null,
-            initialPlans: loadedPlans,
-            records: migratedRecords,
-            source: Object.keys(loadedRecords).length > 0 ? "records-restored" : "legacy-migrated",
-            status: "ready"
-          });
-          return;
         }
 
         setState({
           error: null,
-          initialPlans: [],
-          records: {},
-          source: "empty",
+          initialPlans: resolved.initialPlans,
+          records: resolved.records,
+          source: resolved.source,
           status: "ready"
         });
       } catch (error) {

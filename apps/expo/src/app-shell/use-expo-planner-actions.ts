@@ -3,6 +3,10 @@
 import { minuteToTimeString } from "../../../../src/domains/plans/service/planner";
 import type { DailyPlan } from "../../../../src/domains/plans/types";
 import {
+  getEndRecoveryInstanceKey,
+  getReminderInstanceKey
+} from "../../../../src/features/planner/core/planner-reminder-rules";
+import {
   buildPlannerFormValues,
   startPlannerReschedule
 } from "../../../../src/features/planner/core/planner-state-transitions";
@@ -52,11 +56,23 @@ export function useExpoPlannerActions(plannerState: ExpoPlannerState) {
   }
 
   function dismissReminder(planId: string) {
-    plannerState.markReminderDismissed(planId);
+    const plan = plannerState.plans.find((item) => item.id === planId);
+
+    if (!plan) {
+      return;
+    }
+
+    plannerState.markReminderDismissed(getReminderInstanceKey(plan));
   }
 
   function dismissEndRecovery(planId: string) {
-    plannerState.markEndRecoveryDismissed(planId);
+    const plan = plannerState.plans.find((item) => item.id === planId);
+
+    if (!plan) {
+      return;
+    }
+
+    plannerState.markEndRecoveryDismissed(getEndRecoveryInstanceKey(plan));
   }
 
   function deletePlan(planId: string) {

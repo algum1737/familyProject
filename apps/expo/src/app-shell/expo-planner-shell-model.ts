@@ -14,6 +14,7 @@ export type ExpoPlanItemView = {
   canToggleStatus: boolean;
   id: string;
   recoveryLabel: string | null;
+  rescheduleBlockedReason: string | null;
   statusLabel: string;
   statusTone: "current" | "pending" | "done" | "missed";
   timeText: string;

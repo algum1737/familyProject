@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 
 import {
+  normalizeDailyPlans,
+  normalizePlanColor
+} from "../../../../src/domains/plans/service/plan-color";
+import {
   markMissedPlans,
   minuteToTimeString,
   normalizeEndMinute,
@@ -49,11 +53,22 @@ export function useExpoPlannerState(options: {
   currentDate: string;
   currentMinute: number;
   initialPlans: DailyPlan[];
+  persistenceToken: string | null;
   plansStore: ExpoPlansStore;
   recordsStore: ExpoPlannerRecordsStore;
 }) {
-  const { currentDate, currentMinute, initialPlans, plansStore, recordsStore } = options;
-  const [plans, setPlans] = useState<DailyPlan[]>(() => sortPlans(initialPlans));
+  const {
+    currentDate,
+    currentMinute,
+    initialPlans,
+    persistenceToken,
+    plansStore,
+    recordsStore
+  } = options;
+  const [plans, setPlans] = useState<DailyPlan[]>(() =>
+    sortPlans(normalizeDailyPlans(initialPlans))
+  );
+  const [hydratedPersistenceToken, setHydratedPersistenceToken] = useState<string | null>(null);
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
   const [form, setForm] = useState<ExpoPlanFormState>(defaultExpoPlanFormState);
   const [fieldErrors, setFieldErrors] = useState<ExpoPlanFormErrors>({});
@@ -67,8 +82,9 @@ export function useExpoPlannerState(options: {
   const [dismissedEndRecoveryIds, setDismissedEndRecoveryIds] = useState<string[]>([]);
 
   useEffect(() => {
-    setPlans(sortPlans(initialPlans));
-  }, [initialPlans]);
+    setPlans(sortPlans(normalizeDailyPlans(initialPlans)));
+    setHydratedPersistenceToken(persistenceToken);
+  }, [initialPlans, persistenceToken]);
 
   useEffect(() => {
     const nextPlans = markMissedPlans(plans, currentMinute);
@@ -79,6 +95,10 @@ export function useExpoPlannerState(options: {
   }, [currentMinute, plans]);
 
   useEffect(() => {
+    if (!persistenceToken || hydratedPersistenceToken !== persistenceToken) {
+      return;
+    }
+
     void plansStore.save(plans);
     void recordsStore.saveForDate(
       currentDate,
@@ -87,7 +107,14 @@ export function useExpoPlannerState(options: {
         date: currentDate
       }))
     );
-  }, [currentDate, plans, plansStore, recordsStore]);
+  }, [
+    currentDate,
+    hydratedPersistenceToken,
+    persistenceToken,
+    plans,
+    plansStore,
+    recordsStore
+  ]);
 
   const recoveryPlan = useMemo(
     () => (recoveryPlanId ? plans.find((plan) => plan.id === recoveryPlanId) ?? null : null),
@@ -97,7 +124,9 @@ export function useExpoPlannerState(options: {
   function updateForm(values: Partial<ExpoPlanFormState>) {
     setForm((current) => ({
       ...current,
-      ...values
+      ...values,
+      color:
+        typeof values.color === "string" ? normalizePlanColor(values.color) : current.color
     }));
     setFieldErrors((current) => {
       const next = { ...current };
@@ -182,14 +211,19 @@ export function useExpoPlannerState(options: {
 
     try {
       setPlans(
-        submitPlannerPlan({
-          createId: createExpoPlanId,
-          editingPlanId,
-          form,
-          plans,
-          recoveryMode,
-          recoveryPlanId
-        })
+        normalizeDailyPlans(
+          submitPlannerPlan({
+            createId: createExpoPlanId,
+            editingPlanId,
+            form: {
+              ...form,
+              color: normalizePlanColor(form.color)
+            },
+            plans,
+            recoveryMode,
+            recoveryPlanId
+          })
+        )
       );
       setEditingPlanId(null);
       setRecoveryMode(null);
@@ -227,8 +261,12 @@ export function useExpoPlannerState(options: {
       setReflectionNoteDraft("");
     }
 
-    setDismissedReminderIds((current) => current.filter((id) => id !== planId));
-    setDismissedEndRecoveryIds((current) => current.filter((id) => id !== planId));
+    setDismissedReminderIds((current) =>
+      current.filter((key) => !key.startsWith(`${planId}:`))
+    );
+    setDismissedEndRecoveryIds((current) =>
+      current.filter((key) => !key.startsWith(`${planId}:`))
+    );
     setError(null);
   }
 

@@ -54,6 +54,18 @@ if ! grep -q 'git rev-parse --short HEAD' docs/HANDOFF.md; then
   exit 1
 fi
 
+if ! find docs/exec-plans/completed -mindepth 1 -maxdepth 1 -type f -name '*.md' ! -name 'README.md' | grep -q .; then
+  echo "missing completed exec plan history" >&2
+  exit 1
+fi
+
+while IFS= read -r active_plan; do
+  if ! grep -q '^## Open Work' "$active_plan"; then
+    echo "active exec plan must include Open Work: $active_plan" >&2
+    exit 1
+  fi
+done < <(find docs/exec-plans/active -mindepth 1 -maxdepth 1 -type f -name '*.md')
+
 if ! grep -q 'check-handoff-loop.sh' .githooks/post-commit; then
   echo "post-commit hook must run scripts/check-handoff-loop.sh" >&2
   exit 1

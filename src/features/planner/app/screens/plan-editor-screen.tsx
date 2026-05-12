@@ -1,5 +1,6 @@
 "use client";
 
+import type { RescheduleFailureGuidance } from "@/features/planner/core/reschedule-failure-guidance";
 import type { PlanFormState } from "@/ui/planner/use-planner-state";
 
 type PlanEditorScreenProps = {
@@ -9,7 +10,7 @@ type PlanEditorScreenProps = {
   onCancel?: () => void;
   onSubmit?: () => void;
   onUpdateForm?: (values: Partial<PlanFormState>) => void;
-  showRescheduleUnavailableGuidance?: boolean;
+  rescheduleFailureGuidance?: RescheduleFailureGuidance | null;
   submitButtonLabel: string;
 };
 
@@ -20,7 +21,7 @@ export function PlanEditorScreen({
   onCancel,
   onSubmit,
   onUpdateForm,
-  showRescheduleUnavailableGuidance = false,
+  rescheduleFailureGuidance = null,
   submitButtonLabel
 }: PlanEditorScreenProps) {
   return (
@@ -68,13 +69,10 @@ export function PlanEditorScreen({
         </div>
       </section>
       {error ? <p className="app-inline-error">{error}</p> : null}
-      {showRescheduleUnavailableGuidance ? (
+      {rescheduleFailureGuidance ? (
         <section className="app-card app-warning-card">
-          <strong>오늘 남은 빈 시간에는 이 일정 길이 그대로 다시 지정할 수 없습니다.</strong>
-          <p className="app-card-text">
-            더 짧은 새 시간으로 다시 잡으십시오. 시작 시간이나 종료 시간을 직접 줄인 뒤
-            `다시 지정 저장`을 누르면 됩니다.
-          </p>
+          <strong>{rescheduleFailureGuidance.title}</strong>
+          <p className="app-card-text">{rescheduleFailureGuidance.description}</p>
         </section>
       ) : null}
       <div className="app-inline-actions">

@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { normalizeDatedPlans, normalizePlannerRecordMap } from "../../../../../src/domains/plans/service/plan-color";
 import type {
   DatedPlanRecord,
   PlanDateKey,
@@ -22,15 +23,18 @@ export function createExpoAsyncPlannerRecordsStore(): ExpoPlannerRecordsStore {
         return {};
       }
 
-      return JSON.parse(raw) as PlannerRecordMap;
+      return normalizePlannerRecordMap(JSON.parse(raw) as PlannerRecordMap);
     },
     async saveForDate(date: PlanDateKey, plans: DatedPlanRecord[]) {
       const records = await this.loadAll();
-      records[date] = plans;
+      records[date] = normalizeDatedPlans(plans);
       await AsyncStorage.setItem(RECORDS_STORAGE_KEY, JSON.stringify(records));
     },
     async seed(records) {
-      await AsyncStorage.setItem(RECORDS_STORAGE_KEY, JSON.stringify(records));
+      await AsyncStorage.setItem(
+        RECORDS_STORAGE_KEY,
+        JSON.stringify(normalizePlannerRecordMap(records))
+      );
     }
   };
 }

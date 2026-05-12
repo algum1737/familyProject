@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { View } from "react-native";
 import Svg, { Circle, G, Line, Path, Rect, Text as SvgText } from "react-native-svg";
 
+import { normalizePlanColor } from "../../../../src/domains/plans/service/plan-color";
 import {
   createSectorPath,
   getReadableTextColor,
@@ -9,28 +11,25 @@ import {
   polarToCartesian
 } from "../../../../src/domains/plans/service/planner";
 import type { DailyPlan } from "../../../../src/domains/plans/types";
-
-const CANVAS_WIDTH = 296;
-const CANVAS_HEIGHT = 328;
-const CENTER_X = CANVAS_WIDTH / 2;
-const CENTER_Y = 160;
-const RADIUS = 105;
-const SECTOR_RADIUS = 113;
-const CURRENT_SECTOR_RADIUS = 119;
-const CURRENT_SECTOR_HALO_RADIUS = 128;
+import {
+  EXPO_CIRCULAR_PLANNER_CANVAS,
+  formatExpoCircularBadgeLabel,
+  getExpoCircularPlannerCanvas,
+  getExpoCircularPlannerCenterLabel,
+  getExpoCircularPlannerCenterTitle,
+  getExpoCircularPlannerLabelRadius,
+  getExpoCircularPlannerLabelWidth
+} from "./expo-circular-planner-layout";
 const INACTIVE_SECTOR_OPACITY = 0.72;
 
 type ExpoCircularPlannerProps = {
   currentMinute: number | null;
+  currentPlanTitle: string | null;
   plans: DailyPlan[];
 };
 
-function formatBadgeLabel(title: string) {
-  return title.length <= 8 ? title : `${title.slice(0, 7)}…`;
-}
-
 function withAlpha(hexColor: string, alpha: number) {
-  const normalized = hexColor.replace("#", "");
+  const normalized = normalizePlanColor(hexColor).replace("#", "");
   const safeColor =
     normalized.length === 3
       ? normalized
@@ -45,16 +44,24 @@ function withAlpha(hexColor: string, alpha: number) {
   return `rgba(${red},${green},${blue},${alpha})`;
 }
 
-function ClockFace() {
+function ClockFace({
+  centerX,
+  centerY,
+  radius
+}: {
+  centerX: number;
+  centerY: number;
+  radius: number;
+}) {
   const visibleHours = new Set([0, 3, 6, 9, 12, 15, 18, 21]);
 
   return (
     <>
       {Array.from({ length: 24 }, (_, hour) => {
         const angle = minuteToAngle(hour * 60);
-        const outer = polarToCartesian(angle, RADIUS + 19);
-        const inner = polarToCartesian(angle, RADIUS + 6);
-        const labelPoint = polarToCartesian(angle, RADIUS + 34);
+        const outer = polarToCartesian(angle, radius + 19);
+        const inner = polarToCartesian(angle, radius + 6);
+        const labelPoint = polarToCartesian(angle, radius + 34);
         const isMajor = visibleHours.has(hour);
 
         return (
@@ -62,10 +69,10 @@ function ClockFace() {
             <Line
               stroke="rgba(88,90,102,0.22)"
               strokeWidth={isMajor ? 3 : 1.4}
-              x1={CENTER_X + inner.x}
-              x2={CENTER_X + outer.x}
-              y1={CENTER_Y + inner.y}
-              y2={CENTER_Y + outer.y}
+              x1={centerX + inner.x}
+              x2={centerX + outer.x}
+              y1={centerY + inner.y}
+              y2={centerY + outer.y}
             />
             {isMajor ? (
               <SvgText
@@ -73,8 +80,8 @@ function ClockFace() {
                 fontSize={13}
                 fontWeight="800"
                 textAnchor="middle"
-                x={CENTER_X + labelPoint.x}
-                y={CENTER_Y + labelPoint.y + 5}
+                x={centerX + labelPoint.x}
+                y={centerY + labelPoint.y + 5}
               >
                 {String(hour)}
               </SvgText>
@@ -84,7 +91,7 @@ function ClockFace() {
       })}
 
       <G
-        transform={`translate(${CENTER_X + 24} ${CENTER_Y - (RADIUS + 36)})`}
+        transform={`translate(${centerX + 24} ${centerY - (radius + 36)})`}
       >
         <Circle cx={0} cy={0} fill="#9aa0ad" r={8.5} />
         <Circle cx={-7.2} cy={-6.4} fill="#d4d8e2" r={1.4} />
@@ -93,7 +100,7 @@ function ClockFace() {
       </G>
 
       <G
-        transform={`translate(${CENTER_X + 28} ${CENTER_Y + (RADIUS + 38)})`}
+        transform={`translate(${centerX + 28} ${centerY + (radius + 38)})`}
       >
         <Circle cx={0} cy={0} fill="#f7b347" r={6} />
         {Array.from({ length: 8 }, (_, index) => {
@@ -123,168 +130,210 @@ function ClockFace() {
 
 export function ExpoCircularPlanner({
   currentMinute,
+  currentPlanTitle,
   plans
 }: ExpoCircularPlannerProps) {
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [containerWidth, setContainerWidth] = useState<number | null>(null);
+  const canvas = getExpoCircularPlannerCanvas(containerWidth ?? EXPO_CIRCULAR_PLANNER_CANVAS.width);
+  const centerX = canvas.centerX;
+  const centerY = canvas.centerY;
+  const radius = canvas.radius;
+  const sectorRadius = canvas.sectorRadius;
+  const currentSectorRadius = canvas.currentSectorRadius;
+  const currentSectorHaloRadius = canvas.currentSectorHaloRadius;
 
   function toggleSelectedPlan(planId: string) {
     setSelectedPlanId((current) => (current === planId ? null : planId));
   }
 
   const planLabels = plans.map((plan) => {
+    const planColor = normalizePlanColor(plan.color);
     const current = currentMinute !== null && isCurrentPlan(plan, currentMinute);
     const selected = selectedPlanId === plan.id;
     const labelMinute = plan.startMinute + (plan.endMinute - plan.startMinute) / 2;
+    const labelRadius = getExpoCircularPlannerLabelRadius(canvas, current || selected);
     const point = polarToCartesian(
       minuteToAngle(labelMinute),
-      current || selected ? CURRENT_SECTOR_RADIUS * 0.58 : SECTOR_RADIUS * 0.56
+      labelRadius
     );
-    const title = selected ? plan.title : formatBadgeLabel(plan.title);
-    const width = selected
-      ? Math.min(190, Math.max(72, title.length * 9 + 22))
-      : Math.min(120, Math.max(44, title.length * 8 + 16));
+    const title = selected ? plan.title : formatExpoCircularBadgeLabel(plan.title);
+    const width = getExpoCircularPlannerLabelWidth(title, selected);
 
     return {
       current,
       id: plan.id,
-      labelColor: current ? "#ffffff" : getReadableTextColor(plan.color),
+      labelColor: current ? "#ffffff" : getReadableTextColor(planColor),
       selected,
-      pillFill: current ? withAlpha(plan.color, 0.9) : withAlpha(plan.color, 0.18),
+      pillFill: current ? withAlpha(planColor, 0.9) : withAlpha(planColor, 0.18),
       pillStroke:
-        current || selected ? withAlpha(plan.color, 0.62) : withAlpha(plan.color, 0.26),
+        current || selected ? withAlpha(planColor, 0.62) : withAlpha(planColor, 0.26),
       title,
       width,
-      x: CENTER_X + point.x,
-      y: CENTER_Y + point.y
+      x: centerX + point.x,
+      y: centerY + point.y
     };
   });
 
   return (
-    <Svg
-      height={CANVAS_HEIGHT}
-      onPress={() => setSelectedPlanId(null)}
-      viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`}
-      width="100%"
+    <View
+      onLayout={(event) => {
+        const nextWidth = event.nativeEvent.layout.width;
+
+        if (nextWidth > 0 && Math.abs(nextWidth - (containerWidth ?? 0)) > 1) {
+          setContainerWidth(nextWidth);
+        }
+      }}
+      style={{ width: "100%" }}
     >
-      <Circle
-        cx={CENTER_X}
-        cy={CENTER_Y}
-        fill="rgba(255,255,255,0.96)"
-        r={RADIUS - 18}
-        stroke="rgba(223,224,229,0.88)"
-        strokeWidth={2}
-      />
+      <Svg
+        height={canvas.height}
+        onPress={() => setSelectedPlanId(null)}
+        viewBox={`0 0 ${canvas.width} ${canvas.height}`}
+        width="100%"
+      >
+        <Circle
+          cx={centerX}
+          cy={centerY}
+          fill="rgba(255,255,255,0.96)"
+          r={canvas.innerDiscRadius}
+          stroke="rgba(223,224,229,0.88)"
+          strokeWidth={2}
+        />
 
-      <ClockFace />
+        <ClockFace centerX={centerX} centerY={centerY} radius={radius} />
 
-      {plans.map((plan) => {
-        const current = currentMinute !== null && isCurrentPlan(plan, currentMinute);
-        const selected = selectedPlanId === plan.id;
-        const sectorRadius = current || selected ? CURRENT_SECTOR_RADIUS : SECTOR_RADIUS;
+        {plans.map((plan) => {
+          const planColor = normalizePlanColor(plan.color);
+          const current = currentMinute !== null && isCurrentPlan(plan, currentMinute);
+          const selected = selectedPlanId === plan.id;
+          const planSectorRadius = current || selected ? currentSectorRadius : sectorRadius;
 
-        return (
-          <G key={plan.id}>
-            {current || selected ? (
+          return (
+            <G key={plan.id}>
+              {current || selected ? (
+                <Path
+                  d={createSectorPath(
+                    plan.startMinute,
+                    plan.endMinute,
+                    currentSectorHaloRadius,
+                    centerX,
+                    centerY
+                  )}
+                  fill={withAlpha(planColor, selected ? 0.28 : 0.18)}
+                  onPress={() => toggleSelectedPlan(plan.id)}
+                  opacity={0.96}
+                />
+              ) : null}
               <Path
                 d={createSectorPath(
                   plan.startMinute,
                   plan.endMinute,
-                  CURRENT_SECTOR_HALO_RADIUS,
-                  CENTER_X,
-                  CENTER_Y
+                  planSectorRadius,
+                  centerX,
+                  centerY
                 )}
-                fill={withAlpha(plan.color, selected ? 0.28 : 0.18)}
+                fill={planColor}
                 onPress={() => toggleSelectedPlan(plan.id)}
-                opacity={0.96}
+                opacity={current || selected ? 1 : INACTIVE_SECTOR_OPACITY}
+                stroke={current || selected ? "#fffaf5" : "rgba(255,255,255,0.38)"}
+                strokeLinejoin="round"
+                strokeWidth={current || selected ? 6 : 2.5}
               />
-            ) : null}
-            <Path
-              d={createSectorPath(
-                plan.startMinute,
-                plan.endMinute,
-                sectorRadius,
-                CENTER_X,
-                CENTER_Y
-              )}
-              fill={plan.color}
-              onPress={() => toggleSelectedPlan(plan.id)}
-              opacity={current || selected ? 1 : INACTIVE_SECTOR_OPACITY}
-              stroke={current || selected ? "#fffaf5" : "rgba(255,255,255,0.38)"}
-              strokeLinejoin="round"
-              strokeWidth={current || selected ? 6 : 2.5}
-            />
-          </G>
-        );
-      })}
+            </G>
+          );
+        })}
 
-      {planLabels.map((label) => (
-        <G
-          key={`label-${label.id}`}
-          onPress={() => toggleSelectedPlan(label.id)}
-          transform={`translate(${label.x} ${label.y})`}
-        >
-          <Rect
-            fill={label.selected ? withAlpha("#ffffff", 0.92) : label.pillFill}
-            height={label.selected ? 28 : 24}
-            rx={label.selected ? 14 : 12}
-            stroke={label.pillStroke}
-            strokeWidth={label.current || label.selected ? 1.4 : 0.8}
-            width={label.width}
-            x={-label.width / 2}
-            y={label.selected ? -18 : -16}
-          />
-          <SvgText
-            fill={label.selected ? "#22252c" : label.labelColor}
-            fontSize={label.selected ? 12 : 11}
-            fontWeight="800"
-            textAnchor="middle"
-            x={0}
-            y={0}
-          >
-            {label.title}
-          </SvgText>
-        </G>
-      ))}
+        {currentMinute !== null
+          ? (() => {
+              const hand = polarToCartesian(
+                minuteToAngle(currentMinute),
+                currentSectorRadius * 0.75
+              );
 
-      {currentMinute !== null ? (
-        <>
-          {(() => {
-            const hand = polarToCartesian(minuteToAngle(currentMinute), CURRENT_SECTOR_RADIUS * 0.75);
-
-            return (
-              <>
-                <Line
-                  stroke="rgba(255,255,255,0.6)"
-                  strokeLinecap="round"
-                  strokeWidth={9}
-                  x1={CENTER_X}
-                  x2={CENTER_X + hand.x}
-                  y1={CENTER_Y}
-                  y2={CENTER_Y + hand.y}
-                />
+              return (
+                <>
+                  <Line
+                    stroke="rgba(255,255,255,0.6)"
+                    strokeLinecap="round"
+                    strokeWidth={9}
+                    x1={centerX}
+                    x2={centerX + hand.x}
+                    y1={centerY}
+                    y2={centerY + hand.y}
+                  />
                 <Line
                   stroke="rgba(32,36,45,0.72)"
                   strokeLinecap="round"
                   strokeWidth={4.5}
-                  x1={CENTER_X}
-                  x2={CENTER_X + hand.x}
-                  y1={CENTER_Y}
-                  y2={CENTER_Y + hand.y}
+                  x1={centerX}
+                    x2={centerX + hand.x}
+                  y1={centerY}
+                  y2={centerY + hand.y}
                 />
                 <Circle
-                  cx={CENTER_X}
-                  cy={CENTER_Y}
+                  cx={centerX}
+                  cy={centerY}
                   fill="rgba(32,36,45,0.9)"
-                  r={12}
+                  r={11}
                   stroke="#ffffff"
-                  strokeWidth={4}
+                  strokeWidth={3.5}
                 />
-              </>
-            );
-          })()}
-        </>
-      ) : null}
+                </>
+              );
+            })()
+          : null}
 
-    </Svg>
+        {planLabels.map((label) => (
+          <G
+            key={`label-${label.id}`}
+            onPress={() => toggleSelectedPlan(label.id)}
+            transform={`translate(${label.x} ${label.y})`}
+          >
+            <Rect
+              fill={label.selected ? withAlpha("#ffffff", 0.92) : label.pillFill}
+              height={label.selected ? 28 : 22}
+              rx={label.selected ? 14 : 11}
+              stroke={label.pillStroke}
+              strokeWidth={label.current || label.selected ? 1.4 : 0.8}
+              width={label.width}
+              x={-label.width / 2}
+              y={label.selected ? -18 : -15}
+            />
+            <SvgText
+              fill={label.selected ? "#22252c" : label.labelColor}
+              fontSize={label.selected ? 12 : 10}
+              fontWeight="800"
+              textAnchor="middle"
+              x={0}
+              y={0}
+            >
+              {label.title}
+            </SvgText>
+          </G>
+        ))}
+
+        <SvgText
+          fill="#8a8e98"
+          fontSize={12}
+          fontWeight="800"
+          textAnchor="middle"
+          x={centerX}
+          y={centerY - 18}
+        >
+          {getExpoCircularPlannerCenterLabel(currentMinute)}
+        </SvgText>
+        <SvgText
+          fill="#22252c"
+          fontSize={16}
+          fontWeight="900"
+          textAnchor="middle"
+          x={centerX}
+          y={centerY + 14}
+        >
+          {getExpoCircularPlannerCenterTitle(currentPlanTitle)}
+        </SvgText>
+      </Svg>
+    </View>
   );
 }

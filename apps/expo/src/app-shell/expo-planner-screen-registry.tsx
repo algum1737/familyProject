@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { getRescheduleFailureGuidance } from "../../../../src/features/planner/core/reschedule-failure-guidance";
 import { ExpoMotivationScreen } from "../screens/motivation-screen";
 import { ExpoPlanEditorScreen } from "../screens/plan-editor-screen";
 import { ExpoReflectionScreen } from "../screens/reflection-screen";
@@ -16,6 +17,7 @@ export function renderExpoPlannerScreen(options: {
   screen: ScreenKey;
 }): ReactNode {
   const { flow, model, screen } = options;
+  const rescheduleFailureGuidance = getRescheduleFailureGuidance(model.error);
 
   const screens: Record<ScreenKey, ReactNode> = {
     editor: (
@@ -30,6 +32,7 @@ export function renderExpoPlannerScreen(options: {
         onUpdateForm={model.updateForm}
         planTitleMaxLength={model.planTitleMaxLength}
         plannedCount={model.todayPlans.length}
+        rescheduleFailureGuidance={rescheduleFailureGuidance}
         timeDisplayFormat={model.timeDisplayFormat}
         title={model.recoveryMode === "reschedule" ? "다시 지정" : "계획 편집"}
       />
@@ -56,6 +59,7 @@ export function renderExpoPlannerScreen(options: {
         currentPlanTimeText={model.currentPlanTimeText}
         currentPlanTitle={model.currentPlan?.title ?? null}
         endRecoveryPlanId={model.activeEndRecoveryReminder?.id ?? null}
+        error={model.error}
         onChangeTimeDisplayFormat={model.setTimeDisplayFormat}
         onCompletePlan={model.togglePlanStatus}
         onDeletePlan={model.deletePlan}
@@ -69,6 +73,7 @@ export function renderExpoPlannerScreen(options: {
         planItems={model.todayPlanItems}
         reminderPlanId={model.activeReminder?.id ?? null}
         reminderText={flow.reminderText}
+        rescheduleFailureGuidance={rescheduleFailureGuidance}
         summary={model.summary}
         timeDisplayFormat={model.timeDisplayFormat}
       />

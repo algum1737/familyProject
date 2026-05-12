@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
+import {
+  normalizeDailyPlans,
+  normalizePlannerRecordMap
+} from "../../../../src/domains/plans/service/plan-color";
 import { getDailySummary } from "../../../../src/domains/plans/selectors/daily-summary";
 import { getMonthlyCalendarStatus } from "../../../../src/domains/plans/selectors/monthly-calendar-status";
 import { getMonthlyMotivationSummary } from "../../../../src/domains/plans/selectors/monthly-motivation-summary";
@@ -12,7 +16,9 @@ import {
 } from "../../../../src/features/planner/core/planner-core-view-model";
 import {
   findActiveEndRecoveryReminder,
-  findActiveStartReminder
+  findActiveStartReminder,
+  isEndRecoveryReminderDismissed,
+  isStartReminderDismissed
 } from "../../../../src/features/planner/core/planner-reminder-rules";
 import {
   createExpoAsyncPlansStore
@@ -32,6 +38,7 @@ import {
   buildExpoTodayPlanItems,
   getExpoCurrentPlanTimeText
 } from "./expo-planner-preview-presentation";
+import { buildExpoMergedPlannerRecords } from "./expo-monthly-records";
 import {
   createExpoDemoRecords,
   getExpoPlannerDateKey,
@@ -53,10 +60,22 @@ export function useExpoPlannerPreviewModel() {
   );
   const [records, setRecords] = useState<PlannerRecordMap | null>(null);
   const [seedPlans, setSeedPlans] = useState<DailyPlan[]>([]);
+  const persistenceToken = useMemo(() => {
+    if (records === null) {
+      return null;
+    }
+
+    return JSON.stringify({
+      currentDate,
+      plans: seedPlans,
+      recordsLoaded: true
+    });
+  }, [currentDate, records, seedPlans]);
   const plannerState = useExpoPlannerState({
     currentDate,
     currentMinute,
     initialPlans: seedPlans,
+    persistenceToken,
     plansStore,
     recordsStore
   });
@@ -79,14 +98,14 @@ export function useExpoPlannerPreviewModel() {
     let active = true;
 
     async function load() {
-      let loadedRecords = await recordsStore.loadAll();
+      let loadedRecords = normalizePlannerRecordMap(await recordsStore.loadAll());
 
       if (Object.keys(loadedRecords).length === 0) {
         loadedRecords = createExpoDemoRecords(now);
         await recordsStore.seed(loadedRecords);
       }
 
-      const loadedPlans = await plansStore.load();
+      const loadedPlans = normalizeDailyPlans(await plansStore.load());
 
       if (!active) {
         return;
@@ -96,7 +115,9 @@ export function useExpoPlannerPreviewModel() {
       setSeedPlans(
         loadedPlans.length > 0
           ? loadedPlans
-          : loadedRecords[currentDate]?.map(({ date: _date, ...plan }) => plan) ?? []
+          : normalizeDailyPlans(
+              loadedRecords[currentDate]?.map(({ date: _date, ...plan }) => plan) ?? []
+            )
       );
     }
 
@@ -117,7 +138,8 @@ export function useExpoPlannerPreviewModel() {
     [currentMinute, plannerState.plans]
   );
   const activeReminder =
-    activeReminderRaw && !plannerState.dismissedReminderIds.includes(activeReminderRaw.id)
+    activeReminderRaw &&
+    !isStartReminderDismissed(plannerState.dismissedReminderIds, activeReminderRaw)
       ? activeReminderRaw
       : null;
   const activeEndRecoveryRaw = useMemo(
@@ -129,7 +151,10 @@ export function useExpoPlannerPreviewModel() {
   );
   const activeEndRecoveryReminder =
     activeEndRecoveryRaw &&
-    !plannerState.dismissedEndRecoveryIds.includes(activeEndRecoveryRaw.id)
+    !isEndRecoveryReminderDismissed(
+      plannerState.dismissedEndRecoveryIds,
+      activeEndRecoveryRaw
+    )
       ? activeEndRecoveryRaw
       : null;
   const todayPlanItems = useMemo(
@@ -140,13 +165,15 @@ export function useExpoPlannerPreviewModel() {
     () => getDailySummary(toExpoDateRecord(currentDate, plannerState.plans)),
     [currentDate, plannerState.plans]
   );
-  const mergedRecords = useMemo(() => {
-    const baseRecords = records ?? {};
-    return {
-      ...baseRecords,
-      [currentDate]: toExpoDateRecord(currentDate, plannerState.plans)
-    };
-  }, [currentDate, plannerState.plans, records]);
+  const mergedRecords = useMemo(
+    () =>
+      buildExpoMergedPlannerRecords({
+        currentDate,
+        currentPlans: plannerState.plans,
+        records: records ?? {}
+      }),
+    [currentDate, plannerState.plans, records]
+  );
   const monthlySummary = useMemo(
     () => getMonthlyMotivationSummary(monthKey, mergedRecords),
     [mergedRecords, monthKey]
@@ -159,6 +186,10 @@ export function useExpoPlannerPreviewModel() {
     () => getRecoveryContributionSummary(monthKey, mergedRecords),
     [mergedRecords, monthKey]
   );
+
+  useEffect(() => {
+    void reminderProvider.sync(plannerState.plans, now);
+  }, [now, plannerState.plans, reminderProvider]);
 
   return {
     activeEndRecoveryReminder,

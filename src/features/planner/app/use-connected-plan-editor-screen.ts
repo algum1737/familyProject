@@ -51,7 +51,7 @@ export function useConnectedPlanEditorScreen({
           : plannerState.cancelEditing,
       onSubmit: plannerState.submitPlan,
       onUpdateForm: plannerState.updateForm,
-      showRescheduleUnavailableGuidance: viewModel.showRescheduleUnavailableGuidance,
+      rescheduleFailureGuidance: viewModel.rescheduleFailureGuidance,
       submitButtonLabel: viewModel.submitButtonLabel
     }
   };

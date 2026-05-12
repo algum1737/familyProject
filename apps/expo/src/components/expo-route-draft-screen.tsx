@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-import { expoTheme } from "../app-shell/expo-theme";
+import { useExpoTheme } from "../app-shell/expo-theme-provider";
 
 type ExpoRouteDraftScreenProps = {
   body: string;
@@ -13,6 +13,8 @@ export function ExpoRouteDraftScreen({
   route,
   title
 }: ExpoRouteDraftScreenProps) {
+  const { theme: expoTheme } = useExpoTheme();
+
   return (
     <View style={expoTheme.page}>
       <View style={expoTheme.heroCard}>

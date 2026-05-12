@@ -57,6 +57,7 @@ function toPlanItemView(
     canToggleStatus: item.canToggleStatus,
     id: item.plan.id,
     title: item.plan.title,
+    rescheduleBlockedReason: item.rescheduleBlockedReason,
     timeText: getTimeText(item.plan.startMinute, item.plan.endMinute, timeDisplayFormat),
     statusLabel: getStatusLabel(item.statusLabelKey),
     statusTone: item.statusLabelKey,

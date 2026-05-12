@@ -224,9 +224,7 @@ export function AppFlowShell({
                 setScreen("today");
               }}
               onUpdateForm={plannerState.updateForm}
-              showRescheduleUnavailableGuidance={
-                editorViewModel.showRescheduleUnavailableGuidance
-              }
+              rescheduleFailureGuidance={editorViewModel.rescheduleFailureGuidance}
               submitButtonLabel={editorViewModel.submitButtonLabel}
             />
           ) : null}

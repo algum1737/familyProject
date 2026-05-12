@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { normalizeDailyPlans } from "../../../../../src/domains/plans/service/plan-color";
 import type { DailyPlan } from "../../../../../src/domains/plans/types";
 import {
   createAsyncRecordBackedPlansStore,
@@ -26,10 +27,10 @@ function createExpoFallbackPlansStore(): AsyncRecordBackedPlansStore {
         return [];
       }
 
-      return JSON.parse(raw) as DailyPlan[];
+      return normalizeDailyPlans(JSON.parse(raw) as DailyPlan[]);
     },
     async save(plans) {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeDailyPlans(plans)));
     }
   };
 }

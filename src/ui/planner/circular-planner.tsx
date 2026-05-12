@@ -24,6 +24,7 @@ import {
 import type { PlansStore } from "@/providers/plans/plans-store";
 import type { ReminderProvider } from "@/providers/reminders/reminder-provider";
 import { isMutableTimeSource, type TimeSource } from "@/providers/time/time-source";
+import { getRescheduleFailureGuidance } from "@/features/planner/core/reschedule-failure-guidance";
 import { PLAN_COLORS } from "@/ui/planner/planner-colors";
 import { DevTimeControls } from "@/ui/planner/dev-time-controls";
 import { usePlannerViewModel } from "@/ui/planner/use-planner-view-model";
@@ -34,9 +35,6 @@ const SECTOR_RADIUS = 190;
 const CURRENT_SECTOR_RADIUS = 198;
 const CURRENT_SECTOR_HALO_RADIUS = 206;
 const INACTIVE_SECTOR_OPACITY = 0.42;
-const RESCHEDULE_UNAVAILABLE_MESSAGE =
-  "오늘 남은 빈 시간에는 이 일정 길이 그대로 다시 지정할 수 없습니다.";
-
 function getRecoveryObservationSummaryTestId(label: string) {
   switch (label) {
     case "회고 다시 보기":
@@ -404,7 +402,7 @@ export function CircularPlanner({
     setLabelSettingsDraft(buildLabelSettingsDraft(labelSettings));
   }
 
-  const showRescheduleUnavailableGuidance = error === RESCHEDULE_UNAVAILABLE_MESSAGE;
+  const rescheduleFailureGuidance = getRescheduleFailureGuidance(error);
   const showDevTimeControls =
     process.env.NODE_ENV !== "production" && isMutableTimeSource(timeSource);
   const showEndRecoveryReminder =
@@ -670,11 +668,8 @@ export function CircularPlanner({
           </button>
         </div>
         {error ? <p className="form-error">{error}</p> : null}
-        {showRescheduleUnavailableGuidance ? (
-          <p className="form-help">
-            더 짧은 새 시간으로 다시 잡으십시오. 시작 시간이나 종료 시간을 직접 줄인 뒤
-            `다시 지정 저장`을 누르면 됩니다.
-          </p>
+        {rescheduleFailureGuidance ? (
+          <p className="form-help">{rescheduleFailureGuidance.description}</p>
         ) : null}
       </section>
       <section className="list-section">

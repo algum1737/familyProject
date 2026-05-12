@@ -503,7 +503,7 @@ describe("circular planner user flows", () => {
     ).toBeTruthy();
     expect(
       screen.getByText(
-        "더 짧은 새 시간으로 다시 잡으십시오. 시작 시간이나 종료 시간을 직접 줄인 뒤 `다시 지정 저장`을 누르면 됩니다."
+        "더 짧은 새 시간으로 다시 잡으십시오. 시작 시간이나 종료 시간을 직접 줄여 같은 화면에서 저장하면 됩니다."
       )
     ).toBeTruthy();
     expect(window.localStorage.getItem(RECOVERY_HIGHLIGHT_OBSERVATIONS_KEY)).toContain(

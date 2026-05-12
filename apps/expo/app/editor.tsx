@@ -1,17 +1,23 @@
 import { useEffect, useRef } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
+import { getRescheduleFailureGuidance } from "../../../src/features/planner/core/reschedule-failure-guidance";
 import { ExpoPlanEditorScreen } from "../src/screens/plan-editor-screen";
 import {
-  EXPO_ROUTE_PATHS,
   getSingleRouteParam,
   type EditorRouteMode
 } from "../src/app-shell/expo-router-contract";
 import { useExpoRouterAppModel } from "../src/app-shell/expo-router-app-provider";
+import {
+  cancelEditorRoute,
+  initializeEditorRoute,
+  submitEditorRoute
+} from "../src/app-shell/expo-router-route-actions";
 
 export default function EditorRoute() {
   const model = useExpoRouterAppModel();
   const router = useRouter();
+  const rescheduleFailureGuidance = getRescheduleFailureGuidance(model.error);
   const params = useLocalSearchParams<{
     mode?: string | string[];
     planId?: string | string[];
@@ -26,34 +32,7 @@ export default function EditorRoute() {
     }
 
     initializedRef.current = true;
-
-    if (mode === "create") {
-      model.startCreatePlan();
-      return;
-    }
-
-    if (!planId) {
-      router.replace(EXPO_ROUTE_PATHS.today);
-      return;
-    }
-
-    const plan = model.todayPlans.find((item) => item.id === planId);
-
-    if (!plan) {
-      router.replace(EXPO_ROUTE_PATHS.today);
-      return;
-    }
-
-    if (mode === "edit") {
-      model.startEditingPlan(plan);
-      return;
-    }
-
-    const result = model.startRescheduling(plan);
-
-    if (result !== "started") {
-      router.replace(EXPO_ROUTE_PATHS.today);
-    }
+    initializeEditorRoute({ mode, model, planId: planId ?? null, router });
   }, [mode, model, planId, router]);
 
   return (
@@ -63,22 +42,12 @@ export default function EditorRoute() {
       focusField={model.focusField}
       focusRequest={model.focusRequest}
       form={model.form}
-      onCancel={() => {
-        if (mode === "reschedule") {
-          model.cancelRecovery();
-        } else {
-          model.cancelEditing();
-        }
-        router.replace(EXPO_ROUTE_PATHS.today);
-      }}
-      onSubmit={() => {
-        if (model.submitPlan()) {
-          router.replace(EXPO_ROUTE_PATHS.today);
-        }
-      }}
+      onCancel={() => cancelEditorRoute(model, router, mode)}
+      onSubmit={() => submitEditorRoute(model, router)}
       onUpdateForm={model.updateForm}
       planTitleMaxLength={model.planTitleMaxLength}
       plannedCount={model.todayPlans.length}
+      rescheduleFailureGuidance={rescheduleFailureGuidance}
       timeDisplayFormat={model.timeDisplayFormat}
       title={mode === "reschedule" ? "다시 지정" : "계획 편집"}
     />

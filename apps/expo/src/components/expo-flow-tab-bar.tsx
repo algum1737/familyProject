@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from "react-native";
 
-import { expoTheme } from "../app-shell/expo-theme";
+import { useExpoTheme } from "../app-shell/expo-theme-provider";
 import { APP_TABS, type AppTabKey } from "../app-shell/flow-tabs";
 
 type ExpoFlowTabBarProps = {
@@ -9,8 +9,10 @@ type ExpoFlowTabBarProps = {
 };
 
 export function ExpoFlowTabBar({ onSelect, screen }: ExpoFlowTabBarProps) {
+  const { theme } = useExpoTheme();
+
   return (
-    <View style={expoTheme.tabBar}>
+    <View style={theme.tabBar}>
       {APP_TABS.map((tab) => {
         const active = tab.key === screen;
 
@@ -18,19 +20,19 @@ export function ExpoFlowTabBar({ onSelect, screen }: ExpoFlowTabBarProps) {
           <Pressable
             key={tab.key}
             onPress={() => onSelect(tab.key)}
-            style={[expoTheme.tabButton, active ? expoTheme.tabButtonActive : null]}
+            style={[theme.tabButton, active ? theme.tabButtonActive : null]}
           >
-            <View style={[expoTheme.tabBadge, active ? expoTheme.tabBadgeActive : null]}>
+            <View style={[theme.tabBadge, active ? theme.tabBadgeActive : null]}>
               <Text
                 style={[
-                  expoTheme.tabBadgeText,
-                  active ? expoTheme.tabBadgeTextActive : null
+                  theme.tabBadgeText,
+                  active ? theme.tabBadgeTextActive : null
                 ]}
               >
                 {tab.badge}
               </Text>
             </View>
-            <Text style={[expoTheme.tabLabel, active ? expoTheme.tabLabelActive : null]}>
+            <Text style={[theme.tabLabel, active ? theme.tabLabelActive : null]}>
               {tab.label}
             </Text>
           </Pressable>

@@ -1,7 +1,7 @@
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { expoTheme } from "../app-shell/expo-theme";
+import { useExpoTheme } from "../app-shell/expo-theme-provider";
 
 type ExpoReflectionScreenProps = {
   activeRecoveryTitle: string | null;
@@ -18,6 +18,8 @@ export function ExpoReflectionScreen({
   onChangeNote,
   onSave
 }: ExpoReflectionScreenProps) {
+  const { theme: expoTheme, themeKey } = useExpoTheme();
+
   return (
     <SafeAreaView edges={["top"]} style={expoTheme.routeSafeArea}>
       <ScrollView
@@ -52,7 +54,7 @@ export function ExpoReflectionScreen({
             multiline
             onChangeText={onChangeNote}
             placeholder="예: 이동 시간이 길어져 시작을 놓쳤다. 다음에는 20분 먼저 알림을 켠다."
-            placeholderTextColor="#a0a5b2"
+            placeholderTextColor={themeKey === "night-ink" ? "#7f8aa8" : "#a0a5b2"}
             style={expoTheme.reflectionTextarea}
             textAlignVertical="top"
             value={note}

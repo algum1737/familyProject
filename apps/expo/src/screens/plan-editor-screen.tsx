@@ -9,13 +9,14 @@ import {
   timeStringToMinute,
   type TimeDisplayFormat
 } from "../../../../src/domains/plans/service/planner";
+import type { RescheduleFailureGuidance } from "../../../../src/features/planner/core/reschedule-failure-guidance";
 import { PLAN_COLORS } from "../../../../src/ui/planner/planner-colors";
 import type {
   ExpoPlanFormErrors,
   ExpoPlanFormField,
   ExpoPlanFormState
 } from "../app-shell/use-expo-planner-state";
-import { expoTheme } from "../app-shell/expo-theme";
+import { useExpoTheme } from "../app-shell/expo-theme-provider";
 
 type ExpoPlanEditorScreenProps = {
   error: string | null;
@@ -28,6 +29,7 @@ type ExpoPlanEditorScreenProps = {
   onUpdateForm: (values: Partial<ExpoPlanFormState>) => void;
   planTitleMaxLength: number;
   plannedCount: number;
+  rescheduleFailureGuidance: RescheduleFailureGuidance | null;
   timeDisplayFormat: TimeDisplayFormat;
   title: string;
 };
@@ -51,9 +53,11 @@ export function ExpoPlanEditorScreen({
   onUpdateForm,
   planTitleMaxLength,
   plannedCount,
+  rescheduleFailureGuidance,
   timeDisplayFormat,
   title
 }: ExpoPlanEditorScreenProps) {
+  const { theme: expoTheme } = useExpoTheme();
   const TIME_PICKER_OPTION_HEIGHT = 52;
   const TIME_PICKER_SCROLL_OFFSET = 104;
   const titleRef = useRef<TextInput>(null);
@@ -322,6 +326,14 @@ export function ExpoPlanEditorScreen({
           {error ? (
             <View style={expoTheme.errorBanner}>
               <Text style={expoTheme.bodyTextError}>{error}</Text>
+            </View>
+          ) : null}
+          {rescheduleFailureGuidance ? (
+            <View style={expoTheme.warningCard}>
+              <Text style={expoTheme.warningCardTitle}>{rescheduleFailureGuidance.title}</Text>
+              <Text style={expoTheme.warningCardText}>
+                {rescheduleFailureGuidance.description}
+              </Text>
             </View>
           ) : null}
           <View style={expoTheme.formActionRow}>

@@ -11,7 +11,9 @@ import {
 } from "../../../../src/features/planner/core/planner-core-view-model";
 import {
   findActiveEndRecoveryReminder,
-  findActiveStartReminder
+  findActiveStartReminder,
+  isEndRecoveryReminderDismissed,
+  isStartReminderDismissed
 } from "../../../../src/features/planner/core/planner-reminder-rules";
 import { createExpoAsyncPlansStore } from "../providers/plans/expo-async-plans-store";
 import { createExpoAsyncPlannerRecordsStore } from "../providers/plans/expo-async-planner-records-store";
@@ -20,6 +22,7 @@ import {
   buildExpoTodayPlanItems,
   getExpoCurrentPlanTimeText
 } from "./expo-planner-preview-presentation";
+import { buildExpoMergedPlannerRecords } from "./expo-monthly-records";
 import {
   defaultExpoPlanFormState,
   useExpoPlannerState
@@ -63,10 +66,22 @@ export function useExpoAppModel(): ExpoPlannerShellModel & {
     plansStore,
     recordsStore
   });
+  const persistenceToken = useMemo(() => {
+    if (bootstrap.status !== "ready") {
+      return null;
+    }
+
+    return JSON.stringify({
+      currentDate,
+      plans: bootstrap.initialPlans,
+      source: bootstrap.source
+    });
+  }, [bootstrap.initialPlans, bootstrap.source, bootstrap.status, currentDate]);
   const plannerState = useExpoPlannerState({
     currentDate,
     currentMinute,
     initialPlans: bootstrap.initialPlans,
+    persistenceToken,
     plansStore,
     recordsStore
   });
@@ -82,7 +97,8 @@ export function useExpoAppModel(): ExpoPlannerShellModel & {
     [currentMinute, plannerState.plans]
   );
   const activeReminder =
-    activeReminderRaw && !plannerState.dismissedReminderIds.includes(activeReminderRaw.id)
+    activeReminderRaw &&
+    !isStartReminderDismissed(plannerState.dismissedReminderIds, activeReminderRaw)
       ? activeReminderRaw
       : null;
   const activeEndRecoveryRaw = useMemo(
@@ -94,7 +110,10 @@ export function useExpoAppModel(): ExpoPlannerShellModel & {
   );
   const activeEndRecoveryReminder =
     activeEndRecoveryRaw &&
-    !plannerState.dismissedEndRecoveryIds.includes(activeEndRecoveryRaw.id)
+    !isEndRecoveryReminderDismissed(
+      plannerState.dismissedEndRecoveryIds,
+      activeEndRecoveryRaw
+    )
       ? activeEndRecoveryRaw
       : null;
   const todayPlanItems = useMemo(
@@ -105,12 +124,15 @@ export function useExpoAppModel(): ExpoPlannerShellModel & {
     () => getDailySummary(toExpoDateRecord(currentDate, plannerState.plans)),
     [currentDate, plannerState.plans]
   );
-  const mergedRecords = useMemo(() => {
-    return {
-      ...bootstrap.records,
-      [currentDate]: toExpoDateRecord(currentDate, plannerState.plans)
-    };
-  }, [bootstrap.records, currentDate, plannerState.plans]);
+  const mergedRecords = useMemo(
+    () =>
+      buildExpoMergedPlannerRecords({
+        currentDate,
+        currentPlans: plannerState.plans,
+        records: bootstrap.records
+      }),
+    [bootstrap.records, currentDate, plannerState.plans]
+  );
   const monthlySummary = useMemo(
     () => getMonthlyMotivationSummary(monthKey, mergedRecords),
     [mergedRecords, monthKey]
@@ -123,6 +145,10 @@ export function useExpoAppModel(): ExpoPlannerShellModel & {
     () => getRecoveryContributionSummary(monthKey, mergedRecords),
     [mergedRecords, monthKey]
   );
+
+  useEffect(() => {
+    void reminderProvider.sync(plannerState.plans, now);
+  }, [now, plannerState.plans, reminderProvider]);
 
   return {
     activeEndRecoveryReminder,

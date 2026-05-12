@@ -13,12 +13,14 @@
 5. `docs/MVP_SCOPE.md`
 6. `docs/TECH_STACK.md`
 7. `docs/WEB_TO_APP_TRANSITION.md`
-8. `docs/exec-plans/active/2026-04-17-harness-template-kit.md`
-9. `docs/exec-plans/completed/2026-04-24-app-transition-decision.md`
-10. `docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md`
-11. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
-12. `apps/expo/src/screens/today-screen.tsx`
-13. `apps/expo/src/components/expo-circular-planner.tsx`
+8. `docs/PLANS.md`
+9. `docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md`
+10. `docs/exec-plans/completed/2026-04-17-harness-template-kit.md`
+11. `docs/exec-plans/completed/2026-04-24-app-transition-decision.md`
+12. `docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md`
+13. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
+14. `apps/expo/src/screens/today-screen.tsx`
+15. `apps/expo/src/components/expo-circular-planner.tsx`
 
 ## Current Baseline
 
@@ -30,14 +32,53 @@
 - 시간 입력은 `9`, `12`, `930`, `1230`, `09:30`처럼 유연하게 받을 수 있고, 자정 넘김 일정도 `23` 시작 / `4` 종료처럼 입력하면 `23:00 ~ 다음 날 04:00`으로 저장된다.
 - 자정 넘김 일정은 저장뿐 아니라 현재 계획 판정, 완료 가능 여부, 리마인드 창 판정, 충돌 검사까지 같은 규칙으로 맞춰져 있다.
 - Expo 원형 시간판은 숫자/섹터 라벨/시침 가독성을 키웠고, 해/달 보조 아이콘을 복구했다. 다만 현재는 전체 보드 크기와 레이아웃 균형을 더 다듬을 여지가 있다.
+- Expo 원형 시간판은 이제 잘못 저장된 `plan.color` 값도 방어한다. `mint` 같은 theme key가 저장돼 있어도 bootstrap/store/render 경로에서 기본 hex 색으로 정규화해 섹터 fill과 alpha overlay가 깨지지 않는다.
+- Expo 로컬 알림 배너 QA를 다시 돌린 결과, iOS 시뮬레이터에서는 `DeliveredNotifications.plist` 또는 인앱 리마인드 상태는 확인되지만 home/app 화면 캡처상 별도 OS 배너는 계속 보이지 않았다.
+- 시뮬레이터 알림 QA 운영 기준은 [APP_REMINDER_SIMULATOR_QA.md](/Users/hun/workspace/familyProject/docs/APP_REMINDER_SIMULATOR_QA.md)에 분리됐다. 예약 파일, delivered 기록, foreground 인앱 상태, 화면 배너 screenshot을 같은 강도로 보지 않고 증거 우선순위를 분리한다.
+- 실제 iPhone 배너 QA를 시도했지만, 현재 세션에서는 `xcrun devicectl`과 `xcrun xctrace` 기준 연결된 물리 iPhone이 없어서 실기 검증은 진행하지 못했다.
+- 실제 iPhone이 없으면 Android 실제 기기 연결로 알림 실기 QA를 대체할 수 있다. 이 경우 `adb devices`로 인식 확인 후 `apps/expo`에서 `npx expo run:android --device`로 dev build를 올리는 경로를 사용한다.
+- Expo theme regression은 이제 palette token snapshot뿐 아니라 `Today` 화면의 route/card/menu/status pill 조합을 실제 `StyleSheet.create` 입력과 같은 pure helper로 snapshot 고정한다.
+- Expo theme regression은 이제 `Today`뿐 아니라 `Plan Editor`, `Reflection`, `Motivation` 화면의 route/card/form/calendar 조합도 같은 pure helper에서 screen-level snapshot으로 고정한다.
+- Expo 앱 아이콘이 새로 연결됐다. [apps/expo/assets/app-icon-1024.png](/Users/hun/workspace/familyProject/apps/expo/assets/app-icon-1024.png)을 Expo 공통 아이콘으로 쓰고, 현재 iOS native asset의 1024 마스터 PNG도 같은 이미지로 교체했다. 홈 화면 반영은 dev build 재설치 또는 새 빌드 후 확인한다.
+- iOS 시뮬레이터 dev build를 다시 설치해 홈 화면 반영까지 확인했다. 현재 `오늘 다 했니` 아이콘은 원형 시간판 + 체크 조합으로 홈 화면에 보인다.
 - GitHub Actions UTC 환경에서 `tests/planner.test.ts`의 carry-over 테스트가 깨지던 문제는 로컬 시간 생성자를 쓰도록 보정했다. 로컬 기본 시간대와 `TZ=UTC` 모두에서 `npm test -- tests/planner.test.ts`가 통과한다.
+- 하네스 템플릿 운영 규칙이 현재 프로젝트와 `/Users/hun/workspace/하네스시스템구축방법`에 반영됐다. 큰 작업은 active plan으로 시작하고, 완료 시 완료 범위와 검증 결과를 기록한 뒤 completed로 이동한다.
+- `Harness Template Kit Plan`과 `Harness Template Operations Update`는 completed로 이동했고, 현재 `docs/exec-plans/active/`에는 진행 중 계획이 없다.
+- 전역 `AGENTS.md`에도 짧은 운영 규칙이 기록됐다. 현재 프로젝트에서 전역 에이전트 역할은 사용할 수 있지만, 실제 delegation은 사용자가 명시적으로 요청한 경우에만 수행한다.
+- Expo 앱 QA 리뷰에서 부트스트랩 중 빈 상태 저장이 기존 기록을 덮어쓸 수 있는 문제, 리마인드 dismiss 키가 instance key가 아니라 plan id를 쓰는 문제, 앱 전용 테스트 부재가 확인됐다.
+- `Expo Route Validation` 계획은 completed로 이동했다. 실제 iOS 시뮬레이터에서 `today -> editor -> reflection -> motivation` 흐름, `취소` 복귀, 편집 화면 충돌 저장 실패 표시까지 재현했고 route 전환 결함은 찾지 못했다.
+- `Expo QA Fixes` 계획은 completed로 이동했다. bootstrap은 기존 records를 유지한 채 carry-over/legacy migration source를 더 정확히 판단하고, `use-expo-planner-state`는 hydration 전 빈 배열을 저장하지 않도록 막았다. 시작/종료 전 reminder dismiss는 이제 `planId`가 아니라 instance key 기준으로 계산되고, 관련 단위 테스트가 추가됐다.
+- `Expo Monthly Regression Tests` 계획은 completed로 이동했다. Expo 앱 모델과 preview 모델의 월간 records 병합 규칙을 `buildExpoMergedPlannerRecords` helper로 분리했고, 현재 날짜 in-memory plans가 월간 selector 입력을 덮어쓰며 과거 records는 보존되는지 테스트로 고정했다. 회복 완료 후속 일정이 월간 동기부여/회복 지표에 반영되는지도 테스트에 추가했다.
+- `Expo Screen Store Integration Tests` 계획은 completed로 이동했다. `useConnectedMotivationScreen`은 이제 현재 날짜 plans를 같은 렌더에서 월간 records에 직접 덮어쓰고, `AppMotivationShell` 통합 테스트로 stale current-date records override와 `recordsStore.saveForDate` 호출을 고정했다.
+- `Reschedule Failure UX` 계획은 completed로 이동했다. `다시 지정` 실패는 이제 공통 helper로 분류되며, 웹 원형 플래너와 앱 편집 화면, Expo today 화면이 `연속 빈 시간 부족`과 `재지정 3회 초과` 안내를 같은 기준으로 보여준다.
+- `Expo Route Provider Integration Tests` 계획은 completed로 이동했다. Expo route 엔트리의 create/edit/reschedule/reflection 분기와 today 리마인드 문구 계산은 `expo-router-route-actions` helper로 정리됐고, route/provider 계약은 focused 테스트로 고정됐다.
+- `Expo Circular Planner Layout Polish` 계획은 completed로 이동했다. Expo 원형 시간판은 더 큰 캔버스와 중심 정보 영역을 쓰도록 조정됐고, outer badge truncation과 라벨 폭 계산은 helper/test로 고정됐다.
+- `Expo Global Theme Presets` 계획은 completed로 이동했다. today 톱니 메뉴에서 `Sand`, `Mint`, `Night Ink` 전역 테마를 바꿀 수 있고, 선택은 AsyncStorage에 저장되며 shell, today/editor/reflection/motivation, tab bar가 같은 프리셋을 공유한다.
+- `Expo Circular Planner Visual QA` 계획은 completed로 이동했다. 실제 iOS 시뮬레이터 기준으로 중심 흰색 디스크를 줄이고, 라벨 anchor를 더 바깥 lane으로 옮겼으며, 시계 바늘과 중앙 핀을 중심 정보 텍스트 아래 레이어로 내려 겹침을 줄였다. geometry는 이제 카드 폭에 따라 반응형으로 조정되고 관련 helper 테스트가 추가됐다.
+- `Expo Route Provider Coverage` 계획은 completed로 이동했다. `expo-router-contract`의 route path, single param parsing, tab/overlay key guard를 focused 테스트로 고정했고, `expo-router-app-provider`의 bootstrap loading/error/ready gating은 pure helper로 분리해 provider 경계 규칙을 테스트 가능하게 만들었다.
+- `Expo Hidden Reschedule Reason` 계획은 completed로 이동했다. missed 카드에서 `다시 지정` 버튼이 숨겨질 때 `다시 지정 3/3 사용 완료` 또는 `이미 다시 지정된 후속 일정이 있음` 이유 문구를 직접 보여주도록 연결했고, 같은 체인의 이전 일정이 후속 일정으로 잘못 잡혀 후속 일정 카드까지 `다시 지정`이 숨겨지던 판정 버그도 함께 수정했다.
+- `Expo Theme Visual Regression` 계획은 completed로 이동했다. `Sand`, `Mint`, `Night Ink` theme는 이제 핵심 시각 토큰 묶음이 inline snapshot 테스트로 고정돼 route/surface/input 레이어, hero, semantic calendar tone, warning tone이 의도치 않게 바뀌면 테스트에서 바로 드러난다.
+- `Expo Local Start Reminders` 계획은 completed로 이동했다. Expo 앱은 이제 시작 5분 전 미래 pending 일정만 대상으로 OS 로컬 알림을 예약하고, 알림 권한 요청과 managed reminder sync를 provider에 구현했다. app model과 preview model도 reminder sync를 실제로 호출하도록 연결돼 계획 저장/삭제/시간 흐름에 따라 예약이 갱신된다.
+- `Expo End Recovery OS Reminders` 계획은 completed로 이동했다. Expo 로컬 알림은 이제 종료 5분 전 `이미 마쳤다면 완료 처리` 알림도 함께 예약하고, scheduling helper/provider sync는 시작 알림과 종료 알림 두 kind를 같은 managed 경로로 다룬다. 제품 정책 문서도 종료 5분 전 `OS 알림 + 인앱 계속 진행 배너`를 함께 유지하는 방향으로 갱신됐다.
+- `Expo Local Reminder QA` 계획은 completed로 이동했다. iOS 시뮬레이터에서 테스트 일정 `알림QA`를 `15:27 - 15:35`로 저장하고 `15:22` 시작 알림 시점을 관찰했지만, 홈 화면 배너와 알림 센터 적재를 확인하지 못했다. 권한 프롬프트도 따로 보이지 않아, 알림 로직 회귀보다는 시뮬레이터 권한 상태 또는 전달 환경을 먼저 다시 확인해야 한다.
+- `Expo Local Reminder Retry QA` 계획은 completed로 이동했다. 앱 재설치 뒤 알림 권한 프롬프트가 다시 노출되는 것까지 확인했고, 시뮬레이터 저장소 주입으로 미래 테스트 일정을 만들어 `DeliveredNotifications.plist`에 시작 5분 전/종료 5분 전 알림이 실제 기록되는 것도 확인했다. 다만 홈 화면 스크린샷에서는 배너가 보이지 않아, 남은 리스크는 시뮬레이터 배너 가시성과 수정/삭제 후 예약 갱신 QA다.
+- `Expo Reminder Reschedule Cancel QA` 계획은 completed로 이동했다. 시뮬레이터 저장소에 미래 일정을 주입한 뒤 `PendingNotifications.plist`를 보면, 초기에는 시작/종료 알림이 둘 다 잡히고, 같은 `id` 일정의 시각/제목을 바꾸면 pending 항목도 새 제목 기준으로 교체되며, 일정을 비우면 pending 배열이 비워진다. 즉 예약 갱신과 취소 자체는 파일 기준으로 동작한다.
 
 ### Immediate Next Work
 
 - 새 큰 작업을 시작하기 전에 반드시 `docs/exec-plans/active/`에 실행 계획을 먼저 작성한다.
-- 다음 구현 후보는 `expo-router` 실제 라우트 흐름 검증과 시뮬레이터 QA다. 시작 전 새 active plan으로 범위와 검증 기준을 고정한다.
-- `docs/exec-plans/active/2026-04-17-harness-template-kit.md`는 아직 active다. 산출물 존재 여부를 확인하고 완료/폐기/재범위화 중 하나로 정리해야 한다.
-- 이번 세션 기준으로 커밋과 push 후 문서 정리 커밋이 이어질 수 있다. 현재 브랜치/커밋은 git 명령으로 확인한다.
+- 다음 구현 후보는 Expo 로컬 알림 foreground/background 실기 QA를 별도 기록으로 남기는 작업 또는 web planner에도 같은 `다시 지정` 차단 이유를 직접 노출할지 결정하는 작업이다. 시작 전 새 active plan으로 범위와 검증 기준을 고정한다.
+- `rescheduleCount >= 3` 상태는 현재 UI에서 `다시 지정` 버튼이 숨겨져 있어, 이 정책을 유지할지 별도 안내 진입점을 둘지는 다음 제품 판단 후보로 남아 있다.
+- route helper 수준 계약은 테스트로 고정됐지만, `expo-router` route component 자체를 직접 렌더링하는 테스트는 라이브러리 파싱 제약 때문에 아직 없다.
+- 원형 시간판은 시뮬레이터 기준 레이아웃을 한 번 더 정리했지만, 실제 픽셀 기준 스냅샷이나 시각 회귀 테스트는 아직 없다.
+- theme 프리셋은 palette/style contract 수준 테스트로는 고정됐지만, 실제 React Native 렌더 스냅샷이나 픽셀 기준 시각 회귀 테스트는 아직 없다.
+- Expo 로컬 알림은 코드와 단위 테스트는 붙었지만, 실제 시뮬레이터 QA에서는 시작 알림 배너가 관찰되지 않았다. 권한 초기화 상태나 실제 기기에서의 재검증이 남아 있다.
+- 시뮬레이터 내부 전달 기록상으로는 시작/종료 알림이 실제 생성된다. 따라서 현재 불확실성은 `알림이 오지 않는다`보다 `시뮬레이터에서 배너가 눈에 보이느냐`와 `예약 취소/갱신이 예상대로 정리되느냐` 쪽이다.
+- 예약 취소/갱신은 `PendingNotifications.plist` 기준으로는 재현됐다. 이제 남은 핵심 공백은 실제 사용자 눈에 보이는 배너 가시성과 실제 기기에서의 체감 QA다.
+- web planner 쪽 missed 카드에는 아직 `다시 지정` 차단 이유 문구가 직접 보이지 않는다.
+- Expo 로컬 알림은 시작/종료 5분 전 경로와 helper 테스트는 연결됐지만, 실제 권한 허용 후 foreground/background 수신 QA는 아직 별도 완료 기록으로 남지 않았다.
+- 현재 템플릿 키트 후속 작업은 없다. 다른 프로젝트에 적용할 때는 `/Users/hun/workspace/하네스시스템구축방법/QUICKSTART.md` 또는 `EXISTING_REPO_APPLY_PLAYBOOK.md`를 사용한다.
+- 현재 브랜치/커밋은 git 명령으로 확인한다.
 
 - 현재 브랜치: `git branch --show-current`로 확인
 - 기준 커밋: `git rev-parse --short HEAD`로 확인
@@ -184,9 +225,10 @@
 
 ## Suggested Next Work
 
-1. `docs/exec-plans/active/`에 Expo route validation 계획을 작성한 뒤 실제 시뮬레이터에서 `today -> editor -> reflection -> motivation` 흐름을 검증
-2. `Harness Template Kit Plan` 산출물 존재 여부를 확인하고 완료/폐기/재범위화 결정
-3. Expo actions와 shared state transition helper 경계가 실제 라우트 검증 뒤에도 유지되는지 점검
+1. 필요하면 새 route가 추가될 때도 같은 pattern으로 pure screen contract와 snapshot 범위를 확장
+2. 원형판 색 깨짐이 다시 보고되면 AsyncStorage 주입, migration, theme 저장 경로 중 어디서 `plan.color`가 오염되는지 추적
+3. 시뮬레이터 QA는 [APP_REMINDER_SIMULATOR_QA.md](/Users/hun/workspace/familyProject/docs/APP_REMINDER_SIMULATOR_QA.md) 기준으로 유지하고, 필요하면 Android 쪽 운영 메모도 같은 형식으로 추가
+4. 물리 iPhone이 연결되면 시작 5분 전과 종료 5분 전 OS 배너 실기 QA를 재개하고, 없으면 Android 실제 기기 연결 QA로 대체
 
 ## Handoff Prompt
 
@@ -203,17 +245,19 @@
 5. docs/MVP_SCOPE.md
 6. docs/TECH_STACK.md
 7. docs/WEB_TO_APP_TRANSITION.md
-8. docs/exec-plans/active/2026-04-17-harness-template-kit.md
-9. docs/exec-plans/completed/2026-04-24-app-transition-decision.md
-10. docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md
-11. docs/exec-plans/completed/2026-04-23-plan-editing.md
-12. apps/expo/src/screens/today-screen.tsx
-13. apps/expo/src/components/expo-circular-planner.tsx
+8. docs/PLANS.md
+9. docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md
+10. docs/exec-plans/completed/2026-04-17-harness-template-kit.md
+11. docs/exec-plans/completed/2026-04-24-app-transition-decision.md
+12. docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md
+13. docs/exec-plans/completed/2026-04-23-plan-editing.md
+14. apps/expo/src/screens/today-screen.tsx
+15. apps/expo/src/components/expo-circular-planner.tsx
 
 현재 기준:
 - branch: `git branch --show-current`
 - commit: `git rev-parse --short HEAD`
-- latest progress: Expo mobile shell and planner policy work pushed; completed exec plans moved out of active after harness cleanup
+- latest progress: Expo mobile shell and planner policy work pushed; harness template operations updated and completed exec plans moved out of active
 
 현재 구현 상태:
 - Next.js + TypeScript 기반 웹 MVP

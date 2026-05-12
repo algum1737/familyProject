@@ -24,6 +24,20 @@ export function getEndRecoveryInstanceKey(plan: Pick<DailyPlan, "id" | "endMinut
   return `${plan.id}:${plan.endMinute}`;
 }
 
+export function isStartReminderDismissed(
+  dismissedKeys: string[],
+  plan: Pick<DailyPlan, "id" | "startMinute">
+) {
+  return dismissedKeys.includes(getReminderInstanceKey(plan));
+}
+
+export function isEndRecoveryReminderDismissed(
+  dismissedKeys: string[],
+  plan: Pick<DailyPlan, "id" | "endMinute">
+) {
+  return dismissedKeys.includes(getEndRecoveryInstanceKey(plan));
+}
+
 type ReminderPlan = Pick<DailyPlan, "id" | "status" | "startMinute" | "endMinute">;
 
 function resolveCurrentMinute(now: Date) {

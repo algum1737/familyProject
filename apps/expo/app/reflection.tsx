@@ -2,11 +2,13 @@ import { useEffect, useRef } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { ExpoReflectionScreen } from "../src/screens/reflection-screen";
-import {
-  EXPO_ROUTE_PATHS,
-  getSingleRouteParam
-} from "../src/app-shell/expo-router-contract";
+import { getSingleRouteParam } from "../src/app-shell/expo-router-contract";
 import { useExpoRouterAppModel } from "../src/app-shell/expo-router-app-provider";
+import {
+  cancelReflectionRoute,
+  initializeReflectionRoute,
+  saveReflectionRoute
+} from "../src/app-shell/expo-router-route-actions";
 
 export default function ReflectionRoute() {
   const model = useExpoRouterAppModel();
@@ -23,35 +25,16 @@ export default function ReflectionRoute() {
     }
 
     initializedRef.current = true;
-
-    if (!planId) {
-      router.replace(EXPO_ROUTE_PATHS.today);
-      return;
-    }
-
-    const plan = model.todayPlans.find((item) => item.id === planId);
-
-    if (!plan) {
-      router.replace(EXPO_ROUTE_PATHS.today);
-      return;
-    }
-
-    model.startReflection(plan);
+    initializeReflectionRoute({ model, planId: planId ?? null, router });
   }, [model, planId, router]);
 
   return (
     <ExpoReflectionScreen
       activeRecoveryTitle={model.recoveryPlan?.title ?? null}
       note={model.reflectionNoteDraft}
-      onCancel={() => {
-        model.cancelRecovery();
-        router.replace(EXPO_ROUTE_PATHS.today);
-      }}
+      onCancel={() => cancelReflectionRoute(model, router)}
       onChangeNote={model.setReflectionNoteDraft}
-      onSave={() => {
-        model.saveReflection();
-        router.replace(EXPO_ROUTE_PATHS.today);
-      }}
+      onSave={() => saveReflectionRoute(model, router)}
     />
   );
 }

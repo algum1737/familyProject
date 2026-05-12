@@ -33,6 +33,7 @@ export type PlannerCoreViewModel = {
 
 export type PlannerPlanItemCoreModel = {
   canReschedule: boolean;
+  rescheduleBlockedReason: string | null;
   canToggleStatus: boolean;
   followUpTitle: string | null;
   isCurrent: boolean;
@@ -118,6 +119,25 @@ function buildReflectionPreview(note: string | undefined) {
   return trimmed.length > 42 ? `${trimmed.slice(0, 42)}...` : trimmed;
 }
 
+function getRescheduleBlockedReason(
+  plan: DailyPlan,
+  anyFollowUp: DailyPlan | null
+) {
+  if (plan.status !== "missed") {
+    return null;
+  }
+
+  if (plan.rescheduleCount >= 3) {
+    return "다시 지정 3/3 사용 완료";
+  }
+
+  if (anyFollowUp) {
+    return "이미 다시 지정된 후속 일정이 있음";
+  }
+
+  return null;
+}
+
 export function buildPlannerPlanItemCoreModels(
   plans: DailyPlan[],
   currentMinute: number | null
@@ -143,6 +163,7 @@ export function buildPlannerPlanItemCoreModels(
 
     return {
       canReschedule: canReschedulePlan(plan) && anyFollowUp === null,
+      rescheduleBlockedReason: getRescheduleBlockedReason(plan, anyFollowUp),
       canToggleStatus: canTogglePlanStatus(plan, currentMinute),
       followUpTitle: followUpPlan?.title ?? null,
       isCurrent,

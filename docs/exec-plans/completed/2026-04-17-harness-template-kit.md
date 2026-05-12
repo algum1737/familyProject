@@ -36,3 +36,17 @@
 - `하네스시스템구축방법/` 아래에 가이드, 템플릿, 스크립트가 모두 존재해야 한다.
 - 템플릿은 현재 프로젝트 고유 제품명을 기본값으로 포함하지 않아야 한다.
 - 템플릿 검증 스크립트가 최소 필수 문서 존재 여부를 검사해야 한다.
+
+## Completion
+
+Completed. `/Users/hun/workspace/하네스시스템구축방법`에 재사용 가능한 하네스 템플릿 키트가 있고, 이번 작업에서 active/completed 실행 계획 생명주기, HANDOFF 갱신, 작업 브랜치 승인, 검증 루프까지 템플릿 기본 규칙으로 보강했다.
+
+## Validation Result
+
+- `bash scripts/validate-docs.sh` in `/Users/hun/workspace/하네스시스템구축방법/template-repo` passed.
+- 템플릿은 `<PROJECT_NAME>` 등 플레이스홀더를 유지하며 현재 프로젝트 제품명을 기본값으로 고정하지 않는다.
+- 템플릿에 `docs/HANDOFF.md`, `scripts/check-handoff-loop.sh`, `.githooks/post-commit` 초안이 추가됐다.
+
+## Open Work
+
+- None.

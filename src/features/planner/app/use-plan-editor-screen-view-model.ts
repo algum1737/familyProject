@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { RESCHEDULE_UNAVAILABLE_MESSAGE } from "@/features/planner/core/planner-state-transitions";
+import { getRescheduleFailureGuidance } from "@/features/planner/core/reschedule-failure-guidance";
 import type { PlannerLabelSettings } from "@/providers/labels/planner-label-settings";
 import type { PlanFormState } from "@/ui/planner/use-planner-state";
 import {
@@ -32,11 +32,15 @@ export function usePlanEditorScreenViewModel({
     () => getSubmitButtonLabel({ editingPlanId, recoveryMode }),
     [editingPlanId, recoveryMode]
   );
+  const rescheduleFailureGuidance = useMemo(
+    () => getRescheduleFailureGuidance(error),
+    [error]
+  );
 
   return {
     composerTitle,
     form,
-    showRescheduleUnavailableGuidance: error === RESCHEDULE_UNAVAILABLE_MESSAGE,
+    rescheduleFailureGuidance,
     submitButtonLabel
   };
 }

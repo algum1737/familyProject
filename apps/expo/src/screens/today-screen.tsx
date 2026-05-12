@@ -3,14 +3,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 
 import type { TimeDisplayFormat } from "../../../../src/domains/plans/service/planner";
+import type { RescheduleFailureGuidance } from "../../../../src/features/planner/core/reschedule-failure-guidance";
 
 import { ExpoCircularPlanner } from "../components/expo-circular-planner";
-import { expoTheme } from "../app-shell/expo-theme";
+import { useExpoTheme } from "../app-shell/expo-theme-provider";
 
 type ExpoTodayScreenProps = {
   currentMinute: number | null;
   currentPlanTimeText: string;
   currentPlanTitle: string | null;
+  error: string | null;
   onChangeTimeDisplayFormat: (next: TimeDisplayFormat) => void;
   onCompletePlan: (planId: string) => void;
   onDeletePlan: (planId: string) => void;
@@ -36,6 +38,7 @@ type ExpoTodayScreenProps = {
     canToggleStatus: boolean;
     id: string;
     recoveryLabel: string | null;
+    rescheduleBlockedReason: string | null;
     statusLabel: string;
     statusTone: "current" | "pending" | "done" | "missed";
     timeText: string;
@@ -44,6 +47,7 @@ type ExpoTodayScreenProps = {
   reminderPlanId: string | null;
   endRecoveryPlanId: string | null;
   reminderText: string | null;
+  rescheduleFailureGuidance: RescheduleFailureGuidance | null;
   summary: {
     completed: number;
     completionRate: number;
@@ -56,6 +60,7 @@ export function ExpoTodayScreen({
   currentMinute,
   currentPlanTimeText,
   currentPlanTitle,
+  error,
   onChangeTimeDisplayFormat,
   onCompletePlan,
   onDeletePlan,
@@ -70,10 +75,17 @@ export function ExpoTodayScreen({
   reminderPlanId,
   endRecoveryPlanId,
   reminderText,
+  rescheduleFailureGuidance,
   summary,
   timeDisplayFormat
 }: ExpoTodayScreenProps) {
   const [isTimeDisplayMenuOpen, setIsTimeDisplayMenuOpen] = useState(false);
+  const {
+    setThemeKey,
+    theme: expoTheme,
+    themeKey,
+    themeOptions
+  } = useExpoTheme();
 
   function getStatusToneStyle(
     tone: "current" | "pending" | "done" | "missed"
@@ -117,6 +129,17 @@ export function ExpoTodayScreen({
     return "시작 전";
   }
 
+  function getThemeSwatchColor(nextThemeKey: "mint" | "night-ink" | "sand") {
+    switch (nextThemeKey) {
+      case "mint":
+        return "#2f9d8f";
+      case "night-ink":
+        return "#7c91ff";
+      default:
+        return "#ea765a";
+    }
+  }
+
   return (
     <SafeAreaView edges={["top"]} style={expoTheme.routeSafeArea}>
       <ScrollView
@@ -136,12 +159,16 @@ export function ExpoTodayScreen({
               </Pressable>
               {isTimeDisplayMenuOpen ? (
                 <View style={expoTheme.settingsMenu}>
+                  <Text style={expoTheme.settingsMenuSectionTitle}>시간 표시</Text>
                   <Pressable
                     onPress={() => {
                       onChangeTimeDisplayFormat("24h");
                       setIsTimeDisplayMenuOpen(false);
                     }}
-                    style={expoTheme.settingsMenuItem}
+                    style={[
+                      expoTheme.settingsMenuItem,
+                      timeDisplayFormat === "24h" ? expoTheme.settingsMenuItemActive : null
+                    ]}
                   >
                     <Text style={expoTheme.settingsMenuText}>
                       {timeDisplayFormat === "24h" ? "✓ " : ""}24시간
@@ -152,12 +179,44 @@ export function ExpoTodayScreen({
                       onChangeTimeDisplayFormat("12h");
                       setIsTimeDisplayMenuOpen(false);
                     }}
-                    style={expoTheme.settingsMenuItem}
+                    style={[
+                      expoTheme.settingsMenuItem,
+                      timeDisplayFormat === "12h" ? expoTheme.settingsMenuItemActive : null
+                    ]}
                   >
                     <Text style={expoTheme.settingsMenuText}>
                       {timeDisplayFormat === "12h" ? "✓ " : ""}12시간
                     </Text>
                   </Pressable>
+                  <View style={expoTheme.settingsMenuSection}>
+                    <Text style={expoTheme.settingsMenuSectionTitle}>테마</Text>
+                    {themeOptions.map((option) => (
+                      <Pressable
+                        key={option.key}
+                        onPress={() => {
+                          setThemeKey(option.key);
+                          setIsTimeDisplayMenuOpen(false);
+                        }}
+                        style={[
+                          expoTheme.settingsMenuItem,
+                          themeKey === option.key ? expoTheme.settingsMenuItemActive : null
+                        ]}
+                      >
+                        <View style={expoTheme.settingsMenuThemeRow}>
+                          <View
+                            style={[
+                              expoTheme.settingsMenuThemeSwatch,
+                              { backgroundColor: getThemeSwatchColor(option.key) }
+                            ]}
+                          />
+                          <Text style={expoTheme.settingsMenuText}>
+                            {themeKey === option.key ? "✓ " : ""}
+                            {option.label}
+                          </Text>
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
                 </View>
               ) : null}
             </View>
@@ -189,9 +248,23 @@ export function ExpoTodayScreen({
           </View>
           <ExpoCircularPlanner
             currentMinute={currentMinute}
+            currentPlanTitle={currentPlanTitle}
             plans={plans}
           />
           {reminderText ? <Text style={expoTheme.bodyText}>리마인드: {reminderText}</Text> : null}
+          {error ? (
+            <View style={expoTheme.errorBanner}>
+              <Text style={expoTheme.bodyTextError}>{error}</Text>
+            </View>
+          ) : null}
+          {rescheduleFailureGuidance ? (
+            <View style={expoTheme.warningCard}>
+              <Text style={expoTheme.warningCardTitle}>{rescheduleFailureGuidance.title}</Text>
+              <Text style={expoTheme.warningCardText}>
+                {rescheduleFailureGuidance.description}
+              </Text>
+            </View>
+          ) : null}
           <Pressable onPress={onOpenCreatePlan} style={expoTheme.primaryButton}>
             <Text style={expoTheme.primaryButtonText}>새 계획 추가</Text>
           </Pressable>
@@ -214,6 +287,11 @@ export function ExpoTodayScreen({
                 </View>
                 <Text style={expoTheme.todayPlanTitle}>{item.title}</Text>
                 <Text style={expoTheme.bodyText}>{item.timeText}</Text>
+                {item.statusTone === "missed" && item.rescheduleBlockedReason ? (
+                  <Text style={expoTheme.todayPlanMetaText}>
+                    {item.rescheduleBlockedReason}
+                  </Text>
+                ) : null}
                 <View style={expoTheme.formActionRow}>
                   {item.statusTone !== "missed" ? (
                     <Pressable

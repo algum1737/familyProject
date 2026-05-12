@@ -1,12 +1,20 @@
 import { useRouter } from "expo-router";
 
+import { getRescheduleFailureGuidance } from "../../../../src/features/planner/core/reschedule-failure-guidance";
 import { ExpoTodayScreen } from "../../src/screens/today-screen";
-import { EXPO_ROUTE_PATHS } from "../../src/app-shell/expo-router-contract";
 import { useExpoRouterAppModel } from "../../src/app-shell/expo-router-app-provider";
+import {
+  getTodayReminderText,
+  openCreatePlanRoute,
+  openReflectionRoute,
+  openRescheduleRoute,
+  openUpdatePlanRoute
+} from "../../src/app-shell/expo-router-route-actions";
 
 export default function TodayRoute() {
   const model = useExpoRouterAppModel();
   const router = useRouter();
+  const rescheduleFailureGuidance = getRescheduleFailureGuidance(model.error);
 
   return (
     <ExpoTodayScreen
@@ -14,72 +22,21 @@ export default function TodayRoute() {
       currentPlanTimeText={model.currentPlanTimeText}
       currentPlanTitle={model.currentPlan?.title ?? null}
       endRecoveryPlanId={model.activeEndRecoveryReminder?.id ?? null}
+      error={model.error}
       onChangeTimeDisplayFormat={model.setTimeDisplayFormat}
       onCompletePlan={model.togglePlanStatus}
       onDeletePlan={model.deletePlan}
       onDismissEndRecovery={model.dismissEndRecovery}
       onDismissReminder={model.dismissReminder}
-      onOpenCreatePlan={() => {
-        model.startCreatePlan();
-        router.push({
-          pathname: EXPO_ROUTE_PATHS.editor,
-          params: { mode: "create" }
-        });
-      }}
-      onOpenReflection={(planId) => {
-        const plan = model.todayPlans.find((item) => item.id === planId);
-
-        if (!plan) {
-          return;
-        }
-
-        model.startReflection(plan);
-        router.push({
-          pathname: EXPO_ROUTE_PATHS.reflection,
-          params: { planId }
-        });
-      }}
-      onOpenReschedule={(planId) => {
-        const plan = model.todayPlans.find((item) => item.id === planId);
-
-        if (!plan) {
-          return;
-        }
-
-        const result = model.startRescheduling(plan);
-
-        if (result === "started") {
-          router.push({
-            pathname: EXPO_ROUTE_PATHS.editor,
-            params: { mode: "reschedule", planId }
-          });
-        }
-      }}
-      onOpenUpdatePlan={(planId) => {
-        const plan = model.todayPlans.find((item) => item.id === planId);
-
-        if (!plan) {
-          return;
-        }
-
-        model.startEditingPlan(plan);
-        router.push({
-          pathname: EXPO_ROUTE_PATHS.editor,
-          params: { mode: "edit", planId }
-        });
-      }}
+      onOpenCreatePlan={() => openCreatePlanRoute(model, router)}
+      onOpenReflection={(planId) => openReflectionRoute(model, router, planId)}
+      onOpenReschedule={(planId) => openRescheduleRoute(model, router, planId)}
+      onOpenUpdatePlan={(planId) => openUpdatePlanRoute(model, router, planId)}
       plans={model.todayPlans}
       planItems={model.todayPlanItems}
       reminderPlanId={model.activeReminder?.id ?? null}
-      reminderText={
-        model.activeReminder
-          ? `${model.activeReminder.title} · ${
-              model.canCompleteActiveReminder ? "지금 완료 가능" : "곧 시작"
-            }`
-          : model.activeEndRecoveryReminder
-            ? `${model.activeEndRecoveryReminder.title} · 종료 전 확인`
-            : null
-      }
+      reminderText={getTodayReminderText(model)}
+      rescheduleFailureGuidance={rescheduleFailureGuidance}
       summary={model.summary}
       timeDisplayFormat={model.timeDisplayFormat}
     />
