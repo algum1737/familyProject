@@ -1,16 +1,19 @@
 import { z } from "zod";
 
 import type { DailyPlan, PlannerSummary } from "@/domains/plans/types";
+import { getPlannerPerformanceSummary } from "@/domains/plans/selectors/planner-performance-summary";
+import { MINUTES_PER_DAY } from "@/shared/time/planner-day";
 
-export const MINUTES_PER_DAY = 24 * 60;
+export const PLAN_TITLE_MAX_LENGTH = 20;
+export type TimeDisplayFormat = "12h" | "24h";
 
 export const dailyPlanSchema = z
   .object({
     id: z.string().min(1),
-    title: z.string().min(1),
+    title: z.string().min(1).max(PLAN_TITLE_MAX_LENGTH),
     color: z.string().min(1),
     startMinute: z.number().int().min(0).max(MINUTES_PER_DAY - 1),
-    endMinute: z.number().int().min(1).max(MINUTES_PER_DAY),
+    endMinute: z.number().int().min(1).max(MINUTES_PER_DAY * 2),
     rescheduleCount: z.number().int().min(0).max(3).default(0),
     sourcePlanId: z.string().min(1).optional(),
     reflectionNote: z.string().max(500).optional(),
@@ -18,6 +21,9 @@ export const dailyPlanSchema = z
   })
   .refine((plan) => plan.endMinute > plan.startMinute, {
     message: "Plan end time must be later than start time."
+  })
+  .refine((plan) => plan.endMinute - plan.startMinute <= MINUTES_PER_DAY, {
+    message: "Plan duration must not exceed 24 hours."
   });
 
 export const plannerSchema = z.array(dailyPlanSchema);
@@ -31,18 +37,54 @@ export function validatePlanner(
   options: ValidatePlannerOptions = {}
 ): DailyPlan[] {
   const parsedPlans = plannerSchema.parse(plans);
-  const sortedPlans = sortPlans(parsedPlans);
+  const intervals = parsedPlans
+    .flatMap((plan) => {
+      const base = [
+        {
+          endMinute: plan.endMinute,
+          id: plan.id,
+          plan,
+          startMinute: plan.startMinute
+        }
+      ];
 
-  for (let index = 1; index < sortedPlans.length; index += 1) {
-    const previous = sortedPlans[index - 1];
-    const current = sortedPlans[index];
+      if (plan.endMinute <= MINUTES_PER_DAY) {
+        base.push({
+          endMinute: plan.endMinute + MINUTES_PER_DAY,
+          id: plan.id,
+          plan,
+          startMinute: plan.startMinute + MINUTES_PER_DAY
+        });
+      }
 
-    if (current.startMinute < previous.endMinute) {
-      throw new Error(getOverlapErrorMessage(previous, current, options.focusPlanId));
+      return base;
+    })
+    .sort((left, right) => left.startMinute - right.startMinute);
+
+  for (let index = 1; index < intervals.length; index += 1) {
+    const previous = intervals[index - 1];
+    const current = intervals[index];
+
+    if (current.id !== previous.id && current.startMinute < previous.endMinute) {
+      throw new Error(getOverlapErrorMessage(previous.plan, current.plan, options.focusPlanId));
     }
   }
 
   return parsedPlans;
+}
+
+export function validatePlanTitle(title: string): string {
+  const normalized = title.trim();
+
+  if (!normalized) {
+    throw new Error("제목을 입력해 주십시오.");
+  }
+
+  if (normalized.length > PLAN_TITLE_MAX_LENGTH) {
+    throw new Error(`제목은 ${PLAN_TITLE_MAX_LENGTH}자 이하로 입력해 주십시오.`);
+  }
+
+  return normalized;
 }
 
 function getOverlapErrorMessage(
@@ -73,35 +115,49 @@ export function polarToCartesian(angleInDegrees: number, radius: number): {
 }
 
 export function describeMinute(minute: number): string {
-  const hours = Math.floor(minute / 60);
-  const mins = minute % 60;
+  const safeMinute = ((minute % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
+  const hours = Math.floor(safeMinute / 60);
+  const mins = safeMinute % 60;
 
   return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
 }
 
+export function describeMinuteWithFormat(
+  minute: number,
+  timeDisplayFormat: TimeDisplayFormat
+): string {
+  if (timeDisplayFormat === "24h") {
+    return describeMinute(minute);
+  }
+
+  const safeMinute = ((minute % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
+  const hours = Math.floor(safeMinute / 60);
+  const mins = safeMinute % 60;
+  const meridiem = hours < 12 ? "오전" : "오후";
+  const hour12 = hours % 12 === 0 ? 12 : hours % 12;
+
+  return `${meridiem} ${hour12}:${String(mins).padStart(2, "0")}`;
+}
+
 export function getCurrentPlan(plans: DailyPlan[], currentMinute: number): DailyPlan | null {
-  return (
-    plans.find(
-      (plan) => currentMinute >= plan.startMinute && currentMinute < plan.endMinute
-    ) ?? null
-  );
+  return plans.find((plan) => isCurrentPlan(plan, currentMinute)) ?? null;
 }
 
 export function getPlannerSummary(plans: DailyPlan[]): PlannerSummary {
-  const total = plans.length;
-  const completed = plans.filter((plan) => plan.status === "done").length;
+  const summary = getPlannerPerformanceSummary(plans);
 
   return {
-    total,
-    completed,
-    completionRate: total === 0 ? 0 : Math.round((completed / total) * 100)
+    total: summary.totalCount,
+    completed: summary.completedCount,
+    completionRate:
+      summary.totalCount === 0 ? 0 : Math.round((summary.completedCount / summary.totalCount) * 100)
   };
 }
 
 export function markMissedPlans(plans: DailyPlan[], currentMinute: number): DailyPlan[] {
   return sortPlans(
     plans.map((plan) =>
-      plan.status === "pending" && currentMinute >= plan.endMinute
+      plan.status === "pending" && getComparableCurrentMinute(plan, currentMinute) >= plan.endMinute
         ? { ...plan, status: "missed" }
         : plan
     )
@@ -140,7 +196,9 @@ export function findNextAvailableTimeSlot(
 }
 
 export function isCurrentPlan(plan: DailyPlan, currentMinute: number): boolean {
-  return currentMinute >= plan.startMinute && currentMinute < plan.endMinute;
+  const comparableMinute = getComparableCurrentMinute(plan, currentMinute);
+
+  return comparableMinute >= plan.startMinute && comparableMinute < plan.endMinute;
 }
 
 export function sortPlans(plans: DailyPlan[]): DailyPlan[] {
@@ -148,19 +206,69 @@ export function sortPlans(plans: DailyPlan[]): DailyPlan[] {
 }
 
 export function timeStringToMinute(value: string): number {
-  const [hourText, minuteText] = value.split(":");
-  const hours = Number.parseInt(hourText ?? "", 10);
-  const minutes = Number.parseInt(minuteText ?? "", 10);
+  const normalized = value.trim();
+
+  if (!normalized) {
+    throw new Error("시간을 입력해 주십시오.");
+  }
+
+  let hours: number;
+  let minutes: number;
+
+  if (normalized.includes(":")) {
+    const [hourText, minuteText] = normalized.split(":");
+
+    hours = Number.parseInt(hourText ?? "", 10);
+    minutes = Number.parseInt(minuteText ?? "", 10);
+  } else if (/^\d{1,2}$/.test(normalized)) {
+    hours = Number.parseInt(normalized, 10);
+    minutes = 0;
+  } else if (/^\d{3}$/.test(normalized)) {
+    hours = Number.parseInt(normalized.slice(0, 1), 10);
+    minutes = Number.parseInt(normalized.slice(1), 10);
+  } else if (/^\d{4}$/.test(normalized)) {
+    hours = Number.parseInt(normalized.slice(0, 2), 10);
+    minutes = Number.parseInt(normalized.slice(2), 10);
+  } else {
+    throw new Error("시간은 9, 12, 930, 1230, 09:30 형식으로 입력해 주십시오.");
+  }
+
+  if (
+    Number.isNaN(hours) ||
+    Number.isNaN(minutes) ||
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59
+  ) {
+    throw new Error("시간은 0:00부터 23:59 사이로 입력해 주십시오.");
+  }
 
   return hours * 60 + minutes;
 }
 
 export function minuteToTimeString(minute: number): string {
-  const safeMinute = Math.max(0, Math.min(MINUTES_PER_DAY, minute));
+  const safeMinute = ((minute % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
   const hours = Math.floor(safeMinute / 60) % 24;
   const mins = safeMinute % 60;
 
   return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+}
+
+export function normalizeEndMinute(startMinute: number, endMinute: number): number {
+  if (endMinute === startMinute) {
+    throw new Error("종료 시간은 시작 시간과 같을 수 없습니다.");
+  }
+
+  return endMinute <= startMinute ? endMinute + MINUTES_PER_DAY : endMinute;
+}
+
+export function getComparableCurrentMinute(plan: Pick<DailyPlan, "startMinute" | "endMinute">, currentMinute: number): number {
+  if (plan.endMinute > MINUTES_PER_DAY && currentMinute < plan.endMinute - MINUTES_PER_DAY) {
+    return currentMinute + MINUTES_PER_DAY;
+  }
+
+  return currentMinute;
 }
 
 export function createArcPath(startMinute: number, endMinute: number, radius: number): string {

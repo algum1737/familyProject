@@ -5,6 +5,8 @@ export const RECOVERY_HIGHLIGHT_OBSERVATIONS_KEY =
 
 export type RecoveryHighlightObservationType =
   | "reflection_prompt"
+  | "end_recovery_prompt"
+  | "end_recovery_continue"
   | "reschedule_prompt"
   | "reschedule_unavailable"
   | "followup_scheduled"

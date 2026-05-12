@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "오늘 다 했니",
+    "slug": "today-did-you-finish",
+    "scheme": "todaydidyoufinish",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/app-icon-1024.png",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-notifications",
+      "expo-router"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.familyproject.todaydidyoufinish"
+    },
+    "android": {
+      "package": "com.familyproject.todaydidyoufinish"
+    }
+  }
+}

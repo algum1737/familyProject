@@ -37,6 +37,7 @@ Working draft based on the planning text file in `기획/오늘_다했니_기획
 2. 시스템이 적절한 시점에 알람 또는 리마인드를 제공한다.
 3. 사용자가 각 항목의 완료 여부를 기록한다.
 4. 사용자가 하루 또는 일정 기간의 실천 상태를 확인한다.
+5. 사용자가 월간 동안 얼마나 지켰는지 보며 다음 실천 동기를 얻는다.
 
 ## Recovery Direction
 
@@ -54,6 +55,7 @@ Working draft based on the planning text file in `기획/오늘_다했니_기획
 - 계획을 실천으로 연결
 - 완료 여부의 명확한 가시성
 - 습관 형성을 위한 반복 사용 동기 제공
+- 월간 완료 개수와 유지 흐름을 보며 장기 동기 유지
 
 ## Current MVP Direction
 
