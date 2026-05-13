@@ -12,6 +12,19 @@ export type DailyPlan = {
   status: PlanStatus;
 };
 
+export type PlanDateKey = string;
+
+export type DatedPlanRecord = DailyPlan & {
+  date: PlanDateKey;
+};
+
+export type DailyPlanCollection = {
+  date: PlanDateKey;
+  plans: DatedPlanRecord[];
+};
+
+export type PlannerRecordMap = Record<PlanDateKey, DatedPlanRecord[]>;
+
 export type PlannerSummary = {
   total: number;
   completed: number;

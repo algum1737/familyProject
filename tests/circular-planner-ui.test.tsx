@@ -12,6 +12,7 @@ import {
   REMINDER_OBSERVATIONS_KEY,
   type ReminderObservation
 } from "@/providers/reminders/reminder-observation-store";
+import { TEST_NOW_STORAGE_KEY } from "@/providers/time/time-source";
 import { PlannerShell } from "@/ui/planner/planner-shell";
 
 const basePlans: DailyPlan[] = [
@@ -30,6 +31,18 @@ const basePlans: DailyPlan[] = [
     color: "#ef8d75",
     startMinute: 300,
     endMinute: 360,
+    rescheduleCount: 0,
+    status: "pending"
+  }
+];
+
+const endRecoveryPlans: DailyPlan[] = [
+  {
+    id: "focus",
+    title: "집중 작업",
+    color: "#767676",
+    startMinute: 240,
+    endMinute: 300,
     rescheduleCount: 0,
     status: "pending"
   }
@@ -102,11 +115,11 @@ async function waitForPlanItem(title: string) {
   return getPlanItem(title) as HTMLElement;
 }
 
-async function renderPlanner(timeSource = fixedTimeSource) {
+async function renderPlanner(timeSource = fixedTimeSource, expectedPlanCount = 2) {
   render(<PlannerShell plansStore={localPlansStore} timeSource={timeSource} />);
 
   await waitFor(() => {
-    expect(document.querySelectorAll(".plan-list li")).toHaveLength(2);
+    expect(document.querySelectorAll(".plan-list li")).toHaveLength(expectedPlanCount);
   });
 
   await waitFor(() => {
@@ -258,6 +271,87 @@ describe("circular planner user flows", () => {
     expect(window.localStorage.getItem(REMINDER_OBSERVATIONS_KEY)).toContain('"type":"dismissed"');
   });
 
+  it("shows a lightweight end recovery banner shortly before the current plan ends", async () => {
+    seedPlans(endRecoveryPlans);
+    window.localStorage.setItem(TEST_NOW_STORAGE_KEY, "local:2026-04-24T04:55:00");
+
+    render(<PlannerShell plansStore={localPlansStore} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("planner-root").getAttribute("data-planner-ready")).toBe("true");
+    });
+
+    const endRecoveryBanner = await screen.findByTestId("end-recovery-banner");
+    expect(within(endRecoveryBanner).getByText("종료 전 확인")).toBeTruthy();
+    expect(within(endRecoveryBanner).getByText("집중 작업")).toBeTruthy();
+    expect(within(endRecoveryBanner).getByRole("button", { name: "계속 진행" })).toBeTruthy();
+    expect(screen.queryByText("시작 리마인드")).toBeNull();
+  });
+
+  it("keeps the end recovery banner dismissed for the same end window", async () => {
+    seedPlans(endRecoveryPlans);
+    window.localStorage.setItem(TEST_NOW_STORAGE_KEY, "local:2026-04-24T04:55:00");
+
+    render(<PlannerShell plansStore={localPlansStore} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("planner-root").getAttribute("data-planner-ready")).toBe("true");
+    });
+
+    const endRecoveryBanner = await screen.findByTestId("end-recovery-banner");
+    fireEvent.click(within(endRecoveryBanner).getByRole("button", { name: "계속 진행" }));
+
+    expect(screen.queryByTestId("end-recovery-banner")).toBeNull();
+  });
+
+  it("lets developers jump to reminder windows with the observation time controls", async () => {
+    window.localStorage.setItem(TEST_NOW_STORAGE_KEY, "local:2026-04-24T04:56:00");
+
+    render(<PlannerShell plansStore={localPlansStore} />);
+
+    await waitFor(() => {
+      expect(document.querySelectorAll(".plan-list li")).toHaveLength(2);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("planner-root").getAttribute("data-planner-ready")).toBe("true");
+    });
+
+    expect(screen.getByTestId("dev-time-panel")).toBeTruthy();
+
+    const reminderBanner = await screen.findByTestId("reminder-banner");
+    expect(within(reminderBanner).queryByRole("button", { name: "지금 완료" })).toBeNull();
+
+    const nextStartAfterButton = screen.getByText("다음 시작 직후").closest("button");
+    expect(nextStartAfterButton).toBeTruthy();
+    fireEvent.click(nextStartAfterButton as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "지금 완료" })).toBeTruthy();
+    });
+
+    expect(window.localStorage.getItem(TEST_NOW_STORAGE_KEY)).toContain("local:2026-04-24T05:01");
+  });
+
+  it("lets developers add a future pending sample plan from the observation harness", async () => {
+    window.localStorage.setItem(TEST_NOW_STORAGE_KEY, "local:2026-04-24T21:01:00");
+
+    render(<PlannerShell plansStore={localPlansStore} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("planner-root").getAttribute("data-planner-ready")).toBe("true");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /표본용 예정 일정 추가/ }));
+
+    await waitFor(() => {
+      expect(screen.getByText("관찰 표본 1")).toBeTruthy();
+    });
+
+    expect(screen.getByText("다음 시작 5분 전")).toBeTruthy();
+    expect(window.localStorage.getItem(STORAGE_KEY)).toContain("관찰 표본 1");
+  });
+
   it("allows saving a reflection note for a missed plan", async () => {
     await renderPlanner(fixedTimeSource);
 
@@ -405,11 +499,79 @@ describe("circular planner user flows", () => {
     fireEvent.click(within(exerciseItem as HTMLElement).getByRole("button", { name: "다시 지정" }));
 
     expect(
-      screen.getByText("원래 길이를 그대로 넣을 연속 시간이 없다는 뜻입니다. 더 짧은 새 시간을 직접 입력해 다시 저장해보십시오.")
+      screen.getByText("오늘 남은 빈 시간에는 이 일정 길이 그대로 다시 지정할 수 없습니다.")
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        "더 짧은 새 시간으로 다시 잡으십시오. 시작 시간이나 종료 시간을 직접 줄여 같은 화면에서 저장하면 됩니다."
+      )
     ).toBeTruthy();
     expect(window.localStorage.getItem(RECOVERY_HIGHLIGHT_OBSERVATIONS_KEY)).toContain(
       '"type":"reschedule_unavailable"'
     );
+  });
+
+  it("shows why reschedule is blocked when a missed plan used all reschedules", async () => {
+    seedPlans([
+      {
+        id: "maxed",
+        title: "운동",
+        color: "#767676",
+        startMinute: 60,
+        endMinute: 120,
+        rescheduleCount: 3,
+        status: "missed"
+      }
+    ]);
+
+    await renderPlanner(fixedTimeSource, 1);
+
+    const exerciseItem = getPlanItem("운동");
+    expect(exerciseItem).toBeTruthy();
+    expect(within(exerciseItem as HTMLElement).getByText("다시 지정 3/3 사용 완료")).toBeTruthy();
+    expect(
+      within(exerciseItem as HTMLElement).getByRole("button", { name: "다시 지정" })
+    ).toHaveProperty("disabled", true);
+  });
+
+  it("shows why reschedule is blocked when a follow-up already exists", async () => {
+    seedPlans([
+      {
+        id: "root",
+        title: "취침",
+        color: "#767676",
+        startMinute: 0,
+        endMinute: 300,
+        rescheduleCount: 0,
+        status: "missed"
+      },
+      {
+        id: "follow-up",
+        title: "취침 보충",
+        color: "#767676",
+        sourcePlanId: "root",
+        startMinute: 600,
+        endMinute: 900,
+        rescheduleCount: 1,
+        status: "pending"
+      }
+    ]);
+
+    await renderPlanner(fixedTimeSource, 2);
+
+    const sleepItem = getPlanItem("취침");
+    const followUpItem = getPlanItem("취침 보충");
+    expect(sleepItem).toBeTruthy();
+    expect(followUpItem).toBeTruthy();
+    expect(
+      within(sleepItem as HTMLElement).getByText("이미 다시 지정된 후속 일정이 있음")
+    ).toBeTruthy();
+    expect(
+      within(sleepItem as HTMLElement).getByRole("button", { name: "다시 지정" })
+    ).toHaveProperty("disabled", true);
+    expect(
+      within(followUpItem as HTMLElement).queryByText("이미 다시 지정된 후속 일정이 있음")
+    ).toBeNull();
   });
 
   it("persists customized status and action labels", async () => {
@@ -483,6 +645,37 @@ describe("circular planner user flows", () => {
     ).toBeTruthy();
     expect(window.localStorage.getItem(RECOVERY_HIGHLIGHT_OBSERVATIONS_KEY)).toContain(
       '"type":"reflection_prompt"'
+    );
+  });
+
+  it("records end recovery prompt and continue actions for later observation", async () => {
+    window.localStorage.setItem(TEST_NOW_STORAGE_KEY, "local:2026-04-24T04:55:00");
+    seedPlans(endRecoveryPlans);
+
+    render(<PlannerShell plansStore={localPlansStore} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("planner-root").getAttribute("data-planner-ready")).toBe("true");
+    });
+
+    const endRecoveryBanner = await screen.findByTestId("end-recovery-banner");
+    fireEvent.click(within(endRecoveryBanner).getByRole("button", { name: "계속 진행" }));
+
+    const panelToggle = screen.getByText("회복 관찰 로그");
+    fireEvent.click(panelToggle);
+
+    const panel = screen.getByTestId("recovery-observation-panel");
+    const promptSummary = within(panel).getByTestId("recovery-summary-end-recovery");
+    const continueSummary = within(panel).getByTestId("recovery-summary-end-recovery-continue");
+    expect(within(promptSummary).getByText("종료 전 확인")).toBeTruthy();
+    expect(within(promptSummary).getByText("1회")).toBeTruthy();
+    expect(within(continueSummary).getByText("계속 진행")).toBeTruthy();
+    expect(within(continueSummary).getByText("1회")).toBeTruthy();
+    expect(window.localStorage.getItem(RECOVERY_HIGHLIGHT_OBSERVATIONS_KEY)).toContain(
+      '"type":"end_recovery_prompt"'
+    );
+    expect(window.localStorage.getItem(RECOVERY_HIGHLIGHT_OBSERVATIONS_KEY)).toContain(
+      '"type":"end_recovery_continue"'
     );
   });
 

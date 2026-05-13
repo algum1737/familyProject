@@ -121,4 +121,40 @@ test.describe("planner browser flows", () => {
       has: page.locator(".plan-meta strong", { hasText: "영어 회화" })
     })).toHaveCount(0);
   });
+
+  test("shows the blocked reschedule reason in the browser", async ({ browser }) => {
+    const context = await browser.newContext();
+    await context.addInitScript(({ nowIso, storageKey }) => {
+      window.localStorage.clear();
+      window.localStorage.setItem(storageKey, nowIso);
+      window.localStorage.setItem(
+        "today-did-you-finish:plans",
+        JSON.stringify([
+          {
+            id: "maxed",
+            title: "운동",
+            color: "#767676",
+            startMinute: 60,
+            endMinute: 120,
+            rescheduleCount: 3,
+            status: "missed"
+          }
+        ])
+      );
+    }, {
+      nowIso: testNowIso,
+      storageKey: TEST_NOW_STORAGE_KEY
+    });
+    const page = await context.newPage();
+    await page.goto("/");
+
+    const maxedItem = page.locator(".plan-item", {
+      has: page.locator(".plan-meta strong", { hasText: "운동" })
+    });
+
+    await expect(maxedItem).toBeVisible();
+    await expect(maxedItem.getByText("다시 지정 3/3 사용 완료")).toBeVisible();
+    await expect(maxedItem.getByRole("button", { name: "다시 지정" })).toBeDisabled();
+    await context.close();
+  });
 });
