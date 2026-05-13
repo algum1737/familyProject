@@ -13,6 +13,8 @@
 - iOS 시뮬레이터에서 `DeliveredNotifications.plist`에는 시작 5분 전, 종료 5분 전 알림 기록이 남을 수 있다.
 - 앱이 foreground일 때는 인앱 리마인드 상태가 보일 수 있다.
 - 하지만 같은 시점의 home screen 또는 app screen 캡처에서 상단 OS 배너가 보이지 않을 수 있다.
+- Android Emulator preview APK에서는 앱 background/home 상태일 때 notification shade에 종료 5분 전 OS 알림이 남는 것을 확인했다.
+- Android Emulator notification shade에서 해당 앱 알림을 스와이프하면 목록에서 제거된다.
 
 즉 시뮬레이터에서는 아래 두 신호를 분리해서 봐야 한다.
 
@@ -28,6 +30,7 @@
 3. 계획 삭제 후 예약 취소 여부
 4. delivered 기록 존재 여부
 5. foreground 인앱 리마인드 상태 표시 여부
+6. Android Emulator의 notification shade 적재와 dismiss 동작
 
 이 범위는 파일과 앱 상태 기준으로 확인한다.
 
@@ -89,10 +92,23 @@ QA 기록에서 우선순위는 아래 순서로 적는다.
 
 - 예약 생성/교체/삭제가 파일 기준으로 확인됨
 - delivered 기록 또는 인앱 상태 중 하나로 시점 도달이 확인됨
+- Android Emulator에서는 background 상태의 notification shade 적재와 사용자의 swipe dismiss까지 확인되면 Android emulator-level 가시성은 통과로 본다.
 
 실제 사용자 가시성까지 `완료`로 닫을 조건:
 
 - 물리 iPhone 또는 Android 기기에서 OS 배너 노출 확인
+
+## Android Emulator QA Log
+
+### 2026-05-13 Foreground/Background
+
+- 환경: Android Emulator, `com.familyproject.todaydidyoufinish`, version `0.1.0`, versionCode `1`, targetSdk `36`.
+- 권한: `POST_NOTIFICATIONS` granted, notification importance `DEFAULT`.
+- foreground: `11:05` 시작 일정의 시작 5분 전 시점에 앱 화면 하단에서 `리마인드: ... · 곧 시작` 인앱 리마인드가 보였다.
+- foreground 제한: foreground 상태의 화면 캡처에서는 별도 OS heads-up 배너가 보이지 않았다.
+- background: 같은 일정을 `11:05 - 11:12`로 편집하고 Home으로 내린 뒤 `11:07`에 notification shade에서 `종료 5분 전` OS 알림을 확인했다.
+- dismiss: notification shade에서 앱 알림을 좌측 스와이프하자 알림 목록에서 제거됐다.
+- 해석: Android Emulator 기준으로 background 알림 전달과 사용자 dismiss UX는 확인됐다. 다만 실제 Android 기기/제조사별 heads-up 표시 정책은 별도 실기 QA 후보로 남긴다.
 
 ## Follow-up
 

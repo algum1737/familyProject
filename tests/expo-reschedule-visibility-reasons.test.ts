@@ -24,6 +24,7 @@ describe("expo reschedule visibility reasons", () => {
     );
 
     expect(items[0]?.canReschedule).toBe(false);
+    expect(items[0]?.rescheduleActionState).toBe("blocked");
     expect(items[0]?.rescheduleBlockedReason).toBe("다시 지정 3/3 사용 완료");
   });
 
@@ -50,8 +51,21 @@ describe("expo reschedule visibility reasons", () => {
     const followUpItem = items.find((item) => item.id === "follow-up");
 
     expect(rootItem?.canReschedule).toBe(false);
+    expect(rootItem?.rescheduleActionState).toBe("blocked");
     expect(rootItem?.rescheduleBlockedReason).toBe("이미 다시 지정된 후속 일정이 있음");
     expect(followUpItem?.canReschedule).toBe(true);
+    expect(followUpItem?.rescheduleActionState).toBe("enabled");
     expect(followUpItem?.rescheduleBlockedReason).toBeNull();
+  });
+
+  it("does not show a reschedule action state for non-missed plans", () => {
+    const items = buildExpoTodayPlanItems(
+      [createPlan({ id: "pending", status: "pending" })],
+      8 * 60,
+      "24h"
+    );
+
+    expect(items[0]?.rescheduleActionState).toBe("hidden");
+    expect(items[0]?.rescheduleBlockedReason).toBeNull();
   });
 });

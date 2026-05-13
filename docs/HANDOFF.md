@@ -24,6 +24,11 @@
 
 ## Current Baseline
 
+### Branch Status
+
+- `feature/app-bootstrap-skeleton`의 Expo app shell 작업은 커밋 후 `main`에 머지됐다.
+- 현재 진행 브랜치는 `feature/expo-release-prep`다.
+
 ### Latest Progress Snapshot
 
 - Expo iOS 시뮬레이터 경로가 실제로 연결됐다. `expo-router` route tree, Metro workspace 설정, iOS development build, simulator 실행까지 확인했다.
@@ -37,13 +42,49 @@
 - 시뮬레이터 알림 QA 운영 기준은 [APP_REMINDER_SIMULATOR_QA.md](/Users/hun/workspace/familyProject/docs/APP_REMINDER_SIMULATOR_QA.md)에 분리됐다. 예약 파일, delivered 기록, foreground 인앱 상태, 화면 배너 screenshot을 같은 강도로 보지 않고 증거 우선순위를 분리한다.
 - 실제 iPhone 배너 QA를 시도했지만, 현재 세션에서는 `xcrun devicectl`과 `xcrun xctrace` 기준 연결된 물리 iPhone이 없어서 실기 검증은 진행하지 못했다.
 - 실제 iPhone이 없으면 Android 실제 기기 연결로 알림 실기 QA를 대체할 수 있다. 이 경우 `adb devices`로 인식 확인 후 `apps/expo`에서 `npx expo run:android --device`로 dev build를 올리는 경로를 사용한다.
+- Expo 릴리스 준비 작업이 시작됐다. `apps/expo/eas.json`에 `development`, `preview`, `production` build profile이 추가됐고, 릴리스 전제 조건과 QA gate는 [APP_EXPO_RELEASE_CHECKLIST.md](/Users/hun/workspace/familyProject/docs/APP_EXPO_RELEASE_CHECKLIST.md)에 정리돼 있다.
+- Expo 브라우저 로그인은 완료됐다. 현재 `npx eas-cli whoami`는 `algumhun / algum1737@gmail.com`을 반환한다.
+- `npx eas-cli init --non-interactive --force`로 `@algumhun/today-did-you-finish` EAS project 생성과 app link가 완료됐다. `apps/expo/app.json`에는 `owner`와 `extra.eas.projectId`가 반영됐다.
+- `apps/expo`에서 `npx eas-cli build --platform ios --profile preview --non-interactive`를 다시 시도한 결과, 현재 다음 blocker는 `iOS internal distribution credential` setup이다. non-interactive 모드에서는 suitable credential이 없어 중단됐다.
+- 같은 build 시도에서 `preview` profile의 `channel`은 `expo-updates` 미설치 상태라 경고가 출력됐고, 이후 `expo-updates`를 아직 쓰지 않는 기준으로 `apps/expo/eas.json`의 `channel` 설정은 제거했다.
+- 사용자 우선순위에 맞춰 릴리스 경로를 Android 우선으로 전환했다.
+- `npx eas-cli build --platform android --profile preview --non-interactive`는 remote Android keystore 생성, 업로드, fingerprint 계산까지 통과했지만, EAS server의 `Install dependencies` 단계에서 `Unknown error`로 실패했다. build id는 `af3052a3-4f1a-4cc4-b96b-cc323cd2c458`다.
+- 이 Android build failure는 `/private/tmp/expo-clean2`에서 클린 `npm ci`로 재현됐다. 원인은 `react@19.2.0`만 직접 선언된 상태에서 전이 의존성 `react-dom@19.2.5`가 풀리며 생긴 peer dependency `ERESOLVE`였다.
+- [apps/expo/package.json](/Users/hun/workspace/familyProject/apps/expo/package.json)에 `react-dom: 19.2.0`을 명시하고 `apps/expo/package-lock.json`을 갱신한 뒤, `/private/tmp/expo-clean3` 기준 클린 `npm ci`는 통과했다.
+- 수정 후 `npx eas-cli build --platform android --profile preview --non-interactive`를 다시 실행했고, 새 build id `505e6104-7c02-4c35-95a6-517325029d96`는 `FINISHED`로 완료됐다.
+- 같은 build는 internal APK 산출물을 생성했다.
+- internal APK를 `/private/tmp/today-did-you-finish-preview.apk`로 내려받아 Android Emulator에 설치했다.
+- 기존 dev build와 preview APK의 서명이 달라 기존 `com.familyproject.todaydidyoufinish` 패키지를 제거한 뒤 새 APK를 설치해야 했다.
+- 설치 후 첫 실행에서 알림 권한 요청이 정상 노출됐고, 허용 뒤 `com.familyproject.todaydidyoufinish/.MainActivity`가 resumed 상태로 올라오며 Today 메인 화면 렌더링까지 확인됐다.
+- Android preview APK 설치 경로는 한 번 더 반복 확인했고, 제거 -> 재설치 -> 권한 허용 -> Today 메인 화면 렌더링까지 다시 통과했다.
+- Android Emulator에서 foreground/background 로컬 알림 QA를 완료했다. foreground에서는 시작 5분 전 인앱 리마인드가 보였고, background/home 상태에서는 종료 5분 전 OS 알림이 notification shade에 적재됐다. 해당 알림은 notification shade에서 스와이프하자 목록에서 제거됐다.
+- 웹 planner missed 카드도 Expo Today 화면처럼 `다시 지정` 차단 이유를 직접 보여준다. `rescheduleCount >= 3`이면 `다시 지정 3/3 사용 완료`, 이미 후속 일정이 있으면 `이미 다시 지정된 후속 일정이 있음`을 카드 본문에 표시하고, 버튼은 기존처럼 비활성화한다.
+- 웹 planner의 `다시 지정 3/3 사용 완료` 표시는 Playwright E2E로도 확인됐다. `tests/e2e/planner-flow.spec.ts`는 별도 browser context seed로 maxed missed 일정을 주입하고, 실제 `build + start` 렌더 경로에서 문구 표시와 `다시 지정` 버튼 비활성화를 검증한다.
+- Expo Today missed 카드도 blocked reschedule 상태를 `rescheduleActionState`로 구분한다. 이제 `다시 지정 3/3 사용 완료` 또는 `이미 다시 지정된 후속 일정이 있음` 이유가 있는 missed 일정은 `다시 지정` 액션을 숨기지 않고 비활성 버튼으로 보여 웹과 의미를 맞춘다.
+- Expo 앱 전체 회귀 QA를 Android Emulator에서 완료했다. 설치 앱은 `com.familyproject.todaydidyoufinish` `versionCode=1`, `versionName=0.1.0`, `targetSdk=36`, `POST_NOTIFICATIONS` granted 상태였고, Today 렌더링, 계획 생성/저장, 편집 진입/취소, missed 회고 저장, 생성한 QA 계획 삭제, Motivation 탭 이동과 월간 지표 표시를 smoke 확인했다.
+- Expo 앱 전체 회귀 자동 검증은 route/action/presentation/reminder 관련 Vitest 5개 파일 20개 테스트, 루트 `npm run typecheck`, `bash scripts/validate-docs.sh`가 통과했다.
+- 단, 현재 설치된 Android preview APK는 `2026-05-13 09:21:59` 설치본이라 이후 소스 변경까지 모두 포함하지 않는다. 최신 소스가 반영된 런타임 확인은 새 Android preview/dev build 재설치 후 후속으로 진행한다.
+- 최신 로컬 Android debug APK smoke QA를 완료했다. `apps/expo/android/app/build/outputs/apk/debug/app-debug.apk`를 `2026-05-13 14:00:15`에 새로 빌드했고, 기존 패키지를 제거한 뒤 Emulator에 설치했다. 설치 앱은 `versionCode=1`, `versionName=0.1.0`, `targetSdk=36`, `DEBUGGABLE`, `firstInstallTime=2026-05-13 14:25:59` 상태였다.
+- debug APK는 JS bundle을 내장한 preview/production 산출물이 아니라 Metro 8081 연결이 필요했다. `adb reverse tcp:8081 tcp:8081` 후 기존 Metro 서버에 붙여 재시작하자 Expo Router bootstrap, 알림 권한 프롬프트, Today 빈 상태, 원형 시간판, `새 계획 추가`, Motivation 탭과 월간 지표가 정상 렌더링됐다.
+- 새 debug 설치 직후 `POST_NOTIFICATIONS`는 `granted=false`였고, 앱 권한 프롬프트에서 `허용`을 누른 뒤 `granted=true`로 바뀌었다.
+- exec plan 검증 계약을 현재 프로젝트와 `/Users/hun/workspace/하네스시스템구축방법/template-repo`에 함께 반영했다. 이제 큰 작업 계획은 시작 전에 `Pre-flight checks`, `Automated tests`, `Manual/Runtime QA`, `Skipped/Not Run` 기준을 고정하고, 완료 시 `Validation Result`에서 실행/통과/실패/미실행과 이유를 대조한다.
+- 커밋 전 체크포인트 정리를 완료했다. release prep/native Android, web/Expo recovery UX, Android/Expo QA 문서, exec plan 검증 계약, completed plan 기록이 단일 checkpoint commit 후보로 분류됐고, Android native tree의 `.gradle`, `.cxx`, `build`, `local.properties`는 내부 `.gitignore` 기준 제외 대상임을 확인했다.
+- Play Console 제출 준비 기준은 [APP_EXPO_RELEASE_CHECKLIST.md](/Users/hun/workspace/familyProject/docs/APP_EXPO_RELEASE_CHECKLIST.md)의 `Google Play Console Submission Readiness` 섹션에 구체화됐다. 계정/권한, app record/store listing, privacy policy/Data Safety, testing track, Play App Signing/AAB, release rollout 순서가 기준이다.
+- Play Console에서 바로 확인하거나 입력할 후보값은 [APP_PLAY_CONSOLE_SUBMISSION_PREP.md](/Users/hun/workspace/familyProject/docs/APP_PLAY_CONSOLE_SUBMISSION_PREP.md)에 분리했다. 앱 이름, package name, store listing 문구 초안, Data Safety 가정, internal testing release notes 후보가 포함돼 있다.
+- Play Console용 privacy policy 페이지는 [src/app/privacy/page.tsx](/Users/hun/workspace/familyProject/src/app/privacy/page.tsx)에 추가됐다. 실제 제출 URL은 웹 배포 도메인이 확정된 뒤 `https://<domain>/privacy` 형태로 완성한다.
+- Play Console 1차 확인 항목은 계정 유형, `com.familyproject.todaydidyoufinish` 앱 레코드 생성 가능 여부, privacy policy 공개 URL 준비 여부다. 현재 privacy page는 repo에 준비됐고, 계정 유형과 앱 레코드 생성 가능 여부는 실제 Play Console 화면에서 확인해야 한다.
+- `2026-05-13` Chrome에서 `play.google.com/console` 접속 시 `Play Console 개발자 계정 만들기`의 계정 유형 선택 화면으로 이동했다. 즉 현재 로그인 Google 계정은 Play Developer 계정 생성이 아직 완료되지 않은 상태이며, app record 생성 가능 여부는 계정 생성 이후에만 확인할 수 있다.
+- `tests/expo-router-route-actions.test.ts`의 `startRescheduling` mock 반환 타입을 리터럴 union으로 고정해 루트 `npm run typecheck`가 다시 통과한다.
+- `2026-05-13` 기준 Google Play 제출 전 확인해야 할 외부 blocker는 Play Console 계정 유형이다. `2023-11-13` 이후 생성된 개인 개발자 계정이면 production 접근 전에 closed test tester 12명/14일 연속 opt-in 조건을 채워야 한다.
+- Android store 제출은 preview APK가 아니라 production profile의 `.aab` 산출물 기준이다. 신규 앱은 Play App Signing 수락과 Google-generated app signing key 사용을 기본 후보로 두고, EAS remote keystore는 upload key 역할로 유지한다.
+- Android 우선 전환은 iOS 시뮬레이터 사용 중단을 의미하지 않는다. iOS 시뮬레이터는 계속 로컬 UI/흐름 QA에 쓸 수 있고, Android 배포 산출물 확인은 Android Emulator 또는 실제 Android 기기에서 별도로 해야 한다.
 - Expo theme regression은 이제 palette token snapshot뿐 아니라 `Today` 화면의 route/card/menu/status pill 조합을 실제 `StyleSheet.create` 입력과 같은 pure helper로 snapshot 고정한다.
 - Expo theme regression은 이제 `Today`뿐 아니라 `Plan Editor`, `Reflection`, `Motivation` 화면의 route/card/form/calendar 조합도 같은 pure helper에서 screen-level snapshot으로 고정한다.
 - Expo 앱 아이콘이 새로 연결됐다. [apps/expo/assets/app-icon-1024.png](/Users/hun/workspace/familyProject/apps/expo/assets/app-icon-1024.png)을 Expo 공통 아이콘으로 쓰고, 현재 iOS native asset의 1024 마스터 PNG도 같은 이미지로 교체했다. 홈 화면 반영은 dev build 재설치 또는 새 빌드 후 확인한다.
 - iOS 시뮬레이터 dev build를 다시 설치해 홈 화면 반영까지 확인했다. 현재 `오늘 다 했니` 아이콘은 원형 시간판 + 체크 조합으로 홈 화면에 보인다.
 - GitHub Actions UTC 환경에서 `tests/planner.test.ts`의 carry-over 테스트가 깨지던 문제는 로컬 시간 생성자를 쓰도록 보정했다. 로컬 기본 시간대와 `TZ=UTC` 모두에서 `npm test -- tests/planner.test.ts`가 통과한다.
 - 하네스 템플릿 운영 규칙이 현재 프로젝트와 `/Users/hun/workspace/하네스시스템구축방법`에 반영됐다. 큰 작업은 active plan으로 시작하고, 완료 시 완료 범위와 검증 결과를 기록한 뒤 completed로 이동한다.
-- `Harness Template Kit Plan`과 `Harness Template Operations Update`는 completed로 이동했고, 현재 `docs/exec-plans/active/`에는 진행 중 계획이 없다.
+- `Harness Template Kit Plan`과 `Harness Template Operations Update`는 completed로 이동했다. `Expo Release Prep`, `Expo Notification Foreground Background QA`, `Web Reschedule Blocked Reason`, `Web Reschedule Blocked Browser QA`, `Recovery UX Polish`, `Expo App Regression QA`, `Android Latest Build Smoke QA`, `Exec Plan Validation Contract`, `Commit Checkpoint Cleanup`도 completed로 닫았고, 현재 active exec plan은 없다.
 - 전역 `AGENTS.md`에도 짧은 운영 규칙이 기록됐다. 현재 프로젝트에서 전역 에이전트 역할은 사용할 수 있지만, 실제 delegation은 사용자가 명시적으로 요청한 경우에만 수행한다.
 - Expo 앱 QA 리뷰에서 부트스트랩 중 빈 상태 저장이 기존 기록을 덮어쓸 수 있는 문제, 리마인드 dismiss 키가 instance key가 아니라 plan id를 쓰는 문제, 앱 전용 테스트 부재가 확인됐다.
 - `Expo Route Validation` 계획은 completed로 이동했다. 실제 iOS 시뮬레이터에서 `today -> editor -> reflection -> motivation` 흐름, `취소` 복귀, 편집 화면 충돌 저장 실패 표시까지 재현했고 route 전환 결함은 찾지 못했다.
@@ -67,16 +108,17 @@
 ### Immediate Next Work
 
 - 새 큰 작업을 시작하기 전에 반드시 `docs/exec-plans/active/`에 실행 계획을 먼저 작성한다.
-- 다음 구현 후보는 Expo 로컬 알림 foreground/background 실기 QA를 별도 기록으로 남기는 작업 또는 web planner에도 같은 `다시 지정` 차단 이유를 직접 노출할지 결정하는 작업이다. 시작 전 새 active plan으로 범위와 검증 기준을 고정한다.
-- `rescheduleCount >= 3` 상태는 현재 UI에서 `다시 지정` 버튼이 숨겨져 있어, 이 정책을 유지할지 별도 안내 진입점을 둘지는 다음 제품 판단 후보로 남아 있다.
+- 현재 제품 방향은 Google Play 출시보다 앱 완성도와 QA를 먼저 높이는 것이다.
+- 현재 우선 경로의 Android preview build, Emulator 설치, channel 경고 정리는 완료됐다. Play Developer 계정 생성, production 접근, Play Console app record 생성, Android production `.aab` 업로드는 최후순위 릴리스 대기열로 내린다.
+- 사용자가 `밀린 업무 진행하자`라고 하면 최후순위 릴리스 대기열에서 Play Developer 계정 유형 선택/계정 생성, package name app record 확보, 공개 privacy policy URL 배포, Contact email 확정, App content/Data Safety 입력, Play App Signing 수락, internal/closed testing release 생성, production access 신청을 순서대로 재개한다.
+- 다음 우선순위 후보는 JS bundle까지 내장한 최신 EAS preview APK를 다시 생성해 standalone 내부 배포 경로를 확인하거나, 실제 Android 기기에서도 알림 가시성과 notification shade dismiss를 한 번 더 확인하는 작업이다. 시작 전 새 active plan으로 범위와 검증 기준을 고정한다.
 - route helper 수준 계약은 테스트로 고정됐지만, `expo-router` route component 자체를 직접 렌더링하는 테스트는 라이브러리 파싱 제약 때문에 아직 없다.
 - 원형 시간판은 시뮬레이터 기준 레이아웃을 한 번 더 정리했지만, 실제 픽셀 기준 스냅샷이나 시각 회귀 테스트는 아직 없다.
 - theme 프리셋은 palette/style contract 수준 테스트로는 고정됐지만, 실제 React Native 렌더 스냅샷이나 픽셀 기준 시각 회귀 테스트는 아직 없다.
 - Expo 로컬 알림은 코드와 단위 테스트는 붙었지만, 실제 시뮬레이터 QA에서는 시작 알림 배너가 관찰되지 않았다. 권한 초기화 상태나 실제 기기에서의 재검증이 남아 있다.
 - 시뮬레이터 내부 전달 기록상으로는 시작/종료 알림이 실제 생성된다. 따라서 현재 불확실성은 `알림이 오지 않는다`보다 `시뮬레이터에서 배너가 눈에 보이느냐`와 `예약 취소/갱신이 예상대로 정리되느냐` 쪽이다.
 - 예약 취소/갱신은 `PendingNotifications.plist` 기준으로는 재현됐다. 이제 남은 핵심 공백은 실제 사용자 눈에 보이는 배너 가시성과 실제 기기에서의 체감 QA다.
-- web planner 쪽 missed 카드에는 아직 `다시 지정` 차단 이유 문구가 직접 보이지 않는다.
-- Expo 로컬 알림은 시작/종료 5분 전 경로와 helper 테스트는 연결됐지만, 실제 권한 허용 후 foreground/background 수신 QA는 아직 별도 완료 기록으로 남지 않았다.
+- Expo 로컬 알림은 시작/종료 5분 전 경로와 helper 테스트가 연결됐고, Android Emulator에서는 foreground 인앱 리마인드와 background OS 알림 적재까지 완료 기록으로 남겼다.
 - 현재 템플릿 키트 후속 작업은 없다. 다른 프로젝트에 적용할 때는 `/Users/hun/workspace/하네스시스템구축방법/QUICKSTART.md` 또는 `EXISTING_REPO_APPLY_PLAYBOOK.md`를 사용한다.
 - 현재 브랜치/커밋은 git 명령으로 확인한다.
 
@@ -225,10 +267,9 @@
 
 ## Suggested Next Work
 
-1. 필요하면 새 route가 추가될 때도 같은 pattern으로 pure screen contract와 snapshot 범위를 확장
-2. 원형판 색 깨짐이 다시 보고되면 AsyncStorage 주입, migration, theme 저장 경로 중 어디서 `plan.color`가 오염되는지 추적
-3. 시뮬레이터 QA는 [APP_REMINDER_SIMULATOR_QA.md](/Users/hun/workspace/familyProject/docs/APP_REMINDER_SIMULATOR_QA.md) 기준으로 유지하고, 필요하면 Android 쪽 운영 메모도 같은 형식으로 추가
-4. 물리 iPhone이 연결되면 시작 5분 전과 종료 5분 전 OS 배너 실기 QA를 재개하고, 없으면 Android 실제 기기 연결 QA로 대체
+1. 실제 Android 기기에서도 알림 가시성과 notification shade dismiss를 한 번 더 확인
+2. 웹/Expo 회복 UX를 실제 기기/브라우저 화면에서 사람이 보는 기준으로 확인
+3. 사용자가 `밀린 업무 진행하자`라고 하면 Play Developer 계정 생성과 Play Console 릴리스 대기열을 재개
 
 ## Handoff Prompt
 

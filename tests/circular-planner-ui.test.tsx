@@ -511,6 +511,69 @@ describe("circular planner user flows", () => {
     );
   });
 
+  it("shows why reschedule is blocked when a missed plan used all reschedules", async () => {
+    seedPlans([
+      {
+        id: "maxed",
+        title: "운동",
+        color: "#767676",
+        startMinute: 60,
+        endMinute: 120,
+        rescheduleCount: 3,
+        status: "missed"
+      }
+    ]);
+
+    await renderPlanner(fixedTimeSource, 1);
+
+    const exerciseItem = getPlanItem("운동");
+    expect(exerciseItem).toBeTruthy();
+    expect(within(exerciseItem as HTMLElement).getByText("다시 지정 3/3 사용 완료")).toBeTruthy();
+    expect(
+      within(exerciseItem as HTMLElement).getByRole("button", { name: "다시 지정" })
+    ).toHaveProperty("disabled", true);
+  });
+
+  it("shows why reschedule is blocked when a follow-up already exists", async () => {
+    seedPlans([
+      {
+        id: "root",
+        title: "취침",
+        color: "#767676",
+        startMinute: 0,
+        endMinute: 300,
+        rescheduleCount: 0,
+        status: "missed"
+      },
+      {
+        id: "follow-up",
+        title: "취침 보충",
+        color: "#767676",
+        sourcePlanId: "root",
+        startMinute: 600,
+        endMinute: 900,
+        rescheduleCount: 1,
+        status: "pending"
+      }
+    ]);
+
+    await renderPlanner(fixedTimeSource, 2);
+
+    const sleepItem = getPlanItem("취침");
+    const followUpItem = getPlanItem("취침 보충");
+    expect(sleepItem).toBeTruthy();
+    expect(followUpItem).toBeTruthy();
+    expect(
+      within(sleepItem as HTMLElement).getByText("이미 다시 지정된 후속 일정이 있음")
+    ).toBeTruthy();
+    expect(
+      within(sleepItem as HTMLElement).getByRole("button", { name: "다시 지정" })
+    ).toHaveProperty("disabled", true);
+    expect(
+      within(followUpItem as HTMLElement).queryByText("이미 다시 지정된 후속 일정이 있음")
+    ).toBeNull();
+  });
+
   it("persists customized status and action labels", async () => {
     await renderPlanner(reminderTimeSource);
 

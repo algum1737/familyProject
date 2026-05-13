@@ -24,6 +24,7 @@
 - 요구사항이 불명확하면 추정하지 말고 `Assumptions` 섹션에 기록한다.
 - 새 규칙이 반복되면 문서에 남기고, 가능하면 스크립트나 테스트로 승격한다.
 - 큰 작업은 구현 전에 먼저 `docs/exec-plans/active/` 계획을 작성하고, 작업 완료 시 완료 범위와 검증 결과를 기록한 뒤 `docs/exec-plans/completed/`로 이동한다.
+- exec plan에는 작업 시작 전에 검증 계약을 고정한다. 최소한 `Pre-flight checks`, `Automated tests`, `Manual/Runtime QA`, `Skipped/Not Run` 판단 기준을 명시하고, 완료 시 `Validation Result`에서 실행/통과/실패/미실행과 이유를 대조한다.
 - 커밋 후에는 `docs/HANDOFF.md`의 최근 반영 작업, 현재 상태, 다음 작업을 검토하고 갱신한다.
 - `docs/HANDOFF.md`에는 정적 커밋 해시를 고정하지 말고 git 명령으로 확인하게 유지한다.
 - 구현 변경은 사용자가 명시적으로 `진행하자`, `수정해`, `적용해`처럼 승인한 경우에만 수행한다.

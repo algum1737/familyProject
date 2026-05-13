@@ -39,7 +39,7 @@ function createModel(overrides: Partial<any> = {}) {
     startCreatePlan: vi.fn(),
     startEditingPlan: vi.fn(),
     startReflection: vi.fn(),
-    startRescheduling: vi.fn(() => "started"),
+    startRescheduling: vi.fn(() => "started" as const),
     submitPlan: vi.fn(() => true),
     todayPlans: [createPlan()],
     ...overrides
@@ -100,7 +100,7 @@ describe("expo router route actions", () => {
 
     const blockedPlan = createPlan({ id: "blocked-1", status: "missed" });
     const blockedModel = createModel({
-      startRescheduling: vi.fn(() => "unavailable"),
+      startRescheduling: vi.fn(() => "unavailable" as const),
       todayPlans: [blockedPlan]
     });
 
@@ -146,7 +146,7 @@ describe("expo router route actions", () => {
     expect(missingParamRouter.replace).toHaveBeenCalledWith(EXPO_ROUTE_PATHS.today);
 
     const blockedModel = createModel({
-      startRescheduling: vi.fn(() => "unavailable"),
+      startRescheduling: vi.fn(() => "unavailable" as const),
       todayPlans: [plan]
     });
     const blockedRouter = createRouter();

@@ -21,12 +21,14 @@
 - Expo 프리뷰 셸은 여전히 개발용으로 남아 있고, 실제 앱 root와 분리된 shell/model/action/flow 구조를 검증하는 용도로 사용한다.
 - Expo 프리뷰용 demo seed와 실제 앱 부트스트랩 데이터 전략은 분리하기로 정리됐고, 기준은 `docs/APP_EXPO_BOOTSTRAP_DATA_STRATEGY.md`에 있다.
 - 루트 Next.js 타입체크와 충돌하지 않도록 루트 `tsconfig.json`에서는 제외된다.
+- `eas.json` 기본 build profile이 추가돼 `development`, `preview`, `production` 경로를 구분할 수 있다.
+- `expo-updates`를 아직 쓰지 않으므로 EAS build profile에는 `channel`을 두지 않는다.
 
 다음 작업:
 
-1. `expo-notifications` 기반 시작 리마인드 provider를 실제 제품 규칙과 연결
-2. 원형 시간판을 앱 시각 품질 기준으로 다듬기
-3. preview shell과 실제 app shell의 공용 계산 계층을 더 줄이기
+1. Android production build와 Play Console 제출 준비 구체화
+2. 실제 Android 기기에서 알림 배너 가시성 확인
+3. 스토어 제출 메타데이터와 자격증명 연결 상태 정리
 4. 필요하면 `ExpoAppShell`을 더 얇게 줄이고 router adapter 쪽 책임을 재조정
 
 실행 준비:

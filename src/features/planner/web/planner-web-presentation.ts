@@ -140,6 +140,7 @@ export function buildPlannerPlanItemPresentation(
     isCurrent: coreModel.isCurrent,
     plan: coreModel.plan,
     recoveryBadges: coreModel.recoveryBadges,
+    rescheduleBlockedReason: coreModel.rescheduleBlockedReason,
     recoveryHighlight: getRecoveryHighlightPresentation({
       followUpTitle: coreModel.followUpTitle,
       state: coreModel.recoveryHighlightState

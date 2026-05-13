@@ -20,6 +20,13 @@
     },
     "android": {
       "package": "com.familyproject.todaydidyoufinish"
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c7885bdb-b444-4aa5-9e24-7f341b68234a"
+      }
+    },
+    "owner": "algumhun"
   }
 }

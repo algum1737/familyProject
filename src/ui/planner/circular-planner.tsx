@@ -685,6 +685,7 @@ export function CircularPlanner({
               isCurrent,
               plan,
               recoveryBadges,
+              rescheduleBlockedReason,
               recoveryHighlight,
               reflectionPreview,
               statusLabel,
@@ -711,6 +712,9 @@ export function CircularPlanner({
                   ) : null}
                   {reflectionPreview ? (
                     <p className="plan-reflection-preview">{reflectionPreview}</p>
+                  ) : null}
+                  {rescheduleBlockedReason ? (
+                    <p className="plan-reschedule-blocked">{rescheduleBlockedReason}</p>
                   ) : null}
                   {recoveryHighlight ? (
                     <div

@@ -17,6 +17,8 @@
 - [APP_MOTIVATION_DATA_MODEL.md](./APP_MOTIVATION_DATA_MODEL.md)
 - [APP_MOTIVATION_SCREEN.md](./APP_MOTIVATION_SCREEN.md)
 - [APP_LOCAL_REMINDER_PLAN.md](./APP_LOCAL_REMINDER_PLAN.md)
+- [APP_EXPO_RELEASE_CHECKLIST.md](./APP_EXPO_RELEASE_CHECKLIST.md)
+- [APP_PLAY_CONSOLE_SUBMISSION_PREP.md](./APP_PLAY_CONSOLE_SUBMISSION_PREP.md)
 - [APP_REMINDER_SIMULATOR_QA.md](./APP_REMINDER_SIMULATOR_QA.md)
 - [APP_EXPO_BOOTSTRAP_DATA_STRATEGY.md](./APP_EXPO_BOOTSTRAP_DATA_STRATEGY.md)
 - [APP_EXPO_NAVIGATION_CONTRACT.md](./APP_EXPO_NAVIGATION_CONTRACT.md)
@@ -42,7 +44,7 @@
 
 ## Active Work
 
-- No active exec plan currently.
+- No active exec plan at the moment.
 
 ## Completed Work
 
@@ -52,9 +54,18 @@
 - [Expo Circular Planner Visual QA](./exec-plans/completed/2026-05-11-expo-circular-planner-visual-qa.md)
 - [Expo Global Theme Presets](./exec-plans/completed/2026-05-08-expo-global-theme-presets.md)
 - [Expo Hidden Reschedule Reason](./exec-plans/completed/2026-05-11-expo-hidden-reschedule-reason.md)
+- [Expo App Regression QA](./exec-plans/completed/2026-05-13-expo-app-regression-qa.md)
+- [Android Latest Build Smoke QA](./exec-plans/completed/2026-05-13-android-latest-build-smoke-qa.md)
+- [Commit Checkpoint Cleanup](./exec-plans/completed/2026-05-13-commit-checkpoint-cleanup.md)
+- [Exec Plan Validation Contract](./exec-plans/completed/2026-05-13-exec-plan-validation-contract.md)
+- [Expo Notification Foreground Background QA](./exec-plans/completed/2026-05-13-expo-notification-foreground-background-qa.md)
+- [Recovery UX Polish](./exec-plans/completed/2026-05-13-recovery-ux-polish.md)
+- [Web Reschedule Blocked Reason](./exec-plans/completed/2026-05-13-web-reschedule-blocked-reason.md)
+- [Web Reschedule Blocked Browser QA](./exec-plans/completed/2026-05-13-web-reschedule-blocked-browser-qa.md)
 - [iPhone Reminder Banner QA](./exec-plans/completed/2026-05-12-iphone-reminder-banner-qa.md)
 - [Expo Reminder Banner Visibility QA](./exec-plans/completed/2026-05-12-expo-reminder-banner-visibility-qa.md)
 - [Expo Reminder Simulator QA Notes](./exec-plans/completed/2026-05-12-expo-reminder-simulator-qa-notes.md)
+- [Expo Release Prep](./exec-plans/completed/2026-05-12-expo-release-prep.md)
 - [Expo Sector Color Normalization](./exec-plans/completed/2026-05-12-expo-sector-color-normalization.md)
 - [Expo App Icon](./exec-plans/completed/2026-05-12-expo-app-icon.md)
 - [Expo Home Icon Refresh](./exec-plans/completed/2026-05-12-expo-home-icon-refresh.md)

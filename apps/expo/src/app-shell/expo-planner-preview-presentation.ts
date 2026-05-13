@@ -52,11 +52,20 @@ function toPlanItemView(
   item: PlannerPlanItemCoreModel,
   timeDisplayFormat: TimeDisplayFormat
 ) {
+  const isMissed = item.statusLabelKey === "missed";
+  const rescheduleActionState =
+    isMissed && item.canReschedule
+      ? "enabled"
+      : isMissed && item.rescheduleBlockedReason
+        ? "blocked"
+        : "hidden";
+
   return {
     canReschedule: item.canReschedule,
     canToggleStatus: item.canToggleStatus,
     id: item.plan.id,
     title: item.plan.title,
+    rescheduleActionState,
     rescheduleBlockedReason: item.rescheduleBlockedReason,
     timeText: getTimeText(item.plan.startMinute, item.plan.endMinute, timeDisplayFormat),
     statusLabel: getStatusLabel(item.statusLabelKey),

@@ -134,8 +134,16 @@ function createExpoThemeStyles(palette: ExpoThemePalette) {
       minHeight: 40,
       paddingHorizontal: 12
     },
+    tertiaryButtonDisabled: {
+      opacity: 0.48
+    },
     tertiaryButtonText: {
       color: palette.tertiaryText,
+      fontSize: 13,
+      fontWeight: "700"
+    },
+    tertiaryButtonTextDisabled: {
+      color: palette.mutedText,
       fontSize: 13,
       fontWeight: "700"
     },

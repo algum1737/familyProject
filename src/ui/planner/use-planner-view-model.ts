@@ -61,6 +61,7 @@ type PlannerListItem = {
   isCurrent: boolean;
   plan: DailyPlan;
   recoveryBadges: string[];
+  rescheduleBlockedReason: string | null;
   recoveryHighlight: {
     detail: string;
     label: string;

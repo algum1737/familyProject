@@ -38,6 +38,7 @@ type ExpoTodayScreenProps = {
     canToggleStatus: boolean;
     id: string;
     recoveryLabel: string | null;
+    rescheduleActionState: "enabled" | "blocked" | "hidden";
     rescheduleBlockedReason: string | null;
     statusLabel: string;
     statusTone: "current" | "pending" | "done" | "missed";
@@ -334,12 +335,20 @@ export function ExpoTodayScreen({
                       <Text style={expoTheme.tertiaryButtonText}>회고</Text>
                     </Pressable>
                   ) : null}
-                  {item.canReschedule ? (
+                  {item.rescheduleActionState === "enabled" ? (
                     <Pressable
                       onPress={() => onOpenReschedule(item.id)}
                       style={expoTheme.tertiaryButton}
                     >
                       <Text style={expoTheme.tertiaryButtonText}>다시 지정</Text>
+                    </Pressable>
+                  ) : null}
+                  {item.rescheduleActionState === "blocked" ? (
+                    <Pressable
+                      disabled
+                      style={[expoTheme.tertiaryButton, expoTheme.tertiaryButtonDisabled]}
+                    >
+                      <Text style={expoTheme.tertiaryButtonTextDisabled}>다시 지정</Text>
                     </Pressable>
                   ) : null}
                   {reminderPlanId === item.id ? (
