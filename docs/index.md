@@ -49,6 +49,7 @@
 ## Completed Work
 
 - [App Transition Decision Plan](./exec-plans/completed/2026-04-24-app-transition-decision.md)
+- [PR And Main Merge](./exec-plans/completed/2026-05-13-pr-and-main-merge.md)
 - [App QA Review](./exec-plans/completed/2026-05-08-app-qa-review.md)
 - [Expo Circular Planner Layout Polish](./exec-plans/completed/2026-05-08-expo-circular-planner-layout-polish.md)
 - [Expo Circular Planner Visual QA](./exec-plans/completed/2026-05-11-expo-circular-planner-visual-qa.md)

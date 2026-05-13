@@ -28,6 +28,8 @@
 
 - `feature/app-bootstrap-skeleton`의 Expo app shell 작업은 커밋 후 `main`에 머지됐다.
 - 현재 진행 브랜치는 `feature/expo-release-prep`다.
+- `feature/expo-release-prep`는 GitHub PR `#2`로 열렸고, Expo release prep checkpoint와 후속 CI 복구 커밋이 포함돼 있다.
+- PR `#2`의 GitHub Actions `validate`와 `e2e`는 통과했으며, 다음 단계는 `main` merge와 로컬 `main` 동기화다.
 
 ### Latest Progress Snapshot
 
@@ -83,8 +85,9 @@
 - Expo 앱 아이콘이 새로 연결됐다. [apps/expo/assets/app-icon-1024.png](/Users/hun/workspace/familyProject/apps/expo/assets/app-icon-1024.png)을 Expo 공통 아이콘으로 쓰고, 현재 iOS native asset의 1024 마스터 PNG도 같은 이미지로 교체했다. 홈 화면 반영은 dev build 재설치 또는 새 빌드 후 확인한다.
 - iOS 시뮬레이터 dev build를 다시 설치해 홈 화면 반영까지 확인했다. 현재 `오늘 다 했니` 아이콘은 원형 시간판 + 체크 조합으로 홈 화면에 보인다.
 - GitHub Actions UTC 환경에서 `tests/planner.test.ts`의 carry-over 테스트가 깨지던 문제는 로컬 시간 생성자를 쓰도록 보정했다. 로컬 기본 시간대와 `TZ=UTC` 모두에서 `npm test -- tests/planner.test.ts`가 통과한다.
+- PR `#2` 검증 중 루트 CI 환경에서 Expo provider 의존성 해석과 Expo tsconfig 해석 문제가 드러나 루트 devDependencies에 필요한 Expo 테스트 의존성을 맞췄다. 이후 UTC CI에서 `expo-start-reminder-sync`와 `expo-bootstrap-and-reminders`의 시간 의존 fixture가 깨지던 문제는 로컬 날짜 생성자 기반 테스트로 보정했고, GitHub Actions `validate`와 `e2e`가 모두 통과했다.
 - 하네스 템플릿 운영 규칙이 현재 프로젝트와 `/Users/hun/workspace/하네스시스템구축방법`에 반영됐다. 큰 작업은 active plan으로 시작하고, 완료 시 완료 범위와 검증 결과를 기록한 뒤 completed로 이동한다.
-- `Harness Template Kit Plan`과 `Harness Template Operations Update`는 completed로 이동했다. `Expo Release Prep`, `Expo Notification Foreground Background QA`, `Web Reschedule Blocked Reason`, `Web Reschedule Blocked Browser QA`, `Recovery UX Polish`, `Expo App Regression QA`, `Android Latest Build Smoke QA`, `Exec Plan Validation Contract`, `Commit Checkpoint Cleanup`도 completed로 닫았고, 현재 active exec plan은 없다.
+- `Harness Template Kit Plan`과 `Harness Template Operations Update`는 completed로 이동했다. `Expo Release Prep`, `Expo Notification Foreground Background QA`, `Web Reschedule Blocked Reason`, `Web Reschedule Blocked Browser QA`, `Recovery UX Polish`, `Expo App Regression QA`, `Android Latest Build Smoke QA`, `Exec Plan Validation Contract`, `Commit Checkpoint Cleanup`, `PR And Main Merge`도 completed로 닫았고, 현재 active exec plan은 없다.
 - 전역 `AGENTS.md`에도 짧은 운영 규칙이 기록됐다. 현재 프로젝트에서 전역 에이전트 역할은 사용할 수 있지만, 실제 delegation은 사용자가 명시적으로 요청한 경우에만 수행한다.
 - Expo 앱 QA 리뷰에서 부트스트랩 중 빈 상태 저장이 기존 기록을 덮어쓸 수 있는 문제, 리마인드 dismiss 키가 instance key가 아니라 plan id를 쓰는 문제, 앱 전용 테스트 부재가 확인됐다.
 - `Expo Route Validation` 계획은 completed로 이동했다. 실제 iOS 시뮬레이터에서 `today -> editor -> reflection -> motivation` 흐름, `취소` 복귀, 편집 화면 충돌 저장 실패 표시까지 재현했고 route 전환 결함은 찾지 못했다.
@@ -261,6 +264,7 @@
 - 그 전에는 분석, 원인 파악, 제안까지만 한다.
 - 새 실제 작업은 `main`에서 직접 하지 않고, 사용자가 승인하면 작업 브랜치를 만든다.
 - `main` 머지는 사용자가 명시적으로 요청할 때만 한다.
+- PR을 생성하거나 갱신할 때 title/body/요약 설명은 한글로 작성한다.
 - 커밋 후에는 `docs/HANDOFF.md`의 최근 반영 작업, 현재 상태, 다음 작업을 검토하고 갱신한다.
 - 커밋 해시는 문서에 고정하지 말고 git 명령으로 확인하게 유지한다.
 - 리포지터리 밖에만 있는 지식은 없는 것으로 간주한다.
@@ -268,7 +272,7 @@
 ## Suggested Next Work
 
 1. 실제 Android 기기에서도 알림 가시성과 notification shade dismiss를 한 번 더 확인
-2. 웹/Expo 회복 UX를 실제 기기/브라우저 화면에서 사람이 보는 기준으로 확인
+2. PR `#2` merge 후 로컬 `main`을 동기화하고 다음 작업 브랜치를 `main` 기준에서 시작
 3. 사용자가 `밀린 업무 진행하자`라고 하면 Play Developer 계정 생성과 Play Console 릴리스 대기열을 재개
 
 ## Handoff Prompt

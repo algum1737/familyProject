@@ -12,11 +12,12 @@
 - `main` 대상 PR 생성
 - PR check 상태 확인
 - merge 가능 여부 보고
+- PR check 실패 원인 수정과 재검증
+- PR merge 준비 상태 기록
 
 ## Out Of Scope
 
 - PR 승인 없는 강제 merge
-- 실패한 CI 수정
 - 추가 제품 구현
 
 ## Assumptions
@@ -74,6 +75,9 @@
 - 루트 Vitest가 Expo 소스를 직접 import하는 현재 구조에 맞춰 루트 devDependencies에 `expo`도 추가했다.
 - 세 번째 CI 실패는 `+09:00` 문자열 날짜로 만든 테스트 입력과 로컬 타임존 기준 `setHours` 구현이 CI UTC 환경에서 다르게 해석되어 Expo bootstrap/reminder 테스트가 과거 알림으로 필터링된 것이다.
 - 제품 로직은 기기 로컬 시간 기준으로 유지하고, 테스트 fixture를 로컬 날짜 생성자 기반으로 바꿔 CI 타임존 의존성을 제거했다.
+- 수정 커밋 push 후 GitHub Actions `validate`와 `e2e`가 모두 통과했다.
+- 사용자가 PR 진행 시 설명을 한글로 작성하라고 추가 지시해 `AGENTS.md`와 `docs/HANDOFF.md` 작업 규칙에 반영했다.
+- 이 plan은 PR 검증 복구와 merge 준비 완료 기록으로 닫는다. 실제 `main` 반영은 PR merge 명령으로 수행한다.
 
 ## Validation Result
 
@@ -85,7 +89,9 @@
 - `npm test` 통과, 15개 파일 94개 테스트
 - `bash scripts/validate-docs.sh` 통과
 - `TZ=UTC npm test -- tests/expo-start-reminder-sync.test.ts tests/expo-bootstrap-and-reminders.test.ts` 통과, 2개 파일 9개 테스트
+- GitHub Actions `validate` 통과
+- GitHub Actions `e2e` 통과
 
 ## Status
 
-Active until the dependency fix is committed, pushed, and PR checks are re-run.
+Completed. PR checks are green and the branch is ready to merge into `main`.
