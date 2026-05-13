@@ -57,6 +57,7 @@
 - [Expo Hidden Reschedule Reason](./exec-plans/completed/2026-05-11-expo-hidden-reschedule-reason.md)
 - [Expo App Regression QA](./exec-plans/completed/2026-05-13-expo-app-regression-qa.md)
 - [Android Latest Build Smoke QA](./exec-plans/completed/2026-05-13-android-latest-build-smoke-qa.md)
+- [Android Preview Standalone QA](./exec-plans/completed/2026-05-13-android-preview-standalone-qa.md)
 - [Commit Checkpoint Cleanup](./exec-plans/completed/2026-05-13-commit-checkpoint-cleanup.md)
 - [Exec Plan Validation Contract](./exec-plans/completed/2026-05-13-exec-plan-validation-contract.md)
 - [Expo Notification Foreground Background QA](./exec-plans/completed/2026-05-13-expo-notification-foreground-background-qa.md)

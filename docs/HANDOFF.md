@@ -86,8 +86,9 @@
 - iOS 시뮬레이터 dev build를 다시 설치해 홈 화면 반영까지 확인했다. 현재 `오늘 다 했니` 아이콘은 원형 시간판 + 체크 조합으로 홈 화면에 보인다.
 - GitHub Actions UTC 환경에서 `tests/planner.test.ts`의 carry-over 테스트가 깨지던 문제는 로컬 시간 생성자를 쓰도록 보정했다. 로컬 기본 시간대와 `TZ=UTC` 모두에서 `npm test -- tests/planner.test.ts`가 통과한다.
 - PR `#2` 검증 중 루트 CI 환경에서 Expo provider 의존성 해석과 Expo tsconfig 해석 문제가 드러나 루트 devDependencies에 필요한 Expo 테스트 의존성을 맞췄다. 이후 UTC CI에서 `expo-start-reminder-sync`와 `expo-bootstrap-and-reminders`의 시간 의존 fixture가 깨지던 문제는 로컬 날짜 생성자 기반 테스트로 보정했고, GitHub Actions `validate`와 `e2e`가 모두 통과했다.
+- 최신 `main` 기준 Android EAS preview standalone QA를 완료했다. build id는 `0a64265c-2fd7-493a-9c88-d574e91e52fd`, artifact는 `/private/tmp/today-did-you-finish-preview-latest.apk`로 내려받은 약 82MB APK다. Emulator에 기존 패키지를 제거한 뒤 설치했고, `adb reverse --list`가 비어 있는 상태에서 `com.familyproject.todaydidyoufinish/.MainActivity`가 foreground로 실행됐다. 알림 권한 prompt/allow, Today 렌더링, 계획 생성/삭제, foreground 인앱 리마인드 smoke가 통과했다. background/home 상태 OS 알림 전달 smoke는 이번 런에서 안정적인 예약 시점 확보가 어려워 미실행으로 기록했다.
 - 하네스 템플릿 운영 규칙이 현재 프로젝트와 `/Users/hun/workspace/하네스시스템구축방법`에 반영됐다. 큰 작업은 active plan으로 시작하고, 완료 시 완료 범위와 검증 결과를 기록한 뒤 completed로 이동한다.
-- `Harness Template Kit Plan`과 `Harness Template Operations Update`는 completed로 이동했다. `Expo Release Prep`, `Expo Notification Foreground Background QA`, `Web Reschedule Blocked Reason`, `Web Reschedule Blocked Browser QA`, `Recovery UX Polish`, `Expo App Regression QA`, `Android Latest Build Smoke QA`, `Exec Plan Validation Contract`, `Commit Checkpoint Cleanup`, `PR And Main Merge`도 completed로 닫았고, 현재 active exec plan은 없다.
+- `Harness Template Kit Plan`과 `Harness Template Operations Update`는 completed로 이동했다. `Expo Release Prep`, `Expo Notification Foreground Background QA`, `Web Reschedule Blocked Reason`, `Web Reschedule Blocked Browser QA`, `Recovery UX Polish`, `Expo App Regression QA`, `Android Latest Build Smoke QA`, `Android Preview Standalone QA`, `Exec Plan Validation Contract`, `Commit Checkpoint Cleanup`, `PR And Main Merge`도 completed로 닫았고, 현재 active exec plan은 없다.
 - 전역 `AGENTS.md`에도 짧은 운영 규칙이 기록됐다. 현재 프로젝트에서 전역 에이전트 역할은 사용할 수 있지만, 실제 delegation은 사용자가 명시적으로 요청한 경우에만 수행한다.
 - Expo 앱 QA 리뷰에서 부트스트랩 중 빈 상태 저장이 기존 기록을 덮어쓸 수 있는 문제, 리마인드 dismiss 키가 instance key가 아니라 plan id를 쓰는 문제, 앱 전용 테스트 부재가 확인됐다.
 - `Expo Route Validation` 계획은 completed로 이동했다. 실제 iOS 시뮬레이터에서 `today -> editor -> reflection -> motivation` 흐름, `취소` 복귀, 편집 화면 충돌 저장 실패 표시까지 재현했고 route 전환 결함은 찾지 못했다.
@@ -271,8 +272,8 @@
 
 ## Suggested Next Work
 
-1. 실제 Android 기기에서도 알림 가시성과 notification shade dismiss를 한 번 더 확인
-2. PR `#2` merge 후 로컬 `main`을 동기화하고 다음 작업 브랜치를 `main` 기준에서 시작
+1. Android preview standalone에서 background/home 상태 OS 알림 전달 smoke를 별도 시간 예약 기준으로 다시 확인
+2. 실제 Android 기기에서도 알림 가시성과 notification shade dismiss를 한 번 더 확인
 3. 사용자가 `밀린 업무 진행하자`라고 하면 Play Developer 계정 생성과 Play Console 릴리스 대기열을 재개
 
 ## Handoff Prompt
