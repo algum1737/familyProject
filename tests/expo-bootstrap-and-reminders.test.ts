@@ -13,6 +13,10 @@ import {
 } from "../src/features/planner/core/planner-reminder-rules";
 import type { DailyPlan, PlannerRecordMap } from "../src/domains/plans/types";
 
+function createLocalTestDate(year: number, monthIndex: number, day: number, hours: number, minutes: number) {
+  return new Date(year, monthIndex, day, hours, minutes, 0, 0);
+}
+
 describe("expo bootstrap state", () => {
   it("preserves existing records when today has no record and no legacy plans", () => {
     const loadedRecords: PlannerRecordMap = {
@@ -34,7 +38,7 @@ describe("expo bootstrap state", () => {
       currentDate: "2026-05-08",
       loadedPlans: [],
       loadedRecords,
-      now: new Date("2026-05-08T05:30:00+09:00")
+      now: createLocalTestDate(2026, 4, 8, 5, 30)
     });
 
     expect(resolved.source).toBe("records-restored");
@@ -77,7 +81,7 @@ describe("expo bootstrap state", () => {
           }
         ]
       },
-      now: new Date("2026-05-08T08:00:00+09:00")
+      now: createLocalTestDate(2026, 4, 8, 8, 0)
     });
 
     expect(resolved.source).toBe("legacy-migrated");

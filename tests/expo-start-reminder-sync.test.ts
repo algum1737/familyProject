@@ -20,9 +20,17 @@ function createPlan(overrides: Partial<any> = {}) {
   };
 }
 
+function createLocalTestDate(hours: number, minutes: number) {
+  return new Date(2026, 4, 11, hours, minutes, 0, 0);
+}
+
+function createExpectedScheduledIso(hours: number, minutes: number) {
+  return new Date(2026, 4, 11, hours, minutes, 0, 0).toISOString();
+}
+
 describe("expo start reminder sync", () => {
   it("builds future start and end reminder requests around pending plans", () => {
-    const now = new Date("2026-05-11T07:30:00+09:00");
+    const now = createLocalTestDate(7, 30);
     const requests = buildExpoStartReminderRequests(
       [
         createPlan({ id: "soon", startMinute: 8 * 60, endMinute: 9 * 60 }),
@@ -38,14 +46,14 @@ describe("expo start reminder sync", () => {
       "start-reminder:later",
       "end-recovery-reminder:later"
     ]);
-    expect(requests[0]?.scheduledFor.toISOString()).toBe("2026-05-10T22:55:00.000Z");
-    expect(requests[1]?.scheduledFor.toISOString()).toBe("2026-05-10T23:55:00.000Z");
-    expect(requests[2]?.scheduledFor.toISOString()).toBe("2026-05-11T00:55:00.000Z");
-    expect(requests[3]?.scheduledFor.toISOString()).toBe("2026-05-11T01:55:00.000Z");
+    expect(requests[0]?.scheduledFor.toISOString()).toBe(createExpectedScheduledIso(7, 55));
+    expect(requests[1]?.scheduledFor.toISOString()).toBe(createExpectedScheduledIso(8, 55));
+    expect(requests[2]?.scheduledFor.toISOString()).toBe(createExpectedScheduledIso(9, 55));
+    expect(requests[3]?.scheduledFor.toISOString()).toBe(createExpectedScheduledIso(10, 55));
   });
 
   it("skips plans whose reminder time has already passed", () => {
-    const now = new Date("2026-05-11T08:02:00+09:00");
+    const now = createLocalTestDate(8, 2);
     const requests = buildExpoStartReminderRequests(
       [
         createPlan({ id: "too-late", startMinute: 8 * 60, endMinute: 8 * 60 + 4 }),
@@ -60,7 +68,7 @@ describe("expo start reminder sync", () => {
   });
 
   it("creates a stable sync signature for the desired reminder schedule", () => {
-    const now = new Date("2026-05-11T07:30:00+09:00");
+    const now = createLocalTestDate(7, 30);
     const requests = buildExpoStartReminderRequests(
       [createPlan({ id: "soon", startMinute: 8 * 60 })],
       now
@@ -75,12 +83,12 @@ describe("expo start reminder sync", () => {
         {
           kind: "start-reminder",
           key: "start-reminder:soon",
-          scheduledFor: "2026-05-10T22:55:00.000Z"
+          scheduledFor: createExpectedScheduledIso(7, 55)
         },
         {
           kind: "end-recovery-reminder",
           key: "end-recovery-reminder:soon",
-          scheduledFor: "2026-05-10T23:55:00.000Z"
+          scheduledFor: createExpectedScheduledIso(8, 55)
         }
       ])
     );
