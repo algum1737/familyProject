@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   describeMinuteWithFormat,
@@ -11,6 +11,7 @@ import {
 } from "../../../../src/domains/plans/service/planner";
 import type { RescheduleFailureGuidance } from "../../../../src/features/planner/core/reschedule-failure-guidance";
 import { PLAN_COLORS } from "../../../../src/ui/planner/planner-colors";
+import { getTimePickerBottomSheetPaddingBottom } from "../app-shell/expo-time-picker-safe-area";
 import type {
   ExpoPlanFormErrors,
   ExpoPlanFormField,
@@ -58,6 +59,7 @@ export function ExpoPlanEditorScreen({
   title
 }: ExpoPlanEditorScreenProps) {
   const { theme: expoTheme } = useExpoTheme();
+  const safeAreaInsets = useSafeAreaInsets();
   const TIME_PICKER_OPTION_HEIGHT = 52;
   const TIME_PICKER_SCROLL_OFFSET = 104;
   const titleRef = useRef<TextInput>(null);
@@ -81,6 +83,15 @@ export function ExpoPlanEditorScreen({
   const minuteOptions = Array.from({ length: 60 }, (_, index) => index);
   const formStartMinute = parseTimeOrFallback(form.startTime, 8 * 60);
   const formEndMinute = parseTimeOrFallback(form.endTime, 9 * 60);
+  const bottomSheetCardStyle = useMemo(
+    () => [
+      expoTheme.bottomSheetCard,
+      {
+        paddingBottom: getTimePickerBottomSheetPaddingBottom(safeAreaInsets.bottom)
+      }
+    ],
+    [expoTheme.bottomSheetCard, safeAreaInsets.bottom]
+  );
 
   const schedulePreviewText = useMemo(() => {
     try {
@@ -354,7 +365,7 @@ export function ExpoPlanEditorScreen({
       >
         <View style={expoTheme.bottomSheetOverlay}>
           <Pressable onPress={closeTimePicker} style={expoTheme.bottomSheetBackdrop} />
-          <View style={expoTheme.bottomSheetCard}>
+          <View style={bottomSheetCardStyle}>
             <View style={expoTheme.bottomSheetHeader}>
               <Text style={expoTheme.sectionTitle}>{pickerTitle}</Text>
               <Text style={expoTheme.bodyText}>

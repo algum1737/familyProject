@@ -1,10 +1,17 @@
 import * as Notifications from "expo-notifications";
+import { Platform } from "react-native";
 
 import type { DailyPlan } from "../../../../../src/domains/plans/types";
 import type {
   ReminderProvider,
   ReminderRequest
 } from "../../../../../src/providers/reminders/reminder-provider";
+import {
+  buildExpoReminderNotificationContent,
+  EXPO_REMINDER_NOTIFICATION_CHANNEL_ID,
+  EXPO_REMINDER_NOTIFICATION_CHANNEL_NAME
+} from "./expo-reminder-notification-config";
+import { createExpoReminderSyncQueue } from "./expo-reminder-sync-queue";
 import {
   buildExpoStartReminderRequests,
   EXPO_END_RECOVERY_REMINDER_KIND,
@@ -16,6 +23,7 @@ import {
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
+    priority: Notifications.AndroidNotificationPriority.HIGH,
     shouldPlaySound: true,
     shouldSetBadge: false,
     shouldShowBanner: true,
@@ -61,6 +69,21 @@ async function ensureNotificationPermission() {
   return requested.granted;
 }
 
+async function ensureAndroidReminderNotificationChannel() {
+  if (Platform.OS !== "android") {
+    return;
+  }
+
+  await Notifications.setNotificationChannelAsync(EXPO_REMINDER_NOTIFICATION_CHANNEL_ID, {
+    enableVibrate: true,
+    importance: Notifications.AndroidImportance.HIGH,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+    name: EXPO_REMINDER_NOTIFICATION_CHANNEL_NAME,
+    showBadge: false,
+    vibrationPattern: [0, 250, 250, 250]
+  });
+}
+
 async function cancelNotifications(notifications: ExpoScheduledNotification[]) {
   await Promise.all(
     notifications.map((notification) =>
@@ -81,6 +104,7 @@ function buildEndRecoveryReminderBody(plan: DailyPlan) {
 
 export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
   let lastSyncSignature = "";
+  const syncQueue = createExpoReminderSyncQueue();
 
   async function schedule({ plan, scheduledFor }: ReminderRequest) {
     await scheduleStartReminder({
@@ -103,20 +127,18 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
       Math.floor((input.scheduledFor.getTime() - Date.now()) / 1000)
     );
 
+    await ensureAndroidReminderNotificationChannel();
+
     return Notifications.scheduleNotificationAsync({
-      content: {
+      content: buildExpoReminderNotificationContent({
         body: input.body,
-        data: {
-          kind: input.notificationKey.startsWith("end-recovery-reminder:")
-            ? EXPO_END_RECOVERY_REMINDER_KIND
-            : EXPO_START_REMINDER_KIND,
-          notificationKey: input.notificationKey,
-          planId: input.planId
-        },
-        sound: true,
+        notificationKey: input.notificationKey,
+        planId: input.planId,
+        priority: Notifications.AndroidNotificationPriority.HIGH,
         title: input.title
-      },
+      }),
       trigger: {
+        channelId: EXPO_REMINDER_NOTIFICATION_CHANNEL_ID,
         seconds: secondsFromNow,
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL
       }
@@ -137,16 +159,24 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
 
   async function cancel(planId: string) {
     const notifications = await Notifications.getAllScheduledNotificationsAsync();
-    await cancelNotifications(notifications.filter((notification) => matchesPlanId(notification, planId)));
+    await cancelNotifications(
+      notifications.filter((notification) => matchesPlanId(notification, planId))
+    );
     lastSyncSignature = "";
   }
 
-  async function sync(plans: DailyPlan[], now: Date) {
+  async function runSync(plans: DailyPlan[], now: Date, isLatest: () => boolean) {
+    if (!isLatest()) {
+      return;
+    }
+
     const allowed = await ensureNotificationPermission();
 
     if (!allowed) {
       return;
     }
+
+    await ensureAndroidReminderNotificationChannel();
 
     const requests = buildExpoStartReminderRequests(plans, now);
     const nextSignature = getExpoStartReminderSyncSignature(requests);
@@ -156,9 +186,18 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
     }
 
     const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+
+    if (!isLatest()) {
+      return;
+    }
+
     await cancelNotifications(scheduled.filter(isManagedStartReminder));
 
     for (const request of requests) {
+      if (!isLatest()) {
+        return;
+      }
+
       await scheduleNotification({
         body:
           request.kind === EXPO_END_RECOVERY_REMINDER_KIND
@@ -174,7 +213,13 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
       });
     }
 
-    lastSyncSignature = nextSignature;
+    if (isLatest()) {
+      lastSyncSignature = nextSignature;
+    }
+  }
+
+  function sync(plans: DailyPlan[], now: Date) {
+    return syncQueue.run((isLatest) => runSync(plans, now, isLatest));
   }
 
   return {
