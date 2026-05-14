@@ -48,6 +48,7 @@
 
 ## Completed Work
 
+- [Android Notification Reschedule Cancel Real Device QA](./exec-plans/completed/2026-05-14-android-notification-reschedule-cancel-real-device-qa.md)
 - [Android Real Device Fix Regression QA](./exec-plans/completed/2026-05-14-android-real-device-fix-regression-qa.md)
 - [Android Background Notification Fix](./exec-plans/completed/2026-05-14-android-background-notification-fix.md)
 - [Android Time Picker Safe Area](./exec-plans/completed/2026-05-14-android-time-picker-safe-area.md)

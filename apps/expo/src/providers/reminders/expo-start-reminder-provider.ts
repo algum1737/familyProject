@@ -11,6 +11,7 @@ import {
   EXPO_REMINDER_NOTIFICATION_CHANNEL_ID,
   EXPO_REMINDER_NOTIFICATION_CHANNEL_NAME
 } from "./expo-reminder-notification-config";
+import { createExpoReminderSyncQueue } from "./expo-reminder-sync-queue";
 import {
   buildExpoStartReminderRequests,
   EXPO_END_RECOVERY_REMINDER_KIND,
@@ -103,6 +104,7 @@ function buildEndRecoveryReminderBody(plan: DailyPlan) {
 
 export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
   let lastSyncSignature = "";
+  const syncQueue = createExpoReminderSyncQueue();
 
   async function schedule({ plan, scheduledFor }: ReminderRequest) {
     await scheduleStartReminder({
@@ -163,7 +165,11 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
     lastSyncSignature = "";
   }
 
-  async function sync(plans: DailyPlan[], now: Date) {
+  async function runSync(plans: DailyPlan[], now: Date, isLatest: () => boolean) {
+    if (!isLatest()) {
+      return;
+    }
+
     const allowed = await ensureNotificationPermission();
 
     if (!allowed) {
@@ -180,9 +186,18 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
     }
 
     const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+
+    if (!isLatest()) {
+      return;
+    }
+
     await cancelNotifications(scheduled.filter(isManagedStartReminder));
 
     for (const request of requests) {
+      if (!isLatest()) {
+        return;
+      }
+
       await scheduleNotification({
         body:
           request.kind === EXPO_END_RECOVERY_REMINDER_KIND
@@ -198,7 +213,13 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
       });
     }
 
-    lastSyncSignature = nextSignature;
+    if (isLatest()) {
+      lastSyncSignature = nextSignature;
+    }
+  }
+
+  function sync(plans: DailyPlan[], now: Date) {
+    return syncQueue.run((isLatest) => runSync(plans, now, isLatest));
   }
 
   return {

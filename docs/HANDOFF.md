@@ -119,6 +119,8 @@
 - `Android Background Notification Fix` 계획과 후속 실기기 재QA가 완료됐다. `today-reminders-high` HIGH importance channel, Android priority `high`, notification content `sound: true` 기준으로 `QANotify` 종료 5분 전 OS notification이 notification shade와 `dumpsys notification --noredact`에 적재됐다. 기록된 active notification은 `pkg=com.familyproject.todaydidyoufinish`, `channel=today-reminders-high`, title `오늘 다 했니`, text `QANotify 종료 5분 전입니다. 이미 마쳤다면 완료 처리해 주세요.`, `importance=4`였다.
 - `Android Time Picker Safe Area` 계획과 후속 실기기 재QA가 완료됐다. navigation bar bounds는 `[0,2181][1080,2316]`였고, time picker 하단 `취소`/`확인` 액션 bounds는 각각 `[51,2001][855,2130]`, `[883,2001][1029,2130]`로 navigation bar 위에 표시됐다.
 - 최신 debug APK 재설치 과정에서 기존 설치본과 debug 서명이 달라 `adb uninstall com.familyproject.todaydidyoufinish` 후 설치했다. 따라서 해당 실기기 로컬 앱 데이터와 권한 상태는 이번 QA 중 초기화됐다.
+- `Android Notification Reschedule Cancel Real Device QA`에서 빠른 일정 수정/삭제 중 reminder sync 경합을 발견했다. 수정 저장으로 새 `11:26:59` pending alarm이 만들어진 직후 삭제하면 UI에서는 일정이 사라져도 stale pending alarm이 남았다.
+- reminder sync는 이제 `createExpoReminderSyncQueue`로 직렬화되고, stale sync task는 side effect를 남기지 않는다. 수정 후 앱 재실행 기준 stale `e8129d9` alarm은 `alarm_cancelled`로 이동했고 active notification list에는 삭제된 일정 알림이 남지 않았다.
 - route helper 수준 계약은 테스트로 고정됐지만, `expo-router` route component 자체를 직접 렌더링하는 테스트는 라이브러리 파싱 제약 때문에 아직 없다.
 - 원형 시간판은 시뮬레이터 기준 레이아웃을 한 번 더 정리했지만, 실제 픽셀 기준 스냅샷이나 시각 회귀 테스트는 아직 없다.
 - theme 프리셋은 palette/style contract 수준 테스트로는 고정됐지만, 실제 React Native 렌더 스냅샷이나 픽셀 기준 시각 회귀 테스트는 아직 없다.
