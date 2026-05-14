@@ -426,10 +426,9 @@ export function CircularPlanner({
       <section className="hero">
         <div className="hero-copy">
           <p className="eyebrow">Today Did You Finish?</p>
-          <h1>지금 해야 할 계획을 시계처럼 바로 보게 만드는 MVP</h1>
+          <h1>지금 해야 할 계획을 시계처럼 바로 확인하세요</h1>
           <p className="hero-text">
-            24시간 원형 계획판, 자유 시간 입력, 현재 시각 포인터를 웹 MVP로 먼저
-            검증한 뒤 앱 전환까지 이어지는 구조다.
+            24시간 원형 계획판에서 오늘 할 일과 현재 흐름을 한눈에 볼 수 있습니다.
           </p>
           <div className="status-card">
             <span className="status-label">현재 해야 할 계획</span>

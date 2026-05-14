@@ -3,7 +3,7 @@ import { AppPreviewFrame } from "@/features/planner/app/components/app-preview-f
 
 export default function AppPlanEditorPage() {
   return (
-    <AppPreviewFrame routeLabel="/app-plan-editor" screenLabel="Plan Editor">
+    <AppPreviewFrame routeLabel="계획 편집" screenLabel="계획 편집">
       <AppPlanEditorShell />
     </AppPreviewFrame>
   );

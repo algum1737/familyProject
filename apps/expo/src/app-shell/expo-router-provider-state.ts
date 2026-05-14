@@ -9,11 +9,11 @@ export type ExpoRouterBootstrapStatus = "loading" | "error" | "ready";
 export function getBootstrapSourceLabel(source: ExpoRouterBootstrapSource) {
   switch (source) {
     case "records-restored":
-      return "기존 날짜 기록 복구";
+      return "저장된 계획을 불러왔습니다";
     case "legacy-migrated":
-      return "legacy today plans 마이그레이션";
+      return "이전 계획을 불러왔습니다";
     case "empty":
-      return "빈 상태 초기화";
+      return "저장된 계획이 없습니다";
     default:
       return "확인 중";
   }

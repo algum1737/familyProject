@@ -3,7 +3,7 @@ import { AppPreviewFrame } from "@/features/planner/app/components/app-preview-f
 
 export default function AppFlowPage() {
   return (
-    <AppPreviewFrame routeLabel="/app-flow" screenLabel="Planner Flow">
+    <AppPreviewFrame routeLabel="오늘 계획 흐름" screenLabel="오늘 계획 흐름">
       <AppFlowShell />
     </AppPreviewFrame>
   );

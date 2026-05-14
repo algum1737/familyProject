@@ -158,10 +158,10 @@ export function AppFlowShell({
   return (
     <main className="shell app-flow-shell">
       <section className="app-flow-header">
-        <p className="app-screen-eyebrow">App Flow</p>
-        <h1>앱 전환 흐름 검증</h1>
+        <p className="app-screen-eyebrow">오늘 다 했니</p>
+        <h1>오늘 계획 흐름</h1>
         <p className="app-screen-subtitle">
-          브라우저 안에서도 모바일 앱처럼 보이도록 고정 프레임과 하단 탭 감각으로 현재 흐름을 검증합니다.
+          오늘 계획을 만들고, 놓친 일은 회고하거나 다시 지정할 수 있습니다.
         </p>
         <div className="app-flow-context">
           <span className="app-flow-context-chip">Active</span>

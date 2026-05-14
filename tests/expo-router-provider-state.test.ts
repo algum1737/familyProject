@@ -7,11 +7,13 @@ import {
 
 describe("expo router provider state helpers", () => {
   it("maps bootstrap source to user-facing labels", () => {
-    expect(getBootstrapSourceLabel("records-restored")).toBe("기존 날짜 기록 복구");
-    expect(getBootstrapSourceLabel("legacy-migrated")).toBe(
-      "legacy today plans 마이그레이션"
+    expect(getBootstrapSourceLabel("records-restored")).toBe(
+      "저장된 계획을 불러왔습니다"
     );
-    expect(getBootstrapSourceLabel("empty")).toBe("빈 상태 초기화");
+    expect(getBootstrapSourceLabel("legacy-migrated")).toBe(
+      "이전 계획을 불러왔습니다"
+    );
+    expect(getBootstrapSourceLabel("empty")).toBe("저장된 계획이 없습니다");
     expect(getBootstrapSourceLabel(null)).toBe("확인 중");
   });
 
