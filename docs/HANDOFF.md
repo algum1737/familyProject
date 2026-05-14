@@ -123,7 +123,7 @@
 - `Android Notification Reschedule Cancel Real Device QA`에서 빠른 일정 수정/삭제 중 reminder sync 경합을 발견했다. 수정 저장으로 새 `11:26:59` pending alarm이 만들어진 직후 삭제하면 UI에서는 일정이 사라져도 stale pending alarm이 남았다.
 - reminder sync는 이제 `createExpoReminderSyncQueue`로 직렬화되고, stale sync task는 side effect를 남기지 않는다. 수정 후 앱 재실행 기준 stale `e8129d9` alarm은 `alarm_cancelled`로 이동했고 active notification list에는 삭제된 일정 알림이 남지 않았다.
 - `Android Preview Background Notification Smoke` 계획은 completed로 이동했다. 최신 `main` 커밋 `20bb4de` 기준 EAS preview build `1476fcb4-843c-42df-adc5-6d8adb897921`를 생성했고, 실기기 `SM_S908N`에 preview standalone APK를 설치했다. `QAPreview` 일정 `16:19 - 16:30` 저장 후 Home/background 상태에서 `오늘 다 했니`, `QAPreview 종료 5분 전입니다. 이미 마쳤다면 완료 처리해 주세요.` 알림이 notification shade와 `dumpsys notification --noredact` active record에 표시됐다. record는 `channel=today-reminders-high`, `importance=4`, `flags=AUTO_CANCEL`였고, shade에서 스와이프 dismiss 후 앱 알림은 목록에서 제거됐다.
-- `qa/android-preview-background-notification-smoke`는 GitHub PR `#5`로 열려 있다. PR 검증이 통과하면 사용자 승인 후 `main`에 merge하고 로컬 `main`을 동기화한다.
+- `qa/android-preview-background-notification-smoke`의 GitHub PR `#5`는 `main`에 merge됐고, 로컬 `main` 동기화도 완료됐다.
 - route helper 수준 계약은 테스트로 고정됐지만, `expo-router` route component 자체를 직접 렌더링하는 테스트는 라이브러리 파싱 제약 때문에 아직 없다.
 - 원형 시간판은 시뮬레이터 기준 레이아웃을 한 번 더 정리했지만, 실제 픽셀 기준 스냅샷이나 시각 회귀 테스트는 아직 없다.
 - theme 프리셋은 palette/style contract 수준 테스트로는 고정됐지만, 실제 React Native 렌더 스냅샷이나 픽셀 기준 시각 회귀 테스트는 아직 없다.
