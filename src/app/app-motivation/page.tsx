@@ -3,7 +3,7 @@ import { AppPreviewFrame } from "@/features/planner/app/components/app-preview-f
 
 export default function AppMotivationPage() {
   return (
-    <AppPreviewFrame routeLabel="/app-motivation" screenLabel="Motivation">
+    <AppPreviewFrame routeLabel="동기" screenLabel="동기">
       <AppMotivationShell />
     </AppPreviewFrame>
   );

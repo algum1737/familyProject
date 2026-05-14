@@ -3,7 +3,7 @@ import { AppPreviewFrame } from "@/features/planner/app/components/app-preview-f
 
 export default function AppReflectionPage() {
   return (
-    <AppPreviewFrame routeLabel="/app-reflection" screenLabel="Reflection">
+    <AppPreviewFrame routeLabel="회고" screenLabel="회고">
       <AppReflectionShell />
     </AppPreviewFrame>
   );

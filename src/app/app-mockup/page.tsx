@@ -24,12 +24,11 @@ export default function AppMockupPage() {
     <main className="mockup-shell">
       <section className="mockup-hero">
         <div>
-          <p className="mockup-eyebrow">App Draft</p>
-          <h1>앱 전환용 화면 시안</h1>
+          <p className="mockup-eyebrow">오늘 다 했니</p>
+          <h1>오늘 계획 앱 화면</h1>
           <p className="mockup-intro">
-            `오늘 화면`을 실행 중심으로 두고, `계획 편집`과 `회고/회복`은 보조 흐름으로
-            분리한 초안입니다. 웹에서 검증된 리마인드와 `missed` 회복 규칙을 모바일 화면
-            밀도로 다시 배치하는 데 목적이 있습니다.
+            오늘 할 일을 만들고, 놓친 일은 회고하거나 다시 지정할 수 있는 모바일 화면
+            흐름입니다.
           </p>
         </div>
         <div className="mockup-pill-row">
@@ -44,7 +43,7 @@ export default function AppMockupPage() {
           <div className="phone-screen">
             <header className="mockup-topbar">
               <div>
-                <p className="mockup-screen-label">Today Screen</p>
+                <p className="mockup-screen-label">오늘</p>
                 <h2>오늘 화면</h2>
               </div>
               <button className="mockup-ghost-button" type="button">
@@ -140,8 +139,8 @@ export default function AppMockupPage() {
                 <p className="mockup-banner-label">종료 5분 전</p>
                 <strong>종료 전 확인</strong>
                 <span>
-                  앱 초기안에서는 `계속 진행` 1액션만 두고, 회고와 다시 지정은 종료 직후
-                  `missed` 카드로 넘깁니다.
+                  종료 전에 한 번 더 확인하고, 놓친 일은 이후 카드에서 회고하거나 다시
+                  지정할 수 있습니다.
                 </span>
               </div>
               <div className="mockup-banner-actions">
@@ -153,11 +152,10 @@ export default function AppMockupPage() {
 
             <section className="mockup-recovery-sheet">
               <div className="mockup-sheet-handle" />
-              <p className="mockup-card-kicker">Recovery Detail Sheet</p>
+              <p className="mockup-card-kicker">회복 기록</p>
               <strong>회고 다시 보기</strong>
               <p>
-                `missed` 이후 상태 설명은 별도 탭이 아니라 시트로 보강합니다. 후속 일정이
-                가까워지면 같은 자리에 `다시 지정 곧 시작`이나 `회복 진행 중`이 들어옵니다.
+                놓친 뒤 남긴 회고와 다시 지정한 일정을 한곳에서 확인합니다.
               </p>
             </section>
           </div>
@@ -167,7 +165,7 @@ export default function AppMockupPage() {
           <div className="phone-screen">
             <header className="mockup-topbar">
               <div>
-                <p className="mockup-screen-label">Plan Editor Screen</p>
+                <p className="mockup-screen-label">계획 편집</p>
                 <h2>계획 편집</h2>
               </div>
               <button className="mockup-ghost-button" type="button">
@@ -176,11 +174,11 @@ export default function AppMockupPage() {
             </header>
 
             <section className="mockup-editor-card">
-              <p className="mockup-card-kicker">Reschedule Mode</p>
+              <p className="mockup-card-kicker">다시 지정</p>
               <strong>놓친 일정을 더 짧게 다시 잡는 흐름</strong>
               <p>
-                추가, 수정, 다시 지정을 같은 화면으로 묶고, `다시 지정 불가`일 때는 길이 유지
-                실패와 더 짧은 수동 재입력을 분리해 안내합니다.
+                놓친 일정을 다시 잡을 때는 제목, 시작 시간, 종료 시간을 바로 고쳐 저장할
+                수 있습니다.
               </p>
             </section>
 
@@ -197,7 +195,7 @@ export default function AppMockupPage() {
               <strong>오늘 남은 빈 시간에는 이 일정 길이 그대로 다시 지정할 수 없습니다.</strong>
               <p>
                 더 짧은 새 시간으로 다시 잡으십시오. 시작 시간이나 종료 시간을 직접 줄인 뒤
-                `다시 지정 저장`을 누르면 됩니다.
+                다시 지정 저장을 누르면 됩니다.
               </p>
             </section>
 
@@ -211,11 +209,11 @@ export default function AppMockupPage() {
             </section>
 
             <section className="mockup-note-card">
-              <p className="mockup-card-kicker">앱 경계 원칙</p>
+              <p className="mockup-card-kicker">입력 안내</p>
               <ul>
-                <li>시간 계산, 상태 규칙, 다시 지정 최대 3회 규칙은 웹과 공용 계층 유지</li>
-                <li>시간 입력 위젯, 시트 전환, 저장소 구현만 앱 전용으로 교체</li>
-                <li>설명성 문구는 라벨 설정 범위 밖에 둠</li>
+                <li>시간은 시작과 종료를 기준으로 저장됩니다</li>
+                <li>같은 시간에 이미 계획이 있으면 저장되지 않습니다</li>
+                <li>다시 지정은 최대 3회까지 사용할 수 있습니다</li>
               </ul>
             </section>
           </div>

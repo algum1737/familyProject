@@ -21,18 +21,15 @@ export function ExpoRouterAppProvider({ children }: { children: ReactNode }) {
     return (
       <View style={theme.page}>
         <View style={theme.heroCard}>
-          <Text style={theme.eyebrow}>Expo Router</Text>
+          <Text style={theme.eyebrow}>오늘 다 했니</Text>
           <Text style={theme.title}>앱 데이터를 불러오는 중</Text>
           <Text style={theme.subtitle}>
-            저장된 날짜 기록, legacy today plans, 빈 상태 초기화 순서로 앱 시작 경로를
-            준비합니다.
+            저장된 계획과 회고 기록을 확인하고 있습니다. 잠시만 기다려 주세요.
           </Text>
         </View>
         <View style={theme.surfaceCard}>
           <ActivityIndicator color="#f07c61" />
-          <Text style={theme.bodyText}>
-            PlannerRecordMap 복구와 마이그레이션을 확인 중입니다.
-          </Text>
+          <Text style={theme.bodyText}>오늘 화면을 준비하고 있습니다.</Text>
         </View>
       </View>
     );
@@ -42,10 +39,10 @@ export function ExpoRouterAppProvider({ children }: { children: ReactNode }) {
     return (
       <View style={theme.page}>
         <View style={theme.heroCard}>
-          <Text style={theme.eyebrow}>Expo Router</Text>
-          <Text style={theme.title}>앱 시작 경로 오류</Text>
+          <Text style={theme.eyebrow}>오늘 다 했니</Text>
+          <Text style={theme.title}>앱을 시작하지 못했습니다</Text>
           <Text style={theme.subtitle}>
-            preview seed 없이 실제 저장소 복구만으로 앱을 시작하려는 경로에서 오류가 발생했습니다.
+            저장된 계획을 불러오는 중 문제가 발생했습니다. 앱을 다시 열어 주세요.
           </Text>
         </View>
         <View style={theme.surfaceCard}>
@@ -53,7 +50,7 @@ export function ExpoRouterAppProvider({ children }: { children: ReactNode }) {
           <Text style={theme.bodyText}>{model.bootstrapError ?? "알 수 없는 오류"}</Text>
         </View>
         <View style={theme.surfaceCard}>
-          <Text style={theme.sectionTitle}>부트스트랩 소스</Text>
+          <Text style={theme.sectionTitle}>불러오기 상태</Text>
           <Text style={theme.bodyText}>{getBootstrapSourceLabel(model.bootstrapSource)}</Text>
         </View>
       </View>

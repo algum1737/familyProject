@@ -12,11 +12,11 @@ import { ExpoFlowTabBar } from "./components/expo-flow-tab-bar";
 function getBootstrapSourceLabel(source: "empty" | "legacy-migrated" | "records-restored" | null) {
   switch (source) {
     case "records-restored":
-      return "기존 날짜 기록 복구";
+      return "저장된 계획을 불러왔습니다";
     case "legacy-migrated":
-      return "legacy today plans 마이그레이션";
+      return "이전 계획을 불러왔습니다";
     case "empty":
-      return "빈 상태 초기화";
+      return "저장된 계획이 없습니다";
     default:
       return "확인 중";
   }
@@ -37,16 +37,15 @@ export function ExpoAppShell() {
       <SafeAreaView edges={["top"]} style={theme.appShellSafeArea}>
         <View style={theme.page}>
         <View style={theme.heroCard}>
-          <Text style={theme.eyebrow}>Expo App</Text>
+          <Text style={theme.eyebrow}>오늘 다 했니</Text>
           <Text style={theme.title}>앱 데이터를 불러오는 중</Text>
           <Text style={theme.subtitle}>
-            저장된 날짜 기록, legacy today plans, 빈 상태 초기화 순서로 앱 시작 경로를
-            준비합니다.
+            저장된 계획과 회고 기록을 확인하고 있습니다. 잠시만 기다려 주세요.
           </Text>
         </View>
         <View style={theme.surfaceCard}>
           <ActivityIndicator color="#f07c61" />
-          <Text style={theme.bodyText}>PlannerRecordMap 복구와 마이그레이션을 확인 중입니다.</Text>
+          <Text style={theme.bodyText}>오늘 화면을 준비하고 있습니다.</Text>
         </View>
         </View>
       </SafeAreaView>
@@ -58,10 +57,10 @@ export function ExpoAppShell() {
       <SafeAreaView edges={["top"]} style={theme.appShellSafeArea}>
         <View style={theme.page}>
         <View style={theme.heroCard}>
-          <Text style={theme.eyebrow}>Expo App</Text>
-          <Text style={theme.title}>앱 시작 경로 오류</Text>
+          <Text style={theme.eyebrow}>오늘 다 했니</Text>
+          <Text style={theme.title}>앱을 시작하지 못했습니다</Text>
           <Text style={theme.subtitle}>
-            preview seed 없이 실제 저장소 복구만으로 앱을 시작하려는 경로에서 오류가 발생했습니다.
+            저장된 계획을 불러오는 중 문제가 발생했습니다. 앱을 다시 열어 주세요.
           </Text>
         </View>
         <View style={theme.surfaceCard}>
@@ -77,11 +76,10 @@ export function ExpoAppShell() {
     <SafeAreaView edges={["top"]} style={theme.appShellSafeArea}>
       <View style={theme.page}>
         <View style={theme.heroCard}>
-          <Text style={theme.eyebrow}>Expo App</Text>
-          <Text style={theme.title}>실제 앱 부트스트랩 경로</Text>
+          <Text style={theme.eyebrow}>오늘 다 했니</Text>
+          <Text style={theme.title}>오늘 계획</Text>
           <Text style={theme.subtitle}>
-            preview seed 없이 저장된 날짜 기록과 migration 경로만으로 앱을 시작하는 실제 root
-            셸입니다.
+            오늘 할 일과 흐름을 한눈에 확인합니다.
           </Text>
           <View style={theme.activeChipRow}>
             <View style={theme.activeChip}>
@@ -93,25 +91,23 @@ export function ExpoAppShell() {
 
         <ScrollView contentContainerStyle={theme.content} showsVerticalScrollIndicator={false}>
           <View style={theme.surfaceCard}>
-            <Text style={theme.sectionTitle}>부트스트랩 소스</Text>
+            <Text style={theme.sectionTitle}>불러오기 상태</Text>
             <Text style={theme.bodyText}>{getBootstrapSourceLabel(model.bootstrapSource)}</Text>
           </View>
 
           <View style={theme.surfaceCard}>
-            <Text style={theme.sectionTitle}>현재 계획 연결</Text>
+            <Text style={theme.sectionTitle}>오늘 요약</Text>
             <Text style={theme.bodyText}>
-              daily summary: {model.dailySummary?.plannedCount ?? 0}개 계획 · 회고{" "}
+              계획 {model.dailySummary?.plannedCount ?? 0}개 · 회고{" "}
               {model.dailySummary?.reflectionCount ?? 0}개
             </Text>
           </View>
 
           <View style={theme.surfaceCard}>
-            <Text style={theme.sectionTitle}>현재 상태 전이</Text>
+            <Text style={theme.sectionTitle}>현재 리마인드</Text>
             <Text style={theme.bodyText}>
-              recovery mode: {model.recoveryMode ?? "none"}{"\n"}
-              active reminder: {model.activeReminder?.title ?? "없음"}{"\n"}
-              active end recovery: {model.activeEndRecoveryReminder?.title ?? "없음"}{"\n"}
-              overlay screen: {flow.overlayScreen ?? "none"}
+              시작 전 알림: {model.activeReminder?.title ?? "없음"}{"\n"}
+              종료 전 확인: {model.activeEndRecoveryReminder?.title ?? "없음"}
             </Text>
           </View>
 

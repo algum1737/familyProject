@@ -27,7 +27,7 @@ export function AppPreviewFrame({
         </div>
         <div className="app-preview-meta">
           <div>
-            <p className="app-preview-eyebrow">Mobile Preview</p>
+            <p className="app-preview-eyebrow">오늘 다 했니</p>
             <strong>{screenLabel}</strong>
           </div>
           <span>{routeLabel}</span>

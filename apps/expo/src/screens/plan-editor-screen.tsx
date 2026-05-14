@@ -206,11 +206,11 @@ export function ExpoPlanEditorScreen({
         style={expoTheme.routeScroll}
       >
         <View style={expoTheme.surfaceCard}>
-          <Text style={expoTheme.sectionTitle}>Plan Editor</Text>
+          <Text style={expoTheme.sectionTitle}>계획 편집</Text>
           <Text style={expoTheme.bodyStrong}>{title}</Text>
           <Text style={expoTheme.bodyText}>
-            웹 `PlanEditorScreen`의 입력 흐름을 React Native 입력 위젯으로 치환하고,
-            저장/검증은 공용 selector와 store 계약을 유지할 예정입니다.
+            오늘 할 일을 적고 시작 시간과 종료 시간을 선택하세요. 저장하면 오늘 계획에
+            바로 반영됩니다.
           </Text>
           <Text style={expoTheme.bodyText}>오늘 불러온 계획 수: {plannedCount}</Text>
           <View style={expoTheme.inputStack}>
@@ -331,8 +331,8 @@ export function ExpoPlanEditorScreen({
             {isColorOptionsOpen ? <View style={expoTheme.selectOptionsSpacer} /> : null}
           </View>
           <Text style={expoTheme.bodyText}>
-            시간은 바텀시트 선택기에서 바로 고를 수 있습니다. 자정을 넘기는 일정도 시작/종료
-            시각만 고르면 다음 날 일정으로 자동 처리합니다.
+            시간은 아래 선택기에서 바로 고를 수 있습니다. 자정을 넘기는 일정도 시작/종료
+            시각만 고르면 다음 날 일정으로 저장됩니다.
           </Text>
           {error ? (
             <View style={expoTheme.errorBanner}>

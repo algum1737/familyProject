@@ -26,13 +26,16 @@
 
 ### Branch Status
 
-- `feature/app-bootstrap-skeleton`의 Expo app shell 작업은 커밋 후 `main`에 머지됐다.
-- 현재 진행 브랜치는 `feature/expo-release-prep`다.
-- `feature/expo-release-prep`는 GitHub PR `#2`로 열렸고, Expo release prep checkpoint와 후속 CI 복구 커밋이 포함돼 있다.
-- PR `#2`의 GitHub Actions `validate`와 `e2e`는 통과했으며, 다음 단계는 `main` merge와 로컬 `main` 동기화다.
+- `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐다.
+- `main` 기준에서 사용자 노출 내부 구현 문구 정리를 우선 처리했고, PR/merge 상태는 GitHub PR 목록으로 확인한다.
+- 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
 
+- `User Facing Internal Copy Cleanup` 계획은 completed로 이동했다. Expo 계획 편집, 앱 bootstrap loading/error, 웹 앱/앱 프리뷰/목업의 사용자 표시 문구에서 `웹 PlanEditorScreen`, `React Native 입력 위젯`, `selector`, `store 계약`, `Mobile Preview`, `Plan Editor Screen`처럼 사용자가 보기 어색한 내부 구현/프리뷰 라벨을 제거했다.
+- 이번 카피 정리는 동작 변경 없이 표시 문구만 다뤘다. 검증은 `npm test -- --run tests/expo-theme-screen-style-snapshots.test.ts tests/expo-router-route-actions.test.ts tests/expo-router-provider-state.test.ts`, `npm run typecheck`, `bash scripts/validate-docs.sh`가 통과했다.
+- PR 검증 중 웹 planner E2E가 이전 H1 문구를 찾고 있어 실패했고, `tests/e2e/planner-flow.spec.ts`의 heading 기대값을 새 사용자용 H1로 갱신했다. 로컬 `npm run test:e2e`는 통과했다.
+- 남은 우선 작업은 기존 backlog였던 Expo route adapter/provider 경계 정리와 Android 최신 빌드 실기기 smoke 확인이다.
 - Expo iOS 시뮬레이터 경로가 실제로 연결됐다. `expo-router` route tree, Metro workspace 설정, iOS development build, simulator 실행까지 확인했다.
 - Expo `Today` 화면은 safe area, 전체 스크롤, 실제 앱 톤에 가까운 상단 배경/헤더 구조로 정리됐다.
 - Expo `Today` 화면에는 계획 삭제 버튼이 연결됐고, `Plan Editor`는 저장 실패 시 화면에 남아서 필드별 오류를 보여주며 첫 오류 필드로 포커스를 이동한다.
