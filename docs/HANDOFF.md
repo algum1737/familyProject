@@ -86,7 +86,7 @@
 - iOS 시뮬레이터 dev build를 다시 설치해 홈 화면 반영까지 확인했다. 현재 `오늘 다 했니` 아이콘은 원형 시간판 + 체크 조합으로 홈 화면에 보인다.
 - GitHub Actions UTC 환경에서 `tests/planner.test.ts`의 carry-over 테스트가 깨지던 문제는 로컬 시간 생성자를 쓰도록 보정했다. 로컬 기본 시간대와 `TZ=UTC` 모두에서 `npm test -- tests/planner.test.ts`가 통과한다.
 - PR `#2` 검증 중 루트 CI 환경에서 Expo provider 의존성 해석과 Expo tsconfig 해석 문제가 드러나 루트 devDependencies에 필요한 Expo 테스트 의존성을 맞췄다. 이후 UTC CI에서 `expo-start-reminder-sync`와 `expo-bootstrap-and-reminders`의 시간 의존 fixture가 깨지던 문제는 로컬 날짜 생성자 기반 테스트로 보정했고, GitHub Actions `validate`와 `e2e`가 모두 통과했다.
-- 최신 `main` 기준 Android EAS preview standalone QA를 완료했다. build id는 `0a64265c-2fd7-493a-9c88-d574e91e52fd`, artifact는 `/private/tmp/today-did-you-finish-preview-latest.apk`로 내려받은 약 82MB APK다. Emulator에 기존 패키지를 제거한 뒤 설치했고, `adb reverse --list`가 비어 있는 상태에서 `com.familyproject.todaydidyoufinish/.MainActivity`가 foreground로 실행됐다. 알림 권한 prompt/allow, Today 렌더링, 계획 생성/삭제, foreground 인앱 리마인드 smoke가 통과했다. background/home 상태 OS 알림 전달 smoke는 이번 런에서 안정적인 예약 시점 확보가 어려워 미실행으로 기록했다.
+- 최신 `main` 기준 Android EAS preview standalone QA를 완료했다. 첫 preview build id는 `0a64265c-2fd7-493a-9c88-d574e91e52fd`였고, 후속 알림 수정/동기화 직렬화가 머지된 뒤 새 preview build id `1476fcb4-843c-42df-adc5-6d8adb897921`를 생성했다. 새 artifact는 `/private/tmp/today-did-you-finish-preview-2026-05-14.apk`로 내려받았고, 실기기 `SM_S908N`에 설치했다. `adb reverse --list`가 비어 있는 standalone 상태에서 Today 렌더링, 알림 권한 허용, background/home 상태 OS 알림 shade 표시와 dismiss가 통과했다.
 - 하네스 템플릿 운영 규칙이 현재 프로젝트와 `/Users/hun/workspace/하네스시스템구축방법`에 반영됐다. 큰 작업은 active plan으로 시작하고, 완료 시 완료 범위와 검증 결과를 기록한 뒤 completed로 이동한다.
 - `Harness Template Kit Plan`과 `Harness Template Operations Update`는 completed로 이동했다. `Expo Release Prep`, `Expo Notification Foreground Background QA`, `Web Reschedule Blocked Reason`, `Web Reschedule Blocked Browser QA`, `Recovery UX Polish`, `Expo App Regression QA`, `Android Latest Build Smoke QA`, `Android Preview Standalone QA`, `Exec Plan Validation Contract`, `Commit Checkpoint Cleanup`, `PR And Main Merge`도 completed로 닫았고, 현재 active exec plan은 없다.
 - 전역 `AGENTS.md`에도 짧은 운영 규칙이 기록됐다. 현재 프로젝트에서 전역 에이전트 역할은 사용할 수 있지만, 실제 delegation은 사용자가 명시적으로 요청한 경우에만 수행한다.
@@ -115,13 +115,14 @@
 - 현재 제품 방향은 Google Play 출시보다 앱 완성도와 QA를 먼저 높이는 것이다.
 - 현재 우선 경로의 Android preview build, Emulator 설치, channel 경고 정리는 완료됐다. Play Developer 계정 생성, production 접근, Play Console app record 생성, Android production `.aab` 업로드는 최후순위 릴리스 대기열로 내린다.
 - 사용자가 `밀린 업무 진행하자`라고 하면 최후순위 릴리스 대기열에서 Play Developer 계정 유형 선택/계정 생성, package name app record 확보, 공개 privacy policy URL 배포, Contact email 확정, App content/Data Safety 입력, Play App Signing 수락, internal/closed testing release 생성, production access 신청을 순서대로 재개한다.
-- `feature/android-real-device-notification-qa`는 GitHub PR `#4`로 열려 있다. PR 검증이 통과하면 사용자 승인 후 `main`에 merge하고 로컬 `main`을 동기화한다.
+- `feature/android-real-device-notification-qa`의 GitHub PR `#4`는 `main`에 merge됐고, 로컬 `main` 동기화도 완료됐다.
 - Android 실기기 `SM_S908N`에서 최신 debug APK 재QA를 완료했다. 샌드박스 내부 Metro 실패 원인은 `127.0.0.1:8081` 바인딩 `EPERM`이었고, Expo CLI가 이를 port in use로 판단해 중단했다. 외부 권한으로 `EXPO_NO_TELEMETRY=1 npx expo start --dev-client --port 8081 --clear`를 실행하고 `adb reverse tcp:8081 tcp:8081`을 설정해 앱 bundle 로드를 복구했다.
 - `Android Background Notification Fix` 계획과 후속 실기기 재QA가 완료됐다. `today-reminders-high` HIGH importance channel, Android priority `high`, notification content `sound: true` 기준으로 `QANotify` 종료 5분 전 OS notification이 notification shade와 `dumpsys notification --noredact`에 적재됐다. 기록된 active notification은 `pkg=com.familyproject.todaydidyoufinish`, `channel=today-reminders-high`, title `오늘 다 했니`, text `QANotify 종료 5분 전입니다. 이미 마쳤다면 완료 처리해 주세요.`, `importance=4`였다.
 - `Android Time Picker Safe Area` 계획과 후속 실기기 재QA가 완료됐다. navigation bar bounds는 `[0,2181][1080,2316]`였고, time picker 하단 `취소`/`확인` 액션 bounds는 각각 `[51,2001][855,2130]`, `[883,2001][1029,2130]`로 navigation bar 위에 표시됐다.
 - 최신 debug APK 재설치 과정에서 기존 설치본과 debug 서명이 달라 `adb uninstall com.familyproject.todaydidyoufinish` 후 설치했다. 따라서 해당 실기기 로컬 앱 데이터와 권한 상태는 이번 QA 중 초기화됐다.
 - `Android Notification Reschedule Cancel Real Device QA`에서 빠른 일정 수정/삭제 중 reminder sync 경합을 발견했다. 수정 저장으로 새 `11:26:59` pending alarm이 만들어진 직후 삭제하면 UI에서는 일정이 사라져도 stale pending alarm이 남았다.
 - reminder sync는 이제 `createExpoReminderSyncQueue`로 직렬화되고, stale sync task는 side effect를 남기지 않는다. 수정 후 앱 재실행 기준 stale `e8129d9` alarm은 `alarm_cancelled`로 이동했고 active notification list에는 삭제된 일정 알림이 남지 않았다.
+- `Android Preview Background Notification Smoke` 계획은 completed로 이동했다. 최신 `main` 커밋 `20bb4de` 기준 EAS preview build `1476fcb4-843c-42df-adc5-6d8adb897921`를 생성했고, 실기기 `SM_S908N`에 preview standalone APK를 설치했다. `QAPreview` 일정 `16:19 - 16:30` 저장 후 Home/background 상태에서 `오늘 다 했니`, `QAPreview 종료 5분 전입니다. 이미 마쳤다면 완료 처리해 주세요.` 알림이 notification shade와 `dumpsys notification --noredact` active record에 표시됐다. record는 `channel=today-reminders-high`, `importance=4`, `flags=AUTO_CANCEL`였고, shade에서 스와이프 dismiss 후 앱 알림은 목록에서 제거됐다.
 - route helper 수준 계약은 테스트로 고정됐지만, `expo-router` route component 자체를 직접 렌더링하는 테스트는 라이브러리 파싱 제약 때문에 아직 없다.
 - 원형 시간판은 시뮬레이터 기준 레이아웃을 한 번 더 정리했지만, 실제 픽셀 기준 스냅샷이나 시각 회귀 테스트는 아직 없다.
 - theme 프리셋은 palette/style contract 수준 테스트로는 고정됐지만, 실제 React Native 렌더 스냅샷이나 픽셀 기준 시각 회귀 테스트는 아직 없다.
@@ -278,9 +279,9 @@
 
 ## Suggested Next Work
 
-1. Android preview standalone에서 background/home 상태 OS 알림 전달 smoke를 별도 시간 예약 기준으로 다시 확인
-2. 실제 Android 기기에서도 알림 가시성과 notification shade dismiss를 한 번 더 확인
-3. 사용자가 `밀린 업무 진행하자`라고 하면 Play Developer 계정 생성과 Play Console 릴리스 대기열을 재개
+1. route helper 수준 계약은 테스트로 고정됐지만, `expo-router` route component 자체 또는 route adapter 경계 테스트가 아직 `main`에 없다.
+2. 원형 시간판/테마 프리셋은 실제 React Native 렌더 스냅샷이나 픽셀 기준 시각 회귀 테스트가 아직 없다.
+3. 사용자가 `밀린 업무 진행하자`라고 하면 Play Developer 계정 생성과 Play Console 릴리스 대기열을 재개.
 
 ## Handoff Prompt
 
