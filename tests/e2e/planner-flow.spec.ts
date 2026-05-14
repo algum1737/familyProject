@@ -52,7 +52,7 @@ test.describe("planner browser flows", () => {
     });
     await page.goto("/");
     await expect(
-      page.getByRole("heading", { name: "지금 해야 할 계획을 시계처럼 바로 보게 만드는 MVP" })
+      page.getByRole("heading", { name: "지금 해야 할 계획을 시계처럼 바로 확인하세요" })
     ).toBeVisible();
     await expect(page.locator(".summary-tile strong").first()).toHaveText("0/2");
     await expect(page.locator(".plan-item")).toHaveCount(2);
