@@ -48,6 +48,10 @@
 
 ## Completed Work
 
+- [Android Real Device Fix Regression QA](./exec-plans/completed/2026-05-14-android-real-device-fix-regression-qa.md)
+- [Android Background Notification Fix](./exec-plans/completed/2026-05-14-android-background-notification-fix.md)
+- [Android Time Picker Safe Area](./exec-plans/completed/2026-05-14-android-time-picker-safe-area.md)
+- [Android Real Device Notification QA](./exec-plans/completed/2026-05-14-android-real-device-notification-qa.md)
 - [App Transition Decision Plan](./exec-plans/completed/2026-04-24-app-transition-decision.md)
 - [PR And Main Merge](./exec-plans/completed/2026-05-13-pr-and-main-merge.md)
 - [App QA Review](./exec-plans/completed/2026-05-08-app-qa-review.md)

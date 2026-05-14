@@ -115,7 +115,10 @@
 - 현재 제품 방향은 Google Play 출시보다 앱 완성도와 QA를 먼저 높이는 것이다.
 - 현재 우선 경로의 Android preview build, Emulator 설치, channel 경고 정리는 완료됐다. Play Developer 계정 생성, production 접근, Play Console app record 생성, Android production `.aab` 업로드는 최후순위 릴리스 대기열로 내린다.
 - 사용자가 `밀린 업무 진행하자`라고 하면 최후순위 릴리스 대기열에서 Play Developer 계정 유형 선택/계정 생성, package name app record 확보, 공개 privacy policy URL 배포, Contact email 확정, App content/Data Safety 입력, Play App Signing 수락, internal/closed testing release 생성, production access 신청을 순서대로 재개한다.
-- 다음 우선순위 후보는 JS bundle까지 내장한 최신 EAS preview APK를 다시 생성해 standalone 내부 배포 경로를 확인하거나, 실제 Android 기기에서도 알림 가시성과 notification shade dismiss를 한 번 더 확인하는 작업이다. 시작 전 새 active plan으로 범위와 검증 기준을 고정한다.
+- Android 실기기 `SM_S908N`에서 최신 debug APK 재QA를 완료했다. 샌드박스 내부 Metro 실패 원인은 `127.0.0.1:8081` 바인딩 `EPERM`이었고, Expo CLI가 이를 port in use로 판단해 중단했다. 외부 권한으로 `EXPO_NO_TELEMETRY=1 npx expo start --dev-client --port 8081 --clear`를 실행하고 `adb reverse tcp:8081 tcp:8081`을 설정해 앱 bundle 로드를 복구했다.
+- `Android Background Notification Fix` 계획과 후속 실기기 재QA가 완료됐다. `today-reminders-high` HIGH importance channel, Android priority `high`, notification content `sound: true` 기준으로 `QANotify` 종료 5분 전 OS notification이 notification shade와 `dumpsys notification --noredact`에 적재됐다. 기록된 active notification은 `pkg=com.familyproject.todaydidyoufinish`, `channel=today-reminders-high`, title `오늘 다 했니`, text `QANotify 종료 5분 전입니다. 이미 마쳤다면 완료 처리해 주세요.`, `importance=4`였다.
+- `Android Time Picker Safe Area` 계획과 후속 실기기 재QA가 완료됐다. navigation bar bounds는 `[0,2181][1080,2316]`였고, time picker 하단 `취소`/`확인` 액션 bounds는 각각 `[51,2001][855,2130]`, `[883,2001][1029,2130]`로 navigation bar 위에 표시됐다.
+- 최신 debug APK 재설치 과정에서 기존 설치본과 debug 서명이 달라 `adb uninstall com.familyproject.todaydidyoufinish` 후 설치했다. 따라서 해당 실기기 로컬 앱 데이터와 권한 상태는 이번 QA 중 초기화됐다.
 - route helper 수준 계약은 테스트로 고정됐지만, `expo-router` route component 자체를 직접 렌더링하는 테스트는 라이브러리 파싱 제약 때문에 아직 없다.
 - 원형 시간판은 시뮬레이터 기준 레이아웃을 한 번 더 정리했지만, 실제 픽셀 기준 스냅샷이나 시각 회귀 테스트는 아직 없다.
 - theme 프리셋은 palette/style contract 수준 테스트로는 고정됐지만, 실제 React Native 렌더 스냅샷이나 픽셀 기준 시각 회귀 테스트는 아직 없다.
