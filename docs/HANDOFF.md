@@ -28,11 +28,15 @@
 
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
-- 현재 진행 브랜치는 `qa/android-route-boundary-smoke`이며, 최신 Android standalone 실기기 smoke QA 결과를 문서화하는 상태다.
+- 현재 진행 브랜치는 `qa/android-notification-delivery-real-device`이며, Android 실기기 알림 delivery QA 결과를 문서화하는 상태다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
 
+- `Android Notification Delivery Real Device QA` 계획은 completed로 이동했다. 최신 standalone 설치본을 `SM_S908N` / `R5CT31X2K2H`에서 Metro reverse 없이 실행했고, `POST_NOTIFICATIONS granted=true`와 notification channel `today-reminders-high` `importance=4` 상태를 확인했다.
+- QA 일정 `QADelivery 14:17 - 14:24`를 저장한 뒤 foreground 인앱 리마인드 `리마인드: QADelivery · 지금 완료 가능`을 확인했다. 앱을 Home/background로 내린 뒤 `14:19` 전후 종료 5분 전 OS notification이 active record와 notification shade에 표시됐다.
+- 해당 OS notification은 title `오늘 다 했니`, text `QADelivery 종료 5분 전입니다. 이미 마쳤다면 완료 처리해 주세요.`, channel `today-reminders-high`, importance `4`로 확인됐다. notification shade swipe dismiss 후 UI dump에서 앱 알림 문구가 사라졌고, QA 일정은 삭제했다.
+- 시작 5분 전 OS 알림은 이번 짧은 일정 생성 시점상 이미 과거라 별도로 닫지 않았다. 다음 우선 작업은 이 QA 문서 브랜치를 PR/merge한 뒤 Play Console 제출 준비 blocker 정리 또는 시작 5분 전 OS 알림만 분리한 추가 실기 QA다.
 - `Android Route Boundary Smoke QA` 계획은 completed로 이동했다. 최신 `main` 기준 `5d67d41`에서 Android standalone release APK를 빌드하고 `SM_S908N` / `R5CT31X2K2H` 실기기에 재설치했다.
 - 설치 앱은 `com.familyproject.todaydidyoufinish` `versionCode=1`, `versionName=0.1.0`, `targetSdk=36`, `POST_NOTIFICATIONS granted=true` 상태였고, `adb reverse --list`가 비어 있어 Metro 연결 없이 standalone으로 실행되는 것을 확인했다.
 - 실기기 smoke에서 Today 렌더링, 계획 편집 생성 진입/취소, `QA-route-smoke` 저장, 저장된 계획 편집 진입/취소, Motivation 탭 진입이 통과했다. QA용 계획은 삭제해 빈 상태로 정리했다.
