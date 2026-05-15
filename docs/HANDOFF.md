@@ -28,11 +28,15 @@
 
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
-- 현재 진행 브랜치는 `qa/android-start-notification-real-device`이며, Android 시작 5분 전 알림 실기기 QA 결과를 문서화하는 상태다.
+- 현재 진행 브랜치는 `fix/android-start-notification-timing`이며, Android 시작 5분 전 알림 지연 수정 결과를 문서화하는 상태다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
 
+- `Android Start Notification Timing Fix` 계획은 completed로 이동했다. 시작 5분 전 알림 지연 QA 결과를 기준으로 Expo notification provider를 확인했고, scheduled time 계산은 맞지만 실제 예약 호출이 `scheduledFor`를 `Date.now()` 기준 상대 초로 바꿔 `TIME_INTERVAL` trigger를 쓰고 있었다.
+- Android background/home 및 잠금 조건에서 상대 interval 예약이 밀릴 가능성을 줄이기 위해, provider가 `scheduledFor` 절대 시각을 `DATE` trigger로 직접 전달하도록 변경했다. notification content, channel id/name, start/end notification key, 문구 계약은 유지했다.
+- `buildExpoReminderDateTrigger` helper와 테스트를 추가했다. 검증은 `npm test -- --run tests/expo-reminder-notification-config.test.ts tests/expo-start-reminder-sync.test.ts tests/expo-reminder-sync-queue.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `bash scripts/validate-docs.sh`가 통과했다.
+- 실기기 런타임 QA는 이번 커밋에서 실행하지 않았다. 현재 설치된 standalone에는 이번 JS 변경이 포함되지 않으므로, 다음 단계는 새 standalone 또는 dev build를 설치한 뒤 10~15분 뒤 시작 일정을 만들고 target start-5 시각의 active notification과 notification shade 표시를 다시 확인하는 것이다.
 - PR #10 `Android 알림 delivery 실기기 QA 기록`은 GitHub Actions `validate`와 `e2e` 통과 후 squash merge됐다. 로컬 `main`은 merge 결과를 반영한 뒤 `qa/android-start-notification-real-device` 브랜치로 새 QA를 진행했다.
 - `Android Start Notification Real Device QA` 계획은 completed로 이동했다. 최신 standalone 설치본을 `SM_S908N` / `R5CT31X2K2H`에서 Metro reverse 없이 실행했고, `POST_NOTIFICATIONS granted=true`와 notification channel `today-reminders-high` `importance=4` 상태를 확인했다.
 - QA 일정 `QAStart 15:45 - 16:33`을 만들고 앱을 Home/background 상태로 내렸다. 시작 5분 전 목표 시각인 `2026-05-15 15:40:25 KST` 확인에서는 앱 notification이 active record가 아니라 archive에만 있었고, notification shade UI에도 `QAStart` 문구가 보이지 않았다.

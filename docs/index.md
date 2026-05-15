@@ -48,6 +48,7 @@
 
 ## Completed Work
 
+- [Android Start Notification Timing Fix](./exec-plans/completed/2026-05-15-android-start-notification-timing-fix.md)
 - [Android Start Notification Real Device QA](./exec-plans/completed/2026-05-15-android-start-notification-real-device.md)
 - [Android Notification Delivery Real Device QA](./exec-plans/completed/2026-05-15-android-notification-delivery-real-device.md)
 - [Android Route Boundary Smoke QA](./exec-plans/completed/2026-05-15-android-route-boundary-smoke.md)

@@ -7,6 +7,7 @@ import type {
   ReminderRequest
 } from "../../../../../src/providers/reminders/reminder-provider";
 import {
+  buildExpoReminderDateTrigger,
   buildExpoReminderNotificationContent,
   EXPO_REMINDER_NOTIFICATION_CHANNEL_ID,
   EXPO_REMINDER_NOTIFICATION_CHANNEL_NAME
@@ -122,11 +123,6 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
     scheduledFor: Date;
     title: string;
   }) {
-    const secondsFromNow = Math.max(
-      1,
-      Math.floor((input.scheduledFor.getTime() - Date.now()) / 1000)
-    );
-
     await ensureAndroidReminderNotificationChannel();
 
     return Notifications.scheduleNotificationAsync({
@@ -137,11 +133,10 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
         priority: Notifications.AndroidNotificationPriority.HIGH,
         title: input.title
       }),
-      trigger: {
+      trigger: buildExpoReminderDateTrigger({
         channelId: EXPO_REMINDER_NOTIFICATION_CHANNEL_ID,
-        seconds: secondsFromNow,
-        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL
-      }
+        scheduledFor: input.scheduledFor
+      }) as Notifications.NotificationTriggerInput
     });
   }
 
