@@ -28,11 +28,16 @@
 
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
-- 현재 진행 브랜치는 `fix/android-start-notification-timing`이며, Android 시작 5분 전 알림 지연 수정 결과를 문서화하는 상태다.
+- 현재 진행 브랜치는 `fix/android-start-notification-timing`이며, Android 시작 5분 전 알림 지연 보강과 실기기 QA 결과를 커밋 준비 중이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
 
+- `Android Start Notification Timing Real Device QA` 계획은 completed로 이동했다. Android exact alarm 권한이 default 상태인 `SM_S908N` / `R5CT31X2K2H`에서 start-5 알림이 target `18:11`보다 약 2분 57초 늦은 `18:13:56~18:13:57`에 발화하는 것을 AlarmManager history와 logcat으로 확인했다.
+- 이 지연을 앱 동기화가 과거 예약으로 오판해 취소하지 않도록 `REMINDER_SCHEDULE_GRACE_MINUTES = 15`를 추가했고, scheduled notification content에 `scheduledFor` metadata를 저장해 같은 notification key와 예정 시각이면 재동기화 시 유지한다. 새 요청은 여전히 `scheduledFor <= now`이면 재예약하지 않는다.
+- 보강 포함 release APK를 재빌드/재설치했고 `adb reverse --list`가 비어 있어 Metro 없는 standalone 상태를 확인했다. `POST_NOTIFICATIONS`는 `granted=true`, channel `today-reminders-high`는 `importance=4`였다.
+- QA 일정 `QAGracem 18:16 - 19:01`은 테스트 후 삭제해 Today 빈 상태로 정리했다. notification shade 카드 문구는 확인 시점에 이미 archive 상태라 UI XML에서 캡처하지 못했으므로, 추후 최종 릴리스 QA에서는 shade 문구 캡처를 한 번 더 확보하는 것이 좋다.
+- 이번 변경 검증은 `npm test -- --run tests/expo-start-reminder-sync.test.ts tests/expo-reminder-notification-config.test.ts tests/expo-reminder-sync-queue.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `./gradlew assembleRelease`, standalone APK 설치가 통과했다.
 - `Android Start Notification Timing Fix` 계획은 completed로 이동했다. 시작 5분 전 알림 지연 QA 결과를 기준으로 Expo notification provider를 확인했고, scheduled time 계산은 맞지만 실제 예약 호출이 `scheduledFor`를 `Date.now()` 기준 상대 초로 바꿔 `TIME_INTERVAL` trigger를 쓰고 있었다.
 - Android background/home 및 잠금 조건에서 상대 interval 예약이 밀릴 가능성을 줄이기 위해, provider가 `scheduledFor` 절대 시각을 `DATE` trigger로 직접 전달하도록 변경했다. notification content, channel id/name, start/end notification key, 문구 계약은 유지했다.
 - `buildExpoReminderDateTrigger` helper와 테스트를 추가했다. 검증은 `npm test -- --run tests/expo-reminder-notification-config.test.ts tests/expo-start-reminder-sync.test.ts tests/expo-reminder-sync-queue.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `bash scripts/validate-docs.sh`가 통과했다.

@@ -1,7 +1,8 @@
 import type { DailyPlan } from "../../../../../src/domains/plans/types";
 import {
   END_RECOVERY_LEAD_MINUTES,
-  REMINDER_LEAD_MINUTES
+  REMINDER_LEAD_MINUTES,
+  REMINDER_SCHEDULE_GRACE_MINUTES
 } from "../../../../../src/features/planner/core/planner-reminder-rules";
 import type { ReminderRequest } from "../../../../../src/providers/reminders/reminder-provider";
 
@@ -39,6 +40,14 @@ function buildEndRecoveryScheduledFor(now: Date, endMinute: number) {
   return scheduledFor;
 }
 
+function isWithinScheduleWindow(request: ReminderRequest, now: Date) {
+  const expiresAt = new Date(request.scheduledFor);
+
+  expiresAt.setMinutes(expiresAt.getMinutes() + REMINDER_SCHEDULE_GRACE_MINUTES);
+
+  return expiresAt.getTime() > now.getTime();
+}
+
 function buildStartReminderRequest(plan: DailyPlan, now: Date): ExpoStartReminderRequest {
   return {
     kind: EXPO_START_REMINDER_KIND,
@@ -64,12 +73,12 @@ export function buildExpoStartReminderRequests(plans: DailyPlan[], now: Date) {
   const startRequests: ExpoStartReminderRequest[] = plans
     .filter((plan) => plan.status === "pending")
     .map((plan) => buildStartReminderRequest(plan, now))
-    .filter((request) => request.scheduledFor.getTime() > now.getTime())
+    .filter((request) => isWithinScheduleWindow(request, now))
     .sort((left, right) => left.scheduledFor.getTime() - right.scheduledFor.getTime());
   const endRecoveryRequests: ExpoStartReminderRequest[] = plans
     .filter((plan) => plan.status === "pending")
     .map((plan) => buildEndRecoveryReminderRequest(plan, now))
-    .filter((request) => request.scheduledFor.getTime() > now.getTime())
+    .filter((request) => isWithinScheduleWindow(request, now))
     .sort((left, right) => left.scheduledFor.getTime() - right.scheduledFor.getTime());
 
   return [...startRequests, ...endRecoveryRequests].sort(

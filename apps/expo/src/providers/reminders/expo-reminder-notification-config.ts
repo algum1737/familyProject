@@ -22,6 +22,7 @@ export function buildExpoReminderNotificationContent(input: {
   notificationKey: string;
   planId: string;
   priority: string;
+  scheduledFor: Date;
   title: string;
 }) {
   const kind: ExpoReminderNotificationKind = getExpoReminderNotificationKind(
@@ -33,7 +34,8 @@ export function buildExpoReminderNotificationContent(input: {
     data: {
       kind,
       notificationKey: input.notificationKey,
-      planId: input.planId
+      planId: input.planId,
+      scheduledFor: input.scheduledFor.toISOString()
     },
     priority: input.priority,
     sound: true,

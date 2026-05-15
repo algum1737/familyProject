@@ -30,6 +30,7 @@ describe("expo reminder notification config", () => {
         notificationKey: "end-recovery-reminder:run",
         planId: "run",
         priority: "high",
+        scheduledFor: new Date("2026-05-15T06:40:00.000Z"),
         title: "오늘 다 했니"
       })
     ).toEqual({
@@ -37,7 +38,8 @@ describe("expo reminder notification config", () => {
       data: {
         kind: "end-recovery-reminder",
         notificationKey: "end-recovery-reminder:run",
-        planId: "run"
+        planId: "run",
+        scheduledFor: "2026-05-15T06:40:00.000Z"
       },
       priority: "high",
       sound: true,

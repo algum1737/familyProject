@@ -59,6 +59,16 @@ function matchesPlanId(notification: ExpoScheduledNotification, planId: string) 
   );
 }
 
+function matchesReminderRequest(
+  notification: ExpoScheduledNotification,
+  request: { notificationKey: string; scheduledFor: Date }
+) {
+  return (
+    notification.content.data?.notificationKey === request.notificationKey &&
+    notification.content.data?.scheduledFor === request.scheduledFor.toISOString()
+  );
+}
+
 async function ensureNotificationPermission() {
   const permissions = await Notifications.getPermissionsAsync();
 
@@ -131,6 +141,7 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
         notificationKey: input.notificationKey,
         planId: input.planId,
         priority: Notifications.AndroidNotificationPriority.HIGH,
+        scheduledFor: input.scheduledFor,
         title: input.title
       }),
       trigger: buildExpoReminderDateTrigger({
@@ -186,11 +197,26 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
       return;
     }
 
-    await cancelNotifications(scheduled.filter(isManagedStartReminder));
+    const managedScheduled = scheduled.filter(isManagedStartReminder);
+
+    await cancelNotifications(
+      managedScheduled.filter(
+        (notification) =>
+          !requests.some((request) => matchesReminderRequest(notification, request))
+      )
+    );
 
     for (const request of requests) {
       if (!isLatest()) {
         return;
+      }
+
+      const alreadyScheduled = managedScheduled.some((notification) =>
+        matchesReminderRequest(notification, request)
+      );
+
+      if (alreadyScheduled || request.scheduledFor.getTime() <= now.getTime()) {
+        continue;
       }
 
       await scheduleNotification({

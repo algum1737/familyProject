@@ -14,6 +14,7 @@ export type EndRecoveryReminderState = {
 
 export const REMINDER_LEAD_MINUTES = 5;
 export const REMINDER_LINGER_MINUTES = 10;
+export const REMINDER_SCHEDULE_GRACE_MINUTES = 15;
 export const END_RECOVERY_LEAD_MINUTES = 5;
 
 export function getReminderInstanceKey(plan: Pick<DailyPlan, "id" | "startMinute">) {
