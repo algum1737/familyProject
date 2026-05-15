@@ -26,16 +26,19 @@
 
 ### Branch Status
 
-- `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐다.
-- `main` 기준에서 사용자 노출 내부 구현 문구 정리를 우선 처리했고, PR/merge 상태는 GitHub PR 목록으로 확인한다.
+- `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
+- 현재 진행 브랜치는 `feature/expo-route-adapter-boundary`이며, Expo route adapter/provider 경계 정리를 완료한 커밋 후보 상태다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
 
+- `Expo Route Adapter Boundary` 계획은 completed로 이동했다. `editor`/`reflection` route param parser를 `expo-router-contract`에 추가해 route 파일의 raw param 타입 단언을 제거했고, invalid mode 또는 planId 누락은 `today`로 되돌리는 계약으로 고정했다.
+- Expo 전용 타입체크에서 드러난 `ExpoPlanItemView`와 Today screen props 계약 차이도 함께 정리했다. `rescheduleActionState`를 shell model 타입에 포함하고 presentation helper 반환 타입을 명시했다.
+- 이번 route 경계 정리 검증은 `npm test -- --run tests/expo-router-route-actions.test.ts tests/expo-router-contract.test.ts tests/expo-router-provider-state.test.ts`, `npm run typecheck`, `apps/expo`의 `npx tsc --noEmit -p tsconfig.json`, `bash scripts/validate-docs.sh`가 통과했다. 실기기 QA는 실행하지 않았다.
 - `User Facing Internal Copy Cleanup` 계획은 completed로 이동했다. Expo 계획 편집, 앱 bootstrap loading/error, 웹 앱/앱 프리뷰/목업의 사용자 표시 문구에서 `웹 PlanEditorScreen`, `React Native 입력 위젯`, `selector`, `store 계약`, `Mobile Preview`, `Plan Editor Screen`처럼 사용자가 보기 어색한 내부 구현/프리뷰 라벨을 제거했다.
 - 이번 카피 정리는 동작 변경 없이 표시 문구만 다뤘다. 검증은 `npm test -- --run tests/expo-theme-screen-style-snapshots.test.ts tests/expo-router-route-actions.test.ts tests/expo-router-provider-state.test.ts`, `npm run typecheck`, `bash scripts/validate-docs.sh`가 통과했다.
 - PR 검증 중 웹 planner E2E가 이전 H1 문구를 찾고 있어 실패했고, `tests/e2e/planner-flow.spec.ts`의 heading 기대값을 새 사용자용 H1로 갱신했다. 로컬 `npm run test:e2e`는 통과했다.
-- 남은 우선 작업은 기존 backlog였던 Expo route adapter/provider 경계 정리와 Android 최신 빌드 실기기 smoke 확인이다.
+- 남은 우선 작업은 이번 route 경계 정리를 PR/merge한 뒤 Android 최신 빌드 실기기 smoke 확인이다.
 - Expo iOS 시뮬레이터 경로가 실제로 연결됐다. `expo-router` route tree, Metro workspace 설정, iOS development build, simulator 실행까지 확인했다.
 - Expo `Today` 화면은 safe area, 전체 스크롤, 실제 앱 톤에 가까운 상단 배경/헤더 구조로 정리됐다.
 - Expo `Today` 화면에는 계획 삭제 버튼이 연결됐고, `Plan Editor`는 저장 실패 시 화면에 남아서 필드별 오류를 보여주며 첫 오류 필드로 포커스를 이동한다.

@@ -48,6 +48,7 @@
 
 ## Completed Work
 
+- [Expo Route Adapter Boundary](./exec-plans/completed/2026-05-15-expo-route-adapter-boundary.md)
 - [User Facing Internal Copy Cleanup](./exec-plans/completed/2026-05-14-user-facing-internal-copy-cleanup.md)
 - [Android Preview Background Notification Smoke](./exec-plans/completed/2026-05-14-android-preview-background-notification-smoke.md)
 - [Android Notification Reschedule Cancel Real Device QA](./exec-plans/completed/2026-05-14-android-notification-reschedule-cancel-real-device-qa.md)

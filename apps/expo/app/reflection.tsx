@@ -2,7 +2,10 @@ import { useEffect, useRef } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { ExpoReflectionScreen } from "../src/screens/reflection-screen";
-import { getSingleRouteParam } from "../src/app-shell/expo-router-contract";
+import {
+  EXPO_ROUTE_PATHS,
+  getReflectionRouteParams
+} from "../src/app-shell/expo-router-contract";
 import { useExpoRouterAppModel } from "../src/app-shell/expo-router-app-provider";
 import {
   cancelReflectionRoute,
@@ -17,7 +20,7 @@ export default function ReflectionRoute() {
     planId?: string | string[];
   }>();
   const initializedRef = useRef(false);
-  const planId = getSingleRouteParam(params.planId);
+  const routeParams = getReflectionRouteParams(params);
 
   useEffect(() => {
     if (initializedRef.current) {
@@ -25,8 +28,13 @@ export default function ReflectionRoute() {
     }
 
     initializedRef.current = true;
-    initializeReflectionRoute({ model, planId: planId ?? null, router });
-  }, [model, planId, router]);
+    if (!routeParams) {
+      router.replace(EXPO_ROUTE_PATHS.today);
+      return;
+    }
+
+    initializeReflectionRoute({ model, planId: routeParams.planId, router });
+  }, [model, routeParams, router]);
 
   return (
     <ExpoReflectionScreen

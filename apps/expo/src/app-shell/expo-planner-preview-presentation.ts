@@ -8,6 +8,8 @@ import {
   type PlannerPlanItemCoreModel
 } from "../../../../src/features/planner/core/planner-core-view-model";
 
+import type { ExpoPlanItemView } from "./expo-planner-shell-model";
+
 function getStatusLabel(status: "current" | "pending" | "done" | "missed") {
   switch (status) {
     case "current":
@@ -51,9 +53,9 @@ function getTimeText(
 function toPlanItemView(
   item: PlannerPlanItemCoreModel,
   timeDisplayFormat: TimeDisplayFormat
-) {
+): ExpoPlanItemView {
   const isMissed = item.statusLabelKey === "missed";
-  const rescheduleActionState =
+  const rescheduleActionState: ExpoPlanItemView["rescheduleActionState"] =
     isMissed && item.canReschedule
       ? "enabled"
       : isMissed && item.rescheduleBlockedReason
