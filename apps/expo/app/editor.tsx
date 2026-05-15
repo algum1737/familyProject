@@ -4,8 +4,8 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { getRescheduleFailureGuidance } from "../../../src/features/planner/core/reschedule-failure-guidance";
 import { ExpoPlanEditorScreen } from "../src/screens/plan-editor-screen";
 import {
-  getSingleRouteParam,
-  type EditorRouteMode
+  EXPO_ROUTE_PATHS,
+  getEditorRouteParams
 } from "../src/app-shell/expo-router-contract";
 import { useExpoRouterAppModel } from "../src/app-shell/expo-router-app-provider";
 import {
@@ -23,8 +23,8 @@ export default function EditorRoute() {
     planId?: string | string[];
   }>();
   const initializedRef = useRef(false);
-  const mode = (getSingleRouteParam(params.mode) ?? "create") as EditorRouteMode;
-  const planId = getSingleRouteParam(params.planId);
+  const routeParams = getEditorRouteParams(params);
+  const mode = routeParams?.mode ?? "create";
 
   useEffect(() => {
     if (initializedRef.current) {
@@ -32,8 +32,18 @@ export default function EditorRoute() {
     }
 
     initializedRef.current = true;
-    initializeEditorRoute({ mode, model, planId: planId ?? null, router });
-  }, [mode, model, planId, router]);
+    if (!routeParams) {
+      router.replace(EXPO_ROUTE_PATHS.today);
+      return;
+    }
+
+    initializeEditorRoute({
+      mode: routeParams.mode,
+      model,
+      planId: routeParams.planId ?? null,
+      router
+    });
+  }, [model, routeParams, router]);
 
   return (
     <ExpoPlanEditorScreen
