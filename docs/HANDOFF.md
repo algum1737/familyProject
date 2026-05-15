@@ -28,11 +28,18 @@
 
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
-- 현재 진행 브랜치는 `qa/android-notification-delivery-real-device`이며, Android 실기기 알림 delivery QA 결과를 문서화하는 상태다.
+- 현재 진행 브랜치는 `qa/android-start-notification-real-device`이며, Android 시작 5분 전 알림 실기기 QA 결과를 문서화하는 상태다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
 
+- PR #10 `Android 알림 delivery 실기기 QA 기록`은 GitHub Actions `validate`와 `e2e` 통과 후 squash merge됐다. 로컬 `main`은 merge 결과를 반영한 뒤 `qa/android-start-notification-real-device` 브랜치로 새 QA를 진행했다.
+- `Android Start Notification Real Device QA` 계획은 completed로 이동했다. 최신 standalone 설치본을 `SM_S908N` / `R5CT31X2K2H`에서 Metro reverse 없이 실행했고, `POST_NOTIFICATIONS granted=true`와 notification channel `today-reminders-high` `importance=4` 상태를 확인했다.
+- QA 일정 `QAStart 15:45 - 16:33`을 만들고 앱을 Home/background 상태로 내렸다. 시작 5분 전 목표 시각인 `2026-05-15 15:40:25 KST` 확인에서는 앱 notification이 active record가 아니라 archive에만 있었고, notification shade UI에도 `QAStart` 문구가 보이지 않았다.
+- `2026-05-15 15:46:11 KST`에는 active `NotificationRecord`와 notification shade 표시가 확인됐다. title은 `오늘 다 했니`, text/bigText는 `QAStart 시작 5분 전입니다.`, channel은 `today-reminders-high`, importance는 `4`였다.
+- 이번 결과는 시작 5분 전 알림의 발행/표시/dismiss 자체는 가능하지만 Android background/home 및 잠금 조건에서 목표 시각보다 약 6분 늦게 활성화되는 타이밍 이슈가 남았다는 의미다. QA notification은 swipe dismiss했고, QA 일정은 삭제해 Today `0/0` 상태로 정리했다.
+- 같은 QA에서 3-button navigation bar가 있는 상태의 계획 편집 하단 버튼 배치도 확인했다. `취소` `[102,1927][805,2056]`, `저장` `[833,1927][980,2056]`, navigation bar `[0,2181][1080,2316]`로 하단 버튼이 navigation bar에 가려지지 않았다.
+- 다음 우선 작업은 이 QA 문서 브랜치를 PR/merge한 뒤, 별도 fix plan으로 Android 시작 5분 전 notification 지연 원인을 다루는 것이다. 후보 원인은 Samsung background freeze/Doze 조건, Expo notification trigger 지연, 앱 프로세스 상태에 따른 예약 처리 지연이다.
 - `Android Notification Delivery Real Device QA` 계획은 completed로 이동했다. 최신 standalone 설치본을 `SM_S908N` / `R5CT31X2K2H`에서 Metro reverse 없이 실행했고, `POST_NOTIFICATIONS granted=true`와 notification channel `today-reminders-high` `importance=4` 상태를 확인했다.
 - QA 일정 `QADelivery 14:17 - 14:24`를 저장한 뒤 foreground 인앱 리마인드 `리마인드: QADelivery · 지금 완료 가능`을 확인했다. 앱을 Home/background로 내린 뒤 `14:19` 전후 종료 5분 전 OS notification이 active record와 notification shade에 표시됐다.
 - 해당 OS notification은 title `오늘 다 했니`, text `QADelivery 종료 5분 전입니다. 이미 마쳤다면 완료 처리해 주세요.`, channel `today-reminders-high`, importance `4`로 확인됐다. notification shade swipe dismiss 후 UI dump에서 앱 알림 문구가 사라졌고, QA 일정은 삭제했다.
