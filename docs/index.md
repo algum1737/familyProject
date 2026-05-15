@@ -48,6 +48,7 @@
 
 ## Completed Work
 
+- [Android Notification Delivery Real Device QA](./exec-plans/completed/2026-05-15-android-notification-delivery-real-device.md)
 - [Android Route Boundary Smoke QA](./exec-plans/completed/2026-05-15-android-route-boundary-smoke.md)
 - [Expo Route Adapter Boundary](./exec-plans/completed/2026-05-15-expo-route-adapter-boundary.md)
 - [User Facing Internal Copy Cleanup](./exec-plans/completed/2026-05-14-user-facing-internal-copy-cleanup.md)
