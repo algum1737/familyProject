@@ -44,10 +44,11 @@
 
 ## Active Work
 
-- No active exec plan at the moment.
+- No active exec plan.
 
 ## Completed Work
 
+- [Android Route Boundary Smoke QA](./exec-plans/completed/2026-05-15-android-route-boundary-smoke.md)
 - [Expo Route Adapter Boundary](./exec-plans/completed/2026-05-15-expo-route-adapter-boundary.md)
 - [User Facing Internal Copy Cleanup](./exec-plans/completed/2026-05-14-user-facing-internal-copy-cleanup.md)
 - [Android Preview Background Notification Smoke](./exec-plans/completed/2026-05-14-android-preview-background-notification-smoke.md)

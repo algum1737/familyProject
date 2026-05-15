@@ -27,11 +27,17 @@
 ### Branch Status
 
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
-- 현재 진행 브랜치는 `feature/expo-route-adapter-boundary`이며, Expo route adapter/provider 경계 정리를 완료한 커밋 후보 상태다.
+- `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
+- 현재 진행 브랜치는 `qa/android-route-boundary-smoke`이며, 최신 Android standalone 실기기 smoke QA 결과를 문서화하는 상태다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
 
+- `Android Route Boundary Smoke QA` 계획은 completed로 이동했다. 최신 `main` 기준 `5d67d41`에서 Android standalone release APK를 빌드하고 `SM_S908N` / `R5CT31X2K2H` 실기기에 재설치했다.
+- 설치 앱은 `com.familyproject.todaydidyoufinish` `versionCode=1`, `versionName=0.1.0`, `targetSdk=36`, `POST_NOTIFICATIONS granted=true` 상태였고, `adb reverse --list`가 비어 있어 Metro 연결 없이 standalone으로 실행되는 것을 확인했다.
+- 실기기 smoke에서 Today 렌더링, 계획 편집 생성 진입/취소, `QA-route-smoke` 저장, 저장된 계획 편집 진입/취소, Motivation 탭 진입이 통과했다. QA용 계획은 삭제해 빈 상태로 정리했다.
+- 3-button navigation bar가 있는 상태에서 계획 편집 화면 하단 `취소`/`저장` 버튼은 navigation bar 위에 렌더링되어 가려지지 않았다. 확인 bounds는 버튼 `[102,1927][805,2056]`, `[833,1927][980,2056]`, navigation bar `[0,2181][1080,2316]`이다.
+- 다음 우선 작업은 이 QA 문서 브랜치를 PR/merge한 뒤 Android 알림 장기 delivery QA 또는 Play Console 제출 준비 blocker 정리로 이어가는 것이다.
 - `Expo Route Adapter Boundary` 계획은 completed로 이동했다. `editor`/`reflection` route param parser를 `expo-router-contract`에 추가해 route 파일의 raw param 타입 단언을 제거했고, invalid mode 또는 planId 누락은 `today`로 되돌리는 계약으로 고정했다.
 - Expo 전용 타입체크에서 드러난 `ExpoPlanItemView`와 Today screen props 계약 차이도 함께 정리했다. `rescheduleActionState`를 shell model 타입에 포함하고 presentation helper 반환 타입을 명시했다.
 - 이번 route 경계 정리 검증은 `npm test -- --run tests/expo-router-route-actions.test.ts tests/expo-router-contract.test.ts tests/expo-router-provider-state.test.ts`, `npm run typecheck`, `apps/expo`의 `npx tsc --noEmit -p tsconfig.json`, `bash scripts/validate-docs.sh`가 통과했다. 실기기 QA는 실행하지 않았다.
