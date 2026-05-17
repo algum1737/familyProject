@@ -10,6 +10,10 @@
 - 제품 명세: `product-specs/`
 - 참조 자료: `references/`
 
+## Generated Documents
+
+- [오늘 다 했니? 프로그램 설명서](./generated/today-did-you-finish-program-description.html)
+
 ## Core Documents
 
 - [DESIGN.md](./DESIGN.md)
@@ -48,6 +52,7 @@
 
 ## Completed Work
 
+- [Today Program Description HTML](./exec-plans/completed/2026-05-17-today-program-description-html.md)
 - [Android Start Notification Timing Real Device QA](./exec-plans/completed/2026-05-15-android-start-notification-timing-real-device-qa.md)
 - [Android Start Notification Timing Fix](./exec-plans/completed/2026-05-15-android-start-notification-timing-fix.md)
 - [Android Start Notification Real Device QA](./exec-plans/completed/2026-05-15-android-start-notification-real-device.md)

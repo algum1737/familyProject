@@ -28,11 +28,14 @@
 
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
-- 현재 진행 브랜치는 `fix/android-start-notification-timing`이며, Android 시작 5분 전 알림 지연 보강과 실기기 QA 결과를 커밋 준비 중이다.
+- `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 PR/merge 단계다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
 
+- `Today Program Description HTML` 계획은 completed로 이동했다. 현재까지 만든 `오늘 다 했니?` 프로그램을 설명하는 단독 HTML 문서 `docs/generated/today-did-you-finish-program-description.html`을 추가했고, 생성 문서 목록과 `docs/index.md`에 링크를 등록했다.
+- HTML 설명서는 제품 목표, 핵심 가치, 오늘/계획 편집/회고/동기 화면, 사용 흐름, 주요 기능, 현재 개발 상태와 남은 확장을 사용자용 문구로 정리한다. 내부 구현명이 사용자 설명에 남지 않도록 `PlanEditorScreen`, `selector`, `store 계약`, `Mobile Preview`, `Expo` 표현을 확인했다.
+- 이번 문서 작업 검증은 `bash scripts/validate-docs.sh`가 통과했다. 앱 런타임 QA와 브라우저 스크린샷 QA는 정적 HTML 산출물 작업 범위라 실행하지 않았다.
 - `Android Start Notification Timing Real Device QA` 계획은 completed로 이동했다. Android exact alarm 권한이 default 상태인 `SM_S908N` / `R5CT31X2K2H`에서 start-5 알림이 target `18:11`보다 약 2분 57초 늦은 `18:13:56~18:13:57`에 발화하는 것을 AlarmManager history와 logcat으로 확인했다.
 - 이 지연을 앱 동기화가 과거 예약으로 오판해 취소하지 않도록 `REMINDER_SCHEDULE_GRACE_MINUTES = 15`를 추가했고, scheduled notification content에 `scheduledFor` metadata를 저장해 같은 notification key와 예정 시각이면 재동기화 시 유지한다. 새 요청은 여전히 `scheduledFor <= now`이면 재예약하지 않는다.
 - 보강 포함 release APK를 재빌드/재설치했고 `adb reverse --list`가 비어 있어 Metro 없는 standalone 상태를 확인했다. `POST_NOTIFICATIONS`는 `granted=true`, channel `today-reminders-high`는 `importance=4`였다.
