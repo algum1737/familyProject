@@ -28,7 +28,8 @@
 
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
-- `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 PR/merge 단계다.
+- `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
+- 현재 다음 우선 후보는 Android 시작 5분 전 알림의 notification shade 문구 캡처 재확인 또는 Play Console 제출 준비 blocker 정리다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
