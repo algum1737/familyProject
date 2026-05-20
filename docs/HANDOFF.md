@@ -26,14 +26,20 @@
 
 ### Branch Status
 
+- `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐다. 아직 main에는 머지하지 않았다.
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
-- 현재 다음 우선 후보는 Android 시작 5분 전 알림의 notification shade 문구 캡처 재확인 또는 Play Console 제출 준비 blocker 정리다.
+- 현재 다음 우선 후보는 이 QA 브랜치를 PR/merge한 뒤 Play Console 제출 준비 blocker 정리 또는 Android 알림 지연 원인 추가 추적이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
 
+- `Android Start Notification Shade Capture QA` 계획은 completed로 이동했다. 최신 `main` 기준 release APK를 `SM_S908N` / `R5CT31X2K2H`에 standalone으로 설치했고, `adb reverse --list`가 비어 있어 Metro 없는 상태를 확인했다. 설치 앱은 `versionCode=1`, `versionName=0.1.0`, `POST_NOTIFICATIONS granted=true`, channel `today-reminders-high` `importance=4` 상태였다.
+- QA 일정 `QAShade 14:30 - 14:58`을 저장하고 앱을 Home/background로 내린 뒤 start-5 목표 `2026-05-20 14:25:00 KST`를 관찰했다. AlarmManager history상 알림은 `2026-05-20 14:33:06.197 KST`에 발화해 약 8분 6초 지연됐지만, 15분 관찰 창 안에서 active notification으로 확인됐다.
+- notification shade 실제 카드에서 title `오늘 다 했니`, body `QAShade 시작 5분 전입니다.`를 캡처했다. 증거 파일은 `/private/tmp/qashade-shade-live.png`와 `/private/tmp/qashade-window-live.xml`이다.
+- QA 일정은 앱 화면의 `삭제` 액션으로 제거했고, end reminder PendingIntent `b94c286`은 `alarm_cancelled`로 기록됐다. shade card는 스와이프로 화면에서 제거됐지만 `dumpsys notification`에는 앱 `StatusBarNotification` 레코드가 잠시 남는 잔여 관찰이 있었다.
+- 이번 QA 검증은 `npm test -- --run tests/expo-start-reminder-sync.test.ts tests/expo-reminder-notification-config.test.ts tests/expo-reminder-sync-queue.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `./gradlew assembleRelease`, standalone APK 설치와 실기기 알림 shade 확인이 통과했다.
 - `Today Program Description HTML` 계획은 completed로 이동했다. 현재까지 만든 `오늘 다 했니?` 프로그램을 설명하는 단독 HTML 문서 `docs/generated/today-did-you-finish-program-description.html`을 추가했고, 생성 문서 목록과 `docs/index.md`에 링크를 등록했다.
 - HTML 설명서는 제품 목표, 핵심 가치, 오늘/계획 편집/회고/동기 화면, 사용 흐름, 주요 기능, 현재 개발 상태와 남은 확장을 사용자용 문구로 정리한다. 내부 구현명이 사용자 설명에 남지 않도록 `PlanEditorScreen`, `selector`, `store 계약`, `Mobile Preview`, `Expo` 표현을 확인했다.
 - 이번 문서 작업 검증은 `bash scripts/validate-docs.sh`가 통과했다. 앱 런타임 QA와 브라우저 스크린샷 QA는 정적 HTML 산출물 작업 범위라 실행하지 않았다.

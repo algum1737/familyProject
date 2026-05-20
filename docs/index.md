@@ -52,6 +52,7 @@
 
 ## Completed Work
 
+- [Android Start Notification Shade Capture QA](./exec-plans/completed/2026-05-20-android-start-notification-shade-capture.md)
 - [Today Program Description HTML](./exec-plans/completed/2026-05-17-today-program-description-html.md)
 - [Android Start Notification Timing Real Device QA](./exec-plans/completed/2026-05-15-android-start-notification-timing-real-device-qa.md)
 - [Android Start Notification Timing Fix](./exec-plans/completed/2026-05-15-android-start-notification-timing-fix.md)
