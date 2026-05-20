@@ -28,11 +28,23 @@
 
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
-- 현재 진행 브랜치는 `qa/android-start-notification-real-device`이며, Android 시작 5분 전 알림 실기기 QA 결과를 문서화하는 상태다.
+- `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 PR/merge 단계다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
 
+- `Today Program Description HTML` 계획은 completed로 이동했다. 현재까지 만든 `오늘 다 했니?` 프로그램을 설명하는 단독 HTML 문서 `docs/generated/today-did-you-finish-program-description.html`을 추가했고, 생성 문서 목록과 `docs/index.md`에 링크를 등록했다.
+- HTML 설명서는 제품 목표, 핵심 가치, 오늘/계획 편집/회고/동기 화면, 사용 흐름, 주요 기능, 현재 개발 상태와 남은 확장을 사용자용 문구로 정리한다. 내부 구현명이 사용자 설명에 남지 않도록 `PlanEditorScreen`, `selector`, `store 계약`, `Mobile Preview`, `Expo` 표현을 확인했다.
+- 이번 문서 작업 검증은 `bash scripts/validate-docs.sh`가 통과했다. 앱 런타임 QA와 브라우저 스크린샷 QA는 정적 HTML 산출물 작업 범위라 실행하지 않았다.
+- `Android Start Notification Timing Real Device QA` 계획은 completed로 이동했다. Android exact alarm 권한이 default 상태인 `SM_S908N` / `R5CT31X2K2H`에서 start-5 알림이 target `18:11`보다 약 2분 57초 늦은 `18:13:56~18:13:57`에 발화하는 것을 AlarmManager history와 logcat으로 확인했다.
+- 이 지연을 앱 동기화가 과거 예약으로 오판해 취소하지 않도록 `REMINDER_SCHEDULE_GRACE_MINUTES = 15`를 추가했고, scheduled notification content에 `scheduledFor` metadata를 저장해 같은 notification key와 예정 시각이면 재동기화 시 유지한다. 새 요청은 여전히 `scheduledFor <= now`이면 재예약하지 않는다.
+- 보강 포함 release APK를 재빌드/재설치했고 `adb reverse --list`가 비어 있어 Metro 없는 standalone 상태를 확인했다. `POST_NOTIFICATIONS`는 `granted=true`, channel `today-reminders-high`는 `importance=4`였다.
+- QA 일정 `QAGracem 18:16 - 19:01`은 테스트 후 삭제해 Today 빈 상태로 정리했다. notification shade 카드 문구는 확인 시점에 이미 archive 상태라 UI XML에서 캡처하지 못했으므로, 추후 최종 릴리스 QA에서는 shade 문구 캡처를 한 번 더 확보하는 것이 좋다.
+- 이번 변경 검증은 `npm test -- --run tests/expo-start-reminder-sync.test.ts tests/expo-reminder-notification-config.test.ts tests/expo-reminder-sync-queue.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `./gradlew assembleRelease`, standalone APK 설치가 통과했다.
+- `Android Start Notification Timing Fix` 계획은 completed로 이동했다. 시작 5분 전 알림 지연 QA 결과를 기준으로 Expo notification provider를 확인했고, scheduled time 계산은 맞지만 실제 예약 호출이 `scheduledFor`를 `Date.now()` 기준 상대 초로 바꿔 `TIME_INTERVAL` trigger를 쓰고 있었다.
+- Android background/home 및 잠금 조건에서 상대 interval 예약이 밀릴 가능성을 줄이기 위해, provider가 `scheduledFor` 절대 시각을 `DATE` trigger로 직접 전달하도록 변경했다. notification content, channel id/name, start/end notification key, 문구 계약은 유지했다.
+- `buildExpoReminderDateTrigger` helper와 테스트를 추가했다. 검증은 `npm test -- --run tests/expo-reminder-notification-config.test.ts tests/expo-start-reminder-sync.test.ts tests/expo-reminder-sync-queue.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `bash scripts/validate-docs.sh`가 통과했다.
+- 실기기 런타임 QA는 이번 커밋에서 실행하지 않았다. 현재 설치된 standalone에는 이번 JS 변경이 포함되지 않으므로, 다음 단계는 새 standalone 또는 dev build를 설치한 뒤 10~15분 뒤 시작 일정을 만들고 target start-5 시각의 active notification과 notification shade 표시를 다시 확인하는 것이다.
 - PR #10 `Android 알림 delivery 실기기 QA 기록`은 GitHub Actions `validate`와 `e2e` 통과 후 squash merge됐다. 로컬 `main`은 merge 결과를 반영한 뒤 `qa/android-start-notification-real-device` 브랜치로 새 QA를 진행했다.
 - `Android Start Notification Real Device QA` 계획은 completed로 이동했다. 최신 standalone 설치본을 `SM_S908N` / `R5CT31X2K2H`에서 Metro reverse 없이 실행했고, `POST_NOTIFICATIONS granted=true`와 notification channel `today-reminders-high` `importance=4` 상태를 확인했다.
 - QA 일정 `QAStart 15:45 - 16:33`을 만들고 앱을 Home/background 상태로 내렸다. 시작 5분 전 목표 시각인 `2026-05-15 15:40:25 KST` 확인에서는 앱 notification이 active record가 아니라 archive에만 있었고, notification shade UI에도 `QAStart` 문구가 보이지 않았다.

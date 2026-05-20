@@ -52,7 +52,7 @@ describe("expo start reminder sync", () => {
     expect(requests[3]?.scheduledFor.toISOString()).toBe(createExpectedScheduledIso(10, 55));
   });
 
-  it("skips plans whose reminder time has already passed", () => {
+  it("keeps just-due reminders in the sync signature during the delivery grace window", () => {
     const now = createLocalTestDate(8, 2);
     const requests = buildExpoStartReminderRequests(
       [
@@ -62,9 +62,29 @@ describe("expo start reminder sync", () => {
       now
     );
 
-    expect(requests).toHaveLength(2);
-    expect(requests[0]?.notificationKey).toBe("start-reminder:future");
-    expect(requests[1]?.notificationKey).toBe("end-recovery-reminder:future");
+    expect(requests.map((request) => request.notificationKey)).toEqual([
+      "start-reminder:too-late",
+      "end-recovery-reminder:too-late",
+      "start-reminder:future",
+      "end-recovery-reminder:future"
+    ]);
+    expect(requests[0]?.scheduledFor.toISOString()).toBe(createExpectedScheduledIso(7, 55));
+  });
+
+  it("skips reminders after the delivery grace window expires", () => {
+    const now = createLocalTestDate(8, 11);
+    const requests = buildExpoStartReminderRequests(
+      [
+        createPlan({ id: "expired", startMinute: 7 * 60 + 50, endMinute: 7 * 60 + 55 }),
+        createPlan({ id: "future", startMinute: 9 * 60 + 10, endMinute: 10 * 60 + 10 })
+      ],
+      now
+    );
+
+    expect(requests.map((request) => request.notificationKey)).toEqual([
+      "start-reminder:future",
+      "end-recovery-reminder:future"
+    ]);
   });
 
   it("creates a stable sync signature for the desired reminder schedule", () => {

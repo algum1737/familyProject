@@ -5,6 +5,7 @@ import {
 
 export const EXPO_REMINDER_NOTIFICATION_CHANNEL_ID = "today-reminders-high";
 export const EXPO_REMINDER_NOTIFICATION_CHANNEL_NAME = "오늘 다 했니 리마인드";
+export const EXPO_REMINDER_DATE_TRIGGER_TYPE = "date";
 
 type ExpoReminderNotificationKind =
   | typeof EXPO_END_RECOVERY_REMINDER_KIND
@@ -21,6 +22,7 @@ export function buildExpoReminderNotificationContent(input: {
   notificationKey: string;
   planId: string;
   priority: string;
+  scheduledFor: Date;
   title: string;
 }) {
   const kind: ExpoReminderNotificationKind = getExpoReminderNotificationKind(
@@ -32,10 +34,22 @@ export function buildExpoReminderNotificationContent(input: {
     data: {
       kind,
       notificationKey: input.notificationKey,
-      planId: input.planId
+      planId: input.planId,
+      scheduledFor: input.scheduledFor.toISOString()
     },
     priority: input.priority,
     sound: true,
     title: input.title
+  };
+}
+
+export function buildExpoReminderDateTrigger(input: {
+  channelId: string;
+  scheduledFor: Date;
+}) {
+  return {
+    channelId: input.channelId,
+    date: input.scheduledFor,
+    type: EXPO_REMINDER_DATE_TRIGGER_TYPE
   };
 }

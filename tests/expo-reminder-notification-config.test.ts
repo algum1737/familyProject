@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildExpoReminderDateTrigger,
   buildExpoReminderNotificationContent,
+  EXPO_REMINDER_DATE_TRIGGER_TYPE,
   EXPO_REMINDER_NOTIFICATION_CHANNEL_ID,
   EXPO_REMINDER_NOTIFICATION_CHANNEL_NAME,
   getExpoReminderNotificationKind
@@ -11,6 +13,7 @@ describe("expo reminder notification config", () => {
   it("uses a stable Android channel for reminder notifications", () => {
     expect(EXPO_REMINDER_NOTIFICATION_CHANNEL_ID).toBe("today-reminders-high");
     expect(EXPO_REMINDER_NOTIFICATION_CHANNEL_NAME).toBe("오늘 다 했니 리마인드");
+    expect(EXPO_REMINDER_DATE_TRIGGER_TYPE).toBe("date");
   });
 
   it("classifies start and end recovery notification keys", () => {
@@ -27,6 +30,7 @@ describe("expo reminder notification config", () => {
         notificationKey: "end-recovery-reminder:run",
         planId: "run",
         priority: "high",
+        scheduledFor: new Date("2026-05-15T06:40:00.000Z"),
         title: "오늘 다 했니"
       })
     ).toEqual({
@@ -34,11 +38,27 @@ describe("expo reminder notification config", () => {
       data: {
         kind: "end-recovery-reminder",
         notificationKey: "end-recovery-reminder:run",
-        planId: "run"
+        planId: "run",
+        scheduledFor: "2026-05-15T06:40:00.000Z"
       },
       priority: "high",
       sound: true,
       title: "오늘 다 했니"
+    });
+  });
+
+  it("builds absolute date triggers for Android reminder scheduling", () => {
+    const scheduledFor = new Date(2026, 4, 15, 15, 40, 0, 0);
+
+    expect(
+      buildExpoReminderDateTrigger({
+        channelId: EXPO_REMINDER_NOTIFICATION_CHANNEL_ID,
+        scheduledFor
+      })
+    ).toEqual({
+      channelId: "today-reminders-high",
+      date: scheduledFor,
+      type: "date"
     });
   });
 });

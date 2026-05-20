@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>오늘 다 했니? 프로그램 설명서</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f4ee;
+        --surface: #fffdf8;
+        --ink: #22252d;
+        --muted: #686d78;
+        --line: #e5ded4;
+        --accent: #ee7359;
+        --accent-dark: #b94d38;
+        --blue: #2f78d6;
+        --green: #2f8b62;
+        --gold: #b4791f;
+        --shadow: 0 18px 50px rgba(45, 37, 29, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR",
+          "Apple SD Gothic Neo", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 48px 0 64px;
+      }
+
+      header {
+        display: grid;
+        gap: 24px;
+        padding: 52px;
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .eyebrow {
+        margin: 0;
+        color: var(--accent-dark);
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        line-height: 1.2;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        max-width: 760px;
+        font-size: clamp(40px, 7vw, 76px);
+      }
+
+      h2 {
+        font-size: clamp(26px, 4vw, 40px);
+      }
+
+      h3 {
+        font-size: 21px;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      .lead {
+        max-width: 780px;
+        color: var(--muted);
+        font-size: 20px;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 36px;
+        padding: 6px 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff8f1;
+        color: #5b453d;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      section {
+        margin-top: 28px;
+        padding: 34px;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: var(--surface);
+      }
+
+      .section-head {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+
+      .section-head p {
+        max-width: 780px;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .two-column {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        min-height: 100%;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fffaf3;
+      }
+
+      .card p {
+        margin-top: 10px;
+        color: var(--muted);
+      }
+
+      .number {
+        display: inline-grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        margin-bottom: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: white;
+        font-weight: 800;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 12px;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+      }
+
+      .timeline li {
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        gap: 18px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fffaf3;
+      }
+
+      .time-label {
+        color: var(--accent-dark);
+        font-weight: 800;
+      }
+
+      .status-list {
+        display: grid;
+        gap: 12px;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+      }
+
+      .status-list li {
+        padding: 16px 18px;
+        border-left: 5px solid var(--accent);
+        border-radius: 10px;
+        background: #fffaf3;
+      }
+
+      .status-list strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .status-list span {
+        color: var(--muted);
+      }
+
+      .callout {
+        border-color: rgba(238, 115, 89, 0.45);
+        background: #fff2e9;
+      }
+
+      .check {
+        color: var(--green);
+        font-weight: 800;
+      }
+
+      .todo {
+        color: var(--gold);
+        font-weight: 800;
+      }
+
+      footer {
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+      }
+
+      @media (max-width: 840px) {
+        main {
+          width: min(100% - 24px, 1120px);
+          padding: 24px 0 40px;
+        }
+
+        header,
+        section {
+          padding: 24px;
+          border-radius: 20px;
+        }
+
+        .grid,
+        .two-column {
+          grid-template-columns: 1fr;
+        }
+
+        .timeline li {
+          grid-template-columns: 1fr;
+          gap: 6px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Program overview</p>
+        <h1>오늘 다 했니?</h1>
+        <p class="lead">
+          하루 계획을 세우는 데서 끝내지 않고, 지금 해야 할 일을 알아차리고,
+          완료하거나 다시 이어갈 수 있게 돕는 생활 계획 실행 앱입니다.
+        </p>
+        <div class="meta" aria-label="제품 요약">
+          <span class="pill">개인용 하루 계획</span>
+          <span class="pill">24시간 원형 플래너</span>
+          <span class="pill">로컬 리마인드</span>
+          <span class="pill">놓친 일정 회복</span>
+          <span class="pill">월간 동기부여</span>
+        </div>
+      </header>
+
+      <section>
+        <div class="section-head">
+          <h2>무엇을 해결하나</h2>
+          <p>
+            많은 계획 앱은 할 일을 적는 데 강하지만, 실제 시간에 맞춰 행동으로
+            이어지는 순간은 사용자가 직접 챙겨야 합니다. 오늘 다 했니?는 하루
+            계획을 시간대에 배치하고, 현재 시각 기준으로 무엇을 해야 하는지
+            바로 이해하게 만드는 데 집중합니다.
+          </p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <span class="number">1</span>
+            <h3>하루를 한눈에 보기</h3>
+            <p>
+              24시간을 원형으로 표현해 계획이 어느 시간대에 놓였는지 직관적으로
+              보여줍니다.
+            </p>
+          </article>
+          <article class="card">
+            <span class="number">2</span>
+            <h3>지금 할 일 알아차리기</h3>
+            <p>
+              현재 시각 포인터와 현재 계획 강조를 통해 사용자가 별도 계산 없이
+              지금 해야 할 일을 찾을 수 있습니다.
+            </p>
+          </article>
+          <article class="card">
+            <span class="number">3</span>
+            <h3>놓쳐도 다시 이어가기</h3>
+            <p>
+              미완료로 끝난 일정은 회고하거나 같은 날 빈 시간에 다시 지정할 수
+              있게 해 실행 흐름을 끊지 않습니다.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>핵심 화면</h2>
+          <p>
+            현재 프로그램은 오늘의 실행을 중심으로 화면을 구성하고, 필요한 보조
+            흐름만 별도 화면으로 분리합니다.
+          </p>
+        </div>
+        <div class="two-column">
+          <article class="card">
+            <h3>오늘 화면</h3>
+            <p>
+              현재 계획 카드, 24시간 원형 플래너, 오늘 계획 목록, 완료 현황,
+              리마인드 배너가 모이는 기본 화면입니다.
+            </p>
+          </article>
+          <article class="card">
+            <h3>계획 편집 화면</h3>
+            <p>
+              새 계획 추가, 기존 계획 수정, 놓친 일정 다시 지정을 같은 흐름에서
+              처리합니다. 제목, 시작 시간, 종료 시간, 색상을 입력합니다.
+            </p>
+          </article>
+          <article class="card">
+            <h3>회고 화면</h3>
+            <p>
+              놓친 일정에 대해 왜 놓쳤는지 짧게 기록하고, 다음 행동을 이어갈 수
+              있게 돕습니다.
+            </p>
+          </article>
+          <article class="card">
+            <h3>동기 화면</h3>
+            <p>
+              이번 달 완료 개수, 완료율, 놓친 일정 수, 연속 달성 흐름을 보여줘
+              다음 날에도 계속 열어볼 이유를 만듭니다.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>사용 흐름</h2>
+          <p>
+            제품의 핵심 여정은 계획 등록, 현재 계획 인지, 완료 처리, 놓친 일정
+            회복, 월간 확인으로 이어집니다.
+          </p>
+        </div>
+        <ol class="timeline">
+          <li>
+            <strong class="time-label">계획 등록</strong>
+            <span>오늘 할 일을 제목과 시간으로 추가합니다.</span>
+          </li>
+          <li>
+            <strong class="time-label">시간 확인</strong>
+            <span>원형 플래너에서 하루 배치와 현재 시각을 함께 봅니다.</span>
+          </li>
+          <li>
+            <strong class="time-label">리마인드</strong>
+            <span>시작 5분 전과 종료 5분 전 알림으로 행동 타이밍을 놓치지 않게 합니다.</span>
+          </li>
+          <li>
+            <strong class="time-label">완료 처리</strong>
+            <span>실행한 일정은 바로 완료로 바꾸고 오늘 완료 현황에 반영합니다.</span>
+          </li>
+          <li>
+            <strong class="time-label">회복</strong>
+            <span>놓친 일정은 회고하거나 빈 시간에 다시 지정해 흐름을 이어갑니다.</span>
+          </li>
+          <li>
+            <strong class="time-label">동기 확인</strong>
+            <span>월간 기록으로 내가 얼마나 지켰고 다시 이어갔는지 확인합니다.</span>
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>주요 기능</h2>
+          <p>
+            첫 버전은 복잡한 협업이나 반복 일정이 아니라, 개인이 오늘 하루를
+            끝까지 실행하도록 돕는 기능에 집중합니다.
+          </p>
+        </div>
+        <ul class="status-list">
+          <li>
+            <strong>분 단위 계획 생성</strong>
+            <span>시작/종료 시간을 자유롭게 입력하고, 이미 등록된 시간과 겹치면 저장을 막습니다.</span>
+          </li>
+          <li>
+            <strong>현재 계획 강조</strong>
+            <span>현재 시각이 포함된 계획 구간을 다른 일정과 구분해 보여줍니다.</span>
+          </li>
+          <li>
+            <strong>완료와 놓침 상태</strong>
+            <span>완료하지 못한 일정은 종료 뒤 놓침 상태로 분리해 다시 볼 수 있게 합니다.</span>
+          </li>
+          <li>
+            <strong>회고와 다시 지정</strong>
+            <span>놓친 일정은 회고 메모를 남기거나 같은 날 빈 시간으로 최대 3회까지 다시 지정할 수 있습니다.</span>
+          </li>
+          <li>
+            <strong>로컬 알림</strong>
+            <span>Android 실기기에서 시작/종료 리마인드 예약, 알림 권한, 알림 채널, standalone 실행을 검증했습니다.</span>
+          </li>
+          <li>
+            <strong>월간 동기부여</strong>
+            <span>완료 개수, 완료율, 놓침 수, 연속 달성 흐름으로 지속 사용 동기를 제공합니다.</span>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>현재 개발 상태</h2>
+          <p>
+            현재까지 웹 MVP와 Android 앱 흐름을 함께 구축하면서, 핵심
+            도메인 규칙과 화면 흐름을 검증해 왔습니다.
+          </p>
+        </div>
+        <div class="two-column">
+          <article class="card">
+            <h3><span class="check">완료된 기반</span></h3>
+            <p>
+              오늘 계획 생성/수정/삭제, 완료 처리, 현재 계획 판정, 놓침 회복,
+              월간 요약, Android standalone 빌드와 실기기 알림 QA까지 진행했습니다.
+            </p>
+          </article>
+          <article class="card">
+            <h3><span class="todo">남은 확장</span></h3>
+            <p>
+              출시 전에는 알림 문구 캡처 재확인, Play Console 제출 준비, 최종
+              회귀 QA, 실제 사용자 피드백 기반 UX 조정이 필요합니다.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="callout">
+        <div class="section-head">
+          <h2>제품 방향</h2>
+          <p>
+            오늘 다 했니?는 단순한 체크리스트보다 실행 순간에 더 가까운 앱을
+            목표로 합니다. 사용자가 계획을 적고 잊어버리는 대신, 지금 할 일을
+            알아차리고, 완료하고, 놓쳤더라도 다시 이어가게 만드는 것이 핵심입니다.
+          </p>
+        </div>
+      </section>
+
+      <footer>
+        <p>작성일: 2026-05-17 · 기준 문서: README, Architecture, MVP Scope, App Screen Tree</p>
+      </footer>
+    </main>
+  </body>
+</html>

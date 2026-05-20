@@ -7,6 +7,7 @@ import type {
   ReminderRequest
 } from "../../../../../src/providers/reminders/reminder-provider";
 import {
+  buildExpoReminderDateTrigger,
   buildExpoReminderNotificationContent,
   EXPO_REMINDER_NOTIFICATION_CHANNEL_ID,
   EXPO_REMINDER_NOTIFICATION_CHANNEL_NAME
@@ -55,6 +56,16 @@ function matchesPlanId(notification: ExpoScheduledNotification, planId: string) 
   return (
     isManagedStartReminder(notification) &&
     notification.content.data?.planId === planId
+  );
+}
+
+function matchesReminderRequest(
+  notification: ExpoScheduledNotification,
+  request: { notificationKey: string; scheduledFor: Date }
+) {
+  return (
+    notification.content.data?.notificationKey === request.notificationKey &&
+    notification.content.data?.scheduledFor === request.scheduledFor.toISOString()
   );
 }
 
@@ -122,11 +133,6 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
     scheduledFor: Date;
     title: string;
   }) {
-    const secondsFromNow = Math.max(
-      1,
-      Math.floor((input.scheduledFor.getTime() - Date.now()) / 1000)
-    );
-
     await ensureAndroidReminderNotificationChannel();
 
     return Notifications.scheduleNotificationAsync({
@@ -135,13 +141,13 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
         notificationKey: input.notificationKey,
         planId: input.planId,
         priority: Notifications.AndroidNotificationPriority.HIGH,
+        scheduledFor: input.scheduledFor,
         title: input.title
       }),
-      trigger: {
+      trigger: buildExpoReminderDateTrigger({
         channelId: EXPO_REMINDER_NOTIFICATION_CHANNEL_ID,
-        seconds: secondsFromNow,
-        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL
-      }
+        scheduledFor: input.scheduledFor
+      }) as Notifications.NotificationTriggerInput
     });
   }
 
@@ -191,11 +197,26 @@ export function createExpoStartReminderProvider(): ExpoStartReminderProvider {
       return;
     }
 
-    await cancelNotifications(scheduled.filter(isManagedStartReminder));
+    const managedScheduled = scheduled.filter(isManagedStartReminder);
+
+    await cancelNotifications(
+      managedScheduled.filter(
+        (notification) =>
+          !requests.some((request) => matchesReminderRequest(notification, request))
+      )
+    );
 
     for (const request of requests) {
       if (!isLatest()) {
         return;
+      }
+
+      const alreadyScheduled = managedScheduled.some((notification) =>
+        matchesReminderRequest(notification, request)
+      );
+
+      if (alreadyScheduled || request.scheduledFor.getTime() <= now.getTime()) {
+        continue;
       }
 
       await scheduleNotification({
