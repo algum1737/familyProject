@@ -27,10 +27,11 @@
 ### Branch Status
 
 - `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐다. 아직 main에는 머지하지 않았다.
+- `Android Start Notification Precision` 계획이 active로 올라와 있다. 다음 작업은 시작 5분 전 알림이 약 6~8분 늦는 Android 실기기 지연 원인을 exact alarm/Doze/Samsung background 정책 관점에서 확인하고 개선하는 것이다.
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
-- 현재 다음 우선 후보는 이 QA 브랜치를 PR/merge한 뒤 Play Console 제출 준비 blocker 정리 또는 Android 알림 지연 원인 추가 추적이다.
+- 현재 다음 우선 작업은 이 QA 브랜치를 PR/merge한 뒤 `Android Start Notification Precision` 계획에 따라 Android 시작 5분 전 알림 정확도를 개선하는 것이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot

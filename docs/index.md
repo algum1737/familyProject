@@ -48,7 +48,7 @@
 
 ## Active Work
 
-- No active exec plan.
+- [Android Start Notification Precision](./exec-plans/active/2026-05-20-android-start-notification-precision.md)
 
 ## Completed Work
 
