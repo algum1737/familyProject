@@ -15,18 +15,42 @@ import {
   getExpoReminderNotificationKind
 } from "../apps/expo/src/providers/reminders/expo-reminder-notification-config";
 
+const androidManifestPath = resolve(
+  process.cwd(),
+  "apps/expo/android/app/src/main/AndroidManifest.xml"
+);
+const mainApplicationPath = resolve(
+  process.cwd(),
+  "apps/expo/android/app/src/main/java/com/familyproject/todaydidyoufinish/MainApplication.kt"
+);
+const exactAlarmModulePath = resolve(
+  process.cwd(),
+  "apps/expo/android/app/src/main/java/com/familyproject/todaydidyoufinish/ExactAlarmModule.kt"
+);
+const exactAlarmPackagePath = resolve(
+  process.cwd(),
+  "apps/expo/android/app/src/main/java/com/familyproject/todaydidyoufinish/ExactAlarmPackage.kt"
+);
+
 describe("expo reminder notification config", () => {
   it("declares Android exact alarm access for precise start reminders", () => {
-    const manifest = readFileSync(
-      resolve(
-        process.cwd(),
-        "apps/expo/android/app/src/main/AndroidManifest.xml"
-      ),
-      "utf8"
-    );
+    const manifest = readFileSync(androidManifestPath, "utf8");
 
     expect(manifest).toContain("android.permission.SCHEDULE_EXACT_ALARM");
     expect(manifest).not.toContain("android.permission.USE_EXACT_ALARM");
+  });
+
+  it("keeps the Android exact alarm native bridge registered", () => {
+    const mainApplication = readFileSync(mainApplicationPath, "utf8");
+    const exactAlarmModule = readFileSync(exactAlarmModulePath, "utf8");
+    const exactAlarmPackage = readFileSync(exactAlarmPackagePath, "utf8");
+
+    expect(mainApplication).toContain("add(ExactAlarmPackage())");
+    expect(exactAlarmPackage).toContain("listOf(ExactAlarmModule(reactContext))");
+    expect(exactAlarmModule).toContain('getName(): String = "ExactAlarmModule"');
+    expect(exactAlarmModule).toContain("canScheduleExactAlarms()");
+    expect(exactAlarmModule).toContain("Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM");
+    expect(exactAlarmModule).toContain("ERR_EXACT_ALARM_SETTINGS");
   });
 
   it("uses a stable Android channel for reminder notifications", () => {
