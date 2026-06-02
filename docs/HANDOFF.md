@@ -29,11 +29,11 @@
 - `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐고 `main`에 머지됐다.
 - `Android Start Notification Precision` 작업은 `fix/android-start-notification-precision`에서 완료됐고 PR #15로 `main`에 머지됐다.
 - `Android Notification Regression Guard` 작업은 `qa/android-notification-regression-guard`에서 완료됐고 PR #16으로 `main`에 머지됐다.
-- `Android Play Permission Blockers` 작업은 `docs/android-play-permission-blockers`에서 완료됐고 PR/merge 대기 상태다.
+- `Android Play Permission Blockers` 작업은 `docs/android-play-permission-blockers`에서 완료됐고 PR #17로 `main`에 머지됐다.
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
-- 현재 다음 우선 작업은 `docs/android-play-permission-blockers` 브랜치를 PR/merge한 뒤, 별도 구현 브랜치에서 production/release manifest의 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` 제거 가능성을 확인하는 것이다.
+- 현재 다음 우선 작업은 별도 구현 브랜치에서 production/release manifest의 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` 제거 가능성을 확인하는 것이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
