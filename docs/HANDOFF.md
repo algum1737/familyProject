@@ -28,11 +28,11 @@
 
 - `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐고 `main`에 머지됐다.
 - `Android Start Notification Precision` 작업은 `fix/android-start-notification-precision`에서 완료됐고 PR #15로 `main`에 머지됐다.
-- `Android Notification Regression Guard` 작업은 `qa/android-notification-regression-guard`에서 완료됐고 PR/merge 대기 상태다.
+- `Android Notification Regression Guard` 작업은 `qa/android-notification-regression-guard`에서 완료됐고 PR #16으로 `main`에 머지됐다.
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
-- 현재 다음 우선 작업은 `qa/android-notification-regression-guard` 브랜치를 PR/merge한 뒤 Play Console 제출 전 Android 권한/스토어 문구 blocker를 계속 정리하는 것이다.
+- 현재 다음 우선 작업은 Play Console 제출 전 Android 권한/스토어 문구 blocker를 계속 정리하는 것이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
