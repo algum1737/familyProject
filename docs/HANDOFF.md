@@ -27,11 +27,11 @@
 ### Branch Status
 
 - `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐고 `main`에 머지됐다.
-- `Android Start Notification Precision` 계획이 active로 올라와 있다. 현재 작업 브랜치는 `fix/android-start-notification-precision`이며 Android exact alarm 권한/설정 UX 구현과 자동 검증까지 진행됐다.
+- `Android Start Notification Precision` 계획은 `fix/android-start-notification-precision`에서 완료됐고 PR/merge 대기 상태다.
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
-- 현재 다음 우선 작업은 실기기 USB 디버깅 authorization을 복구한 뒤 새 release APK를 설치하고 10~15분 뒤 시작 일정으로 start-5 timing QA를 재실행하는 것이다.
+- 현재 다음 우선 작업은 `fix/android-start-notification-precision` 브랜치를 PR/merge한 뒤, Android 알림 정확도 회귀를 장기적으로 지키는 후속 QA/정책 항목을 정리하는 것이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
@@ -40,7 +40,12 @@
 - React Native native module `ExactAlarmModule`과 JS wrapper를 추가해 Android exact alarm 접근 상태 확인과 `ACTION_REQUEST_SCHEDULE_EXACT_ALARM` 설정 화면 이동을 연결했다. Today 설정 메뉴에는 `정확 알림 켜기` / `정확 알림 켜짐` 상태 항목이 추가됐다.
 - 관련 정책/릴리스 문서와 privacy policy에 Android exact alarm 목적과 `SCHEDULE_EXACT_ALARM`/`USE_EXACT_ALARM` 판단을 반영했다.
 - 자동 검증은 `npm test -- --run tests/expo-reminder-notification-config.test.ts tests/expo-start-reminder-sync.test.ts tests/expo-reminder-sync-queue.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `bash scripts/validate-docs.sh`, `./gradlew assembleRelease`가 통과했다. 릴리스 merged/packaged manifest에는 `android.permission.SCHEDULE_EXACT_ALARM`이 있고 `android.permission.USE_EXACT_ALARM`은 없다.
-- 실기기 runtime QA는 `adb kill-server` / `adb start-server` 후에도 `R5CT31X2K2H unauthorized` 상태라 아직 막혀 있다. 기기에서 USB 디버깅 허용 후 standalone 설치, exact alarm 접근 상태 확인, start-5 발화 시각 재측정이 남아 있다.
+- 실기기 runtime QA도 통과했다. `SM_S908N` / `R5CT31X2K2H`에 최신 release APK를 standalone으로 설치했고 `adb reverse --list`가 비어 있어 Metro 없는 상태였다.
+- exact alarm 접근 전 Today 설정 메뉴는 `정확 알림 켜기`였고, Android `알람 및 리마인더` 설정에서 허용한 뒤 `정확 알림 켜짐`으로 바뀌었다.
+- QA 일정 `QAExact 11:25 - 11:59`의 start-5 target은 `2026-06-02 11:20:00.000 KST`였고, `dumpsys alarm` 예약은 `window=0`, `exactAllowReason=permission`이었다. active notification은 `when=2026-06-02 11:20:00.106 KST`로 기록돼 목표 대비 약 `0.106s` 지연이었다.
+- notification shade에는 title `오늘 다 했니`, body `QAExact 시작 5분 전입니다.`, time `오전 11:20`이 표시됐다. 증거 파일은 `/private/tmp/qaexact-shade.png`, `/private/tmp/qaexact-shade.xml`이다.
+- 3-button navigation bar 환경에서 plan editor 하단 `취소`/`저장`과 time picker 하단 `취소`/`확인`은 navigation bar 위에 표시됐다. 확인 bounds는 plan editor 버튼 `[102,1927][805,2056]`, `[833,1927][980,2056]`, time picker 버튼 `[51,2001][855,2130]`, `[883,2001][1029,2130]`, navigation bar `[0,2181][1080,2316]`이다.
+- QA 일정은 앱 UI에서 삭제했고, 삭제 후 UI에서 `QAExact`가 사라졌다. pending alarm 목록에는 앱 패키지가 남지 않았고, 이전 `11:54` end reminder 항목은 AlarmManager history에만 남은 것으로 확인했다.
 - `Android Start Notification Shade Capture QA` 계획은 completed로 이동했다. 최신 `main` 기준 release APK를 `SM_S908N` / `R5CT31X2K2H`에 standalone으로 설치했고, `adb reverse --list`가 비어 있어 Metro 없는 상태를 확인했다. 설치 앱은 `versionCode=1`, `versionName=0.1.0`, `POST_NOTIFICATIONS granted=true`, channel `today-reminders-high` `importance=4` 상태였다.
 - QA 일정 `QAShade 14:30 - 14:58`을 저장하고 앱을 Home/background로 내린 뒤 start-5 목표 `2026-05-20 14:25:00 KST`를 관찰했다. AlarmManager history상 알림은 `2026-05-20 14:33:06.197 KST`에 발화해 약 8분 6초 지연됐지만, 15분 관찰 창 안에서 active notification으로 확인됐다.
 - notification shade 실제 카드에서 title `오늘 다 했니`, body `QAShade 시작 5분 전입니다.`를 캡처했다. 증거 파일은 `/private/tmp/qashade-shade-live.png`와 `/private/tmp/qashade-window-live.xml`이다.
