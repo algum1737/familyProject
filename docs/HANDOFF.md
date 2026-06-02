@@ -29,10 +29,11 @@
 - `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐고 `main`에 머지됐다.
 - `Android Start Notification Precision` 작업은 `fix/android-start-notification-precision`에서 완료됐고 PR #15로 `main`에 머지됐다.
 - `Android Notification Regression Guard` 작업은 `qa/android-notification-regression-guard`에서 완료됐고 PR #16으로 `main`에 머지됐다.
+- `Android Play Permission Blockers` 작업은 `docs/android-play-permission-blockers`에서 완료됐고 PR/merge 대기 상태다.
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
-- 현재 다음 우선 작업은 Play Console 제출 전 Android 권한/스토어 문구 blocker를 계속 정리하는 것이다.
+- 현재 다음 우선 작업은 `docs/android-play-permission-blockers` 브랜치를 PR/merge한 뒤, 별도 구현 브랜치에서 production/release manifest의 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` 제거 가능성을 확인하는 것이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
@@ -50,6 +51,9 @@
 - `qa/android-notification-regression-guard`에서 Android 알림 정확도 회귀 방지 guard를 추가했다. `tests/expo-reminder-notification-config.test.ts`는 이제 manifest의 `SCHEDULE_EXACT_ALARM`/`USE_EXACT_ALARM` 정책뿐 아니라 `MainApplication`의 `ExactAlarmPackage` 등록, `ExactAlarmPackage`의 `ExactAlarmModule` 생성, `ExactAlarmModule`의 module name, `canScheduleExactAlarms()`, `ACTION_REQUEST_SCHEDULE_EXACT_ALARM`, error code 계약을 확인한다.
 - `APP_EXPO_RELEASE_CHECKLIST.md`에는 Android notification regression guard와 실기기 start-5 timing QA 재실행 트리거를 추가했다. 실기기 QA는 Android manifest/native exact alarm bridge/provider/Today 설정 wiring, target SDK/Expo SDK/`expo-notifications`/React Native/Android Gradle Plugin/EAS profile 변경, Play Console 권한/스토어 문구 제출 직전, exact alarm 접근 off fresh install 경로 확인 시 다시 실행한다.
 - 이번 guard 작업 검증은 `npm test -- --run tests/expo-reminder-notification-config.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `bash scripts/validate-docs.sh`가 통과했다. 새 실기기 runtime QA는 이전 precision QA 결과를 guardrail로 고정하는 범위라 실행하지 않았다.
+- `docs/android-play-permission-blockers`에서 Play Console 제출 전 Android 권한/스토어 문구 blocker를 분류했다. Google 공식 문서 기준 sensitive permission/API는 listing에 공개된 현재 기능에 필요한 경우에만 요청해야 하며, `USE_EXACT_ALARM`은 alarm/timer/calendar 핵심 기능 앱에 제한되는 restricted permission이라 계속 미선언으로 둔다.
+- 현재 manifest permission 판단은 `INTERNET`, `VIBRATE`, `SCHEDULE_EXACT_ALARM` 유지 후보, `USE_EXACT_ALARM` 금지/미선언 유지, `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` 제거 후보로 정리했다. 현재 앱에는 overlay나 공유 저장소 읽기/쓰기 기능이 없으므로 production 제출 전 제거 확인이 다음 구현 후보이다.
+- `APP_PLAY_CONSOLE_SUBMISSION_PREP.md`에는 Android permission blocker matrix, 권한 제거 구현 후보, Play Console 입력 후보를 추가했다. `APP_EXPO_RELEASE_CHECKLIST.md`에는 overlay/storage 권한이 release merged manifest에 남으면 제거를 기본 경로로 둔다고 정리했다. 검증은 `bash scripts/validate-docs.sh`가 통과했다.
 - `Android Start Notification Shade Capture QA` 계획은 completed로 이동했다. 최신 `main` 기준 release APK를 `SM_S908N` / `R5CT31X2K2H`에 standalone으로 설치했고, `adb reverse --list`가 비어 있어 Metro 없는 상태를 확인했다. 설치 앱은 `versionCode=1`, `versionName=0.1.0`, `POST_NOTIFICATIONS granted=true`, channel `today-reminders-high` `importance=4` 상태였다.
 - QA 일정 `QAShade 14:30 - 14:58`을 저장하고 앱을 Home/background로 내린 뒤 start-5 목표 `2026-05-20 14:25:00 KST`를 관찰했다. AlarmManager history상 알림은 `2026-05-20 14:33:06.197 KST`에 발화해 약 8분 6초 지연됐지만, 15분 관찰 창 안에서 active notification으로 확인됐다.
 - notification shade 실제 카드에서 title `오늘 다 했니`, body `QAShade 시작 5분 전입니다.`를 캡처했다. 증거 파일은 `/private/tmp/qashade-shade-live.png`와 `/private/tmp/qashade-window-live.xml`이다.

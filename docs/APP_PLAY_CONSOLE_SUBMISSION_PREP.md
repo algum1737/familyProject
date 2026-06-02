@@ -110,6 +110,41 @@ Privacy policy 초안에 반드시 들어갈 내용:
 - 문의 이메일
 - 향후 서버 동기화나 분석 도구가 추가되면 정책이 갱신된다는 점
 
+## Android Permission Blocker Matrix
+
+2026-06-02 기준 Google 공식 문서 확인 결과:
+
+- Google Play의 sensitive permission 정책은 앱 listing에 공개된 현재 기능 구현에 필요한 권한만 요청해야 한다고 본다.
+- `USE_EXACT_ALARM`은 alarm/timer/calendar처럼 정확한 시각이 핵심 기능인 앱에 한정되는 restricted permission이다. 현재 앱은 `USE_EXACT_ALARM`을 선언하지 않고 사용자 승인형 `SCHEDULE_EXACT_ALARM`을 사용한다.
+- Data safety form은 internal testing 전용 앱에는 store listing 표시가 면제될 수 있지만, closed/open/production으로 이동하면 정확히 작성해야 한다. 사용자 데이터를 수집하지 않는 앱도 form과 privacy policy를 준비해야 한다.
+- Privacy policy는 공개 URL이어야 하며, 앱 이름 또는 listing의 개발 주체, 문의 경로, 데이터 접근/수집/사용/공유/보관 방식을 설명해야 한다.
+
+현재 manifest permission 분류:
+
+| Permission | 현재 판단 | 제출 전 조치 |
+| --- | --- | --- |
+| `INTERNET` | 유지 후보 | Expo/React Native 런타임, 앱 번들/링크 동작 목적. Data safety에서는 서버 전송/수집 없음과 구분해 설명한다. |
+| `VIBRATE` | 유지 후보 | 로컬 알림 진동 목적. store listing/privacy policy의 알림 설명과 맞춘다. |
+| `SCHEDULE_EXACT_ALARM` | 유지 후보 | 시작 5분 전/종료 5분 전 로컬 알림을 가능한 한 정해진 시각에 보내기 위한 special access. 앱 설정 메뉴의 `정확 알림 켜기` UX, privacy policy, store listing 설명과 맞춘다. |
+| `USE_EXACT_ALARM` | 금지/미선언 유지 | 현재 manifest에 없다. 추가되면 Play restricted permission review 리스크가 커지므로 자동 테스트로 금지한다. |
+| `SYSTEM_ALERT_WINDOW` | 제거 후보 | 현재 제품 기능에는 다른 앱 위 overlay가 없다. release/main manifest에서 제거하거나, Expo/debug 전용 필요라면 release merged manifest 기준으로 남지 않는지 확인한다. |
+| `READ_EXTERNAL_STORAGE` `maxSdkVersion=32` | 제거 후보 | 현재 앱에는 사진/미디어/공유 저장소 읽기 기능이 없다. 로컬 계획/회고 저장은 앱 내부 저장소 기준이므로 제출 전 제거 후보로 둔다. |
+| `WRITE_EXTERNAL_STORAGE` `maxSdkVersion=32` | 제거 후보 | 현재 앱에는 공유 저장소 쓰기/내보내기 기능이 없다. Android 앱 전용 디렉터리 저장은 별도 permission 없이 가능하므로 제출 전 제거 후보로 둔다. |
+
+권한 제거 구현 후보:
+
+1. Expo prebuild/native manifest 원천에서 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`가 왜 들어오는지 확인한다.
+2. production/release merged manifest에서 위 제거 후보 권한을 제거하거나 `tools:node="remove"`로 차단한다.
+3. 제거 후 `./gradlew :app:processReleaseMainManifest` 또는 `./gradlew :app:bundleRelease`로 merged manifest를 확인한다.
+4. Android standalone smoke와 알림 QA를 다시 실행한다. 정확 알림 관련 파일을 건드리지 않았더라도 final release permission summary가 바뀌므로 permission summary와 privacy policy를 재확인한다.
+
+Play Console 입력 후보:
+
+- Store listing short/full description에는 “시작 5분 전, 종료 5분 전 로컬 알림”과 “기기 안 로컬 저장”을 유지한다.
+- Data safety는 현재 구현 기준으로 계정 없음, 광고/분석 SDK 없음, 외부 서버 전송 없음, 사용자가 직접 입력한 계획/회고는 기기 로컬 저장을 기준으로 작성한다.
+- Permission declaration 또는 review warning이 뜨면 `SCHEDULE_EXACT_ALARM`은 사용자가 만든 계획의 시작/종료 전 리마인드를 정확한 시각에 전달하기 위한 special access라고 설명한다.
+- `SYSTEM_ALERT_WINDOW` 또는 external storage permission warning이 뜨면 현재 제품 기능에는 필요하지 않으므로 제출 전에 제거하는 것을 기본 경로로 둔다.
+
 ## Internal Testing Track
 
 첫 업로드는 production이 아니라 internal testing track을 기준으로 진행한다.

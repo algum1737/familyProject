@@ -156,7 +156,7 @@ npx eas submit --platform android --profile production
 - [eas.json](/Users/hun/workspace/familyProject/apps/expo/eas.json)의 `production` profile은 `autoIncrement: true`이며 별도 `distribution` 값이 없으므로 store build 경로로 취급한다.
 - Android `preview` cloud build `505e6104-7c02-4c35-95a6-517325029d96`는 `FINISHED`였고, dependency install blocker는 `react-dom: 19.2.0` 고정 후 클린 `npm ci`로 해소됐다.
 - native [android/app/build.gradle](/Users/hun/workspace/familyProject/apps/expo/android/app/build.gradle)는 `release` build type이 debug signingConfig를 가리키는 prebuild 기본값을 유지한다. Play 제출용 산출물은 로컬 `./gradlew assembleRelease`가 아니라 EAS remote Android credential로 서명된 production build를 기준으로 검증한다.
-- native manifest에는 `SYSTEM_ALERT_WINDOW`, legacy external storage permission이 보인다. Play Console data safety / permission policy 검토 전까지는 production 제출 blocker 후보로 둔다.
+- native manifest에는 `SYSTEM_ALERT_WINDOW`, legacy external storage permission이 보인다. 현재 제품 기능에는 overlay나 공유 저장소 읽기/쓰기 기능이 없으므로 production 제출 전 제거 후보로 둔다.
 - Android 시작 5분 전 알림 정확도를 높이기 위해 `SCHEDULE_EXACT_ALARM`을 선언한다. 이 권한은 Android 13+ fresh install에서 기본 거부될 수 있으므로 앱 설정 메뉴의 exact alarm 상태 확인/설정 이동 UX와 함께 검증한다.
 - `USE_EXACT_ALARM`은 calendar/alarm clock 앱 정책 범위에 더 직접적으로 묶이므로 현재 manifest에는 넣지 않는다. Play Console 제출 전에는 `SCHEDULE_EXACT_ALARM` 권한 선언, store listing의 알림 설명, privacy policy 문구를 같은 의미로 맞춘다.
 
@@ -209,7 +209,7 @@ cd apps/expo/android
 - Google Play Console에 `com.familyproject.todaydidyoufinish` 앱 레코드가 없거나, 같은 package name을 다른 계정이 이미 소유하면 production submit은 중단된다.
 - EAS Android credential이 preview에서 생성됐더라도 production 제출 전에 Play App Signing / upload key / keystore 보관 정책을 확정해야 한다.
 - `npx eas-cli submit --platform android --profile production`은 Google Play service account JSON 또는 interactive Play 계정 연결이 없으면 중단된다.
-- `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`가 최종 merged manifest에 남으면 Play Console permission declaration 또는 제거 판단이 필요할 수 있다.
+- `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`가 최종 merged manifest에 남으면 현재 제품 기능과 맞지 않는 권한으로 보고 제거를 기본 경로로 둔다. Expo/debug 전용으로 필요하다면 release merged manifest에 남지 않는 방식으로 분리한다.
 - 개인정보 처리방침 URL, 지원 URL, Data safety, 앱 카테고리, 알림 사용 목적, 스크린샷, 짧은/긴 설명이 없으면 Play Console 제출 검토를 완료할 수 없다.
 - production build 산출물이 AAB가 아닌 APK로 생성되면 Play 제출 경로에 맞지 않으므로 profile 또는 EAS 기본 동작을 재확인한다.
 - `autoIncrement: true`가 versionCode를 기대대로 증가시키지 않거나 Play Console에 이미 같은 versionCode가 있으면 업로드가 거절된다.

@@ -52,6 +52,7 @@
 
 ## Completed Work
 
+- [Android Play Permission Blockers](./exec-plans/completed/2026-06-02-android-play-permission-blockers.md)
 - [Android Notification Regression Guard](./exec-plans/completed/2026-06-02-android-notification-regression-guard.md)
 - [Android Start Notification Precision](./exec-plans/completed/2026-05-20-android-start-notification-precision.md)
 - [Android Start Notification Shade Capture QA](./exec-plans/completed/2026-05-20-android-start-notification-shade-capture.md)
