@@ -8,6 +8,7 @@ import type {
   ExpoPlanFormField,
   ExpoPlanFormState
 } from "./use-expo-planner-state";
+import type { ExpoExactAlarmAccessState } from "../providers/reminders/expo-exact-alarm-access";
 
 export type ExpoPlanItemView = {
   canReschedule: boolean;
@@ -40,12 +41,14 @@ export type ExpoPlannerShellModel = {
   dismissEndRecovery(planId: string): void;
   dismissReminder(planId: string): void;
   error: string | null;
+  exactAlarmAccessState: ExpoExactAlarmAccessState;
   fieldErrors: ExpoPlanFormErrors;
   focusField: ExpoPlanFormField | null;
   focusRequest: number;
   form: ExpoPlanFormState;
   monthlyCalendar: MonthlyCalendarDay[];
   monthlySummary: MonthlyMotivationSummary;
+  openExactAlarmSettings(): void;
   planTitleMaxLength: number;
   recoveryMode: "reflection" | "reschedule" | null;
   recoveryPlan: DailyPlan | null;

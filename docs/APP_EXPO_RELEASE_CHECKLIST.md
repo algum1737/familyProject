@@ -157,6 +157,8 @@ npx eas submit --platform android --profile production
 - Android `preview` cloud build `505e6104-7c02-4c35-95a6-517325029d96`는 `FINISHED`였고, dependency install blocker는 `react-dom: 19.2.0` 고정 후 클린 `npm ci`로 해소됐다.
 - native [android/app/build.gradle](/Users/hun/workspace/familyProject/apps/expo/android/app/build.gradle)는 `release` build type이 debug signingConfig를 가리키는 prebuild 기본값을 유지한다. Play 제출용 산출물은 로컬 `./gradlew assembleRelease`가 아니라 EAS remote Android credential로 서명된 production build를 기준으로 검증한다.
 - native manifest에는 `SYSTEM_ALERT_WINDOW`, legacy external storage permission이 보인다. Play Console data safety / permission policy 검토 전까지는 production 제출 blocker 후보로 둔다.
+- Android 시작 5분 전 알림 정확도를 높이기 위해 `SCHEDULE_EXACT_ALARM`을 선언한다. 이 권한은 Android 13+ fresh install에서 기본 거부될 수 있으므로 앱 설정 메뉴의 exact alarm 상태 확인/설정 이동 UX와 함께 검증한다.
+- `USE_EXACT_ALARM`은 calendar/alarm clock 앱 정책 범위에 더 직접적으로 묶이므로 현재 manifest에는 넣지 않는다. Play Console 제출 전에는 `SCHEDULE_EXACT_ALARM` 권한 선언, store listing의 알림 설명, privacy policy 문구를 같은 의미로 맞춘다.
 
 ### Preflight Commands
 

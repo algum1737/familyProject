@@ -23,11 +23,13 @@ export default function TodayRoute() {
       currentPlanTitle={model.currentPlan?.title ?? null}
       endRecoveryPlanId={model.activeEndRecoveryReminder?.id ?? null}
       error={model.error}
+      exactAlarmAccessState={model.exactAlarmAccessState}
       onChangeTimeDisplayFormat={model.setTimeDisplayFormat}
       onCompletePlan={model.togglePlanStatus}
       onDeletePlan={model.deletePlan}
       onDismissEndRecovery={model.dismissEndRecovery}
       onDismissReminder={model.dismissReminder}
+      onOpenExactAlarmSettings={model.openExactAlarmSettings}
       onOpenCreatePlan={() => openCreatePlanRoute(model, router)}
       onOpenReflection={(planId) => openReflectionRoute(model, router, planId)}
       onOpenReschedule={(planId) => openRescheduleRoute(model, router, planId)}

@@ -34,6 +34,7 @@ const policySections = [
     title: "권한",
     body: [
       "알림 권한은 사용자가 허용한 경우에만 로컬 알림을 보내는 데 사용됩니다.",
+      "Android의 정확한 알림 접근은 계획 시작 전과 종료 전 리마인드를 가능한 한 정해진 시각에 보내기 위해 사용됩니다.",
       "인터넷 및 진동 권한은 앱 런타임과 알림 동작을 위해 Android manifest에 포함될 수 있습니다.",
       "향후 계정, 동기화, 분석, 오류 보고 기능을 추가하는 경우 이 방침을 갱신합니다."
     ]
@@ -42,7 +43,7 @@ const policySections = [
     title: "문의",
     body: [
       "개인정보 처리방침 또는 앱 데이터 처리에 대한 문의는 Play Console에 등록된 개발자 연락처로 접수합니다.",
-      "이 문서의 마지막 갱신일은 2026년 5월 13일입니다."
+      "이 문서의 마지막 갱신일은 2026년 6월 2일입니다."
     ]
   }
 ] as const;
@@ -61,7 +62,7 @@ export default function PrivacyPage() {
         <div className="legal-meta">
           <span>앱 이름: 오늘 다 했니</span>
           <span>패키지: com.familyproject.todaydidyoufinish</span>
-          <span>시행일: 2026년 5월 13일</span>
+          <span>시행일: 2026년 6월 2일</span>
         </div>
 
         {policySections.map((section) => (

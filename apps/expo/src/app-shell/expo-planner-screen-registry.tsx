@@ -60,11 +60,13 @@ export function renderExpoPlannerScreen(options: {
         currentPlanTitle={model.currentPlan?.title ?? null}
         endRecoveryPlanId={model.activeEndRecoveryReminder?.id ?? null}
         error={model.error}
+        exactAlarmAccessState={model.exactAlarmAccessState}
         onChangeTimeDisplayFormat={model.setTimeDisplayFormat}
         onCompletePlan={model.togglePlanStatus}
         onDeletePlan={model.deletePlan}
         onDismissEndRecovery={model.dismissEndRecovery}
         onDismissReminder={model.dismissReminder}
+        onOpenExactAlarmSettings={model.openExactAlarmSettings}
         onOpenCreatePlan={flow.openCreatePlan}
         onOpenReflection={flow.openReflection}
         onOpenReschedule={flow.openReschedule}

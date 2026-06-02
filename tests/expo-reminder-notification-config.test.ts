@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
+import {
+  getExpoExactAlarmAccessLabel,
+  shouldPromptForExpoExactAlarmAccess
+} from "../apps/expo/src/providers/reminders/expo-exact-alarm-access";
 import {
   buildExpoReminderDateTrigger,
   buildExpoReminderNotificationContent,
@@ -10,6 +16,19 @@ import {
 } from "../apps/expo/src/providers/reminders/expo-reminder-notification-config";
 
 describe("expo reminder notification config", () => {
+  it("declares Android exact alarm access for precise start reminders", () => {
+    const manifest = readFileSync(
+      resolve(
+        process.cwd(),
+        "apps/expo/android/app/src/main/AndroidManifest.xml"
+      ),
+      "utf8"
+    );
+
+    expect(manifest).toContain("android.permission.SCHEDULE_EXACT_ALARM");
+    expect(manifest).not.toContain("android.permission.USE_EXACT_ALARM");
+  });
+
   it("uses a stable Android channel for reminder notifications", () => {
     expect(EXPO_REMINDER_NOTIFICATION_CHANNEL_ID).toBe("today-reminders-high");
     expect(EXPO_REMINDER_NOTIFICATION_CHANNEL_NAME).toBe("오늘 다 했니 리마인드");
@@ -21,6 +40,20 @@ describe("expo reminder notification config", () => {
     expect(getExpoReminderNotificationKind("end-recovery-reminder:plan-1")).toBe(
       "end-recovery-reminder"
     );
+  });
+
+  it("builds exact alarm access labels and prompts", () => {
+    expect(getExpoExactAlarmAccessLabel("checking")).toBe("알림 상태 확인 중");
+    expect(getExpoExactAlarmAccessLabel("granted")).toBe("정확 알림 켜짐");
+    expect(getExpoExactAlarmAccessLabel("needs-permission")).toBe("정확 알림 켜기");
+    expect(getExpoExactAlarmAccessLabel("not-required")).toBe("정확 알림 지원");
+    expect(getExpoExactAlarmAccessLabel("unavailable")).toBe("알림 설정 확인");
+
+    expect(shouldPromptForExpoExactAlarmAccess("needs-permission")).toBe(true);
+    expect(shouldPromptForExpoExactAlarmAccess("unavailable")).toBe(true);
+    expect(shouldPromptForExpoExactAlarmAccess("checking")).toBe(false);
+    expect(shouldPromptForExpoExactAlarmAccess("granted")).toBe(false);
+    expect(shouldPromptForExpoExactAlarmAccess("not-required")).toBe(false);
   });
 
   it("builds high-priority content with managed reminder metadata", () => {
