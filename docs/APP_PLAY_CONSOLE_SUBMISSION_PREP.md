@@ -89,6 +89,7 @@ Play Console `Create app`에서 입력할 후보값이다.
 - 외부 서버 전송 없음
 - 사용자가 입력한 계획/회고 데이터는 기기 로컬 저장소에 저장
 - 로컬 알림 권한 사용
+- Android exact alarm 접근은 시작 5분 전/종료 5분 전 로컬 알림을 더 정확한 시각에 보내기 위해 사용
 - 인터넷 권한은 Expo/React Native 런타임과 앱 번들 동작을 위해 manifest에 존재
 - 진동 권한은 알림 동작을 위해 manifest에 존재
 
@@ -99,6 +100,7 @@ Play Console `Create app`에서 입력할 후보값이다.
 - crash/analytics SDK 추가 여부 확인
 - 백업/동기화/계정 기능 추가 여부 확인
 - Play Console permission summary와 앱 설명의 알림 목적 일치 여부 확인
+- `SCHEDULE_EXACT_ALARM`은 사용자 계획 리마인드 정확도 목적과 연결해 설명한다. `USE_EXACT_ALARM`은 calendar/alarm clock 정책 범위에 더 직접적으로 묶이므로 현재 manifest에는 선언하지 않는다.
 
 Privacy policy 초안에 반드시 들어갈 내용:
 

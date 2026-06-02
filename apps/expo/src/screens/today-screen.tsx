@@ -7,17 +7,24 @@ import type { RescheduleFailureGuidance } from "../../../../src/features/planner
 
 import { ExpoCircularPlanner } from "../components/expo-circular-planner";
 import { useExpoTheme } from "../app-shell/expo-theme-provider";
+import {
+  type ExpoExactAlarmAccessState,
+  getExpoExactAlarmAccessLabel,
+  shouldPromptForExpoExactAlarmAccess
+} from "../providers/reminders/expo-exact-alarm-access";
 
 type ExpoTodayScreenProps = {
   currentMinute: number | null;
   currentPlanTimeText: string;
   currentPlanTitle: string | null;
   error: string | null;
+  exactAlarmAccessState: ExpoExactAlarmAccessState;
   onChangeTimeDisplayFormat: (next: TimeDisplayFormat) => void;
   onCompletePlan: (planId: string) => void;
   onDeletePlan: (planId: string) => void;
   onDismissEndRecovery: (planId: string) => void;
   onDismissReminder: (planId: string) => void;
+  onOpenExactAlarmSettings: () => void;
   onOpenCreatePlan: () => void;
   onOpenReflection: (planId: string) => void;
   onOpenReschedule: (planId: string) => void;
@@ -62,11 +69,13 @@ export function ExpoTodayScreen({
   currentPlanTimeText,
   currentPlanTitle,
   error,
+  exactAlarmAccessState,
   onChangeTimeDisplayFormat,
   onCompletePlan,
   onDeletePlan,
   onDismissEndRecovery,
   onDismissReminder,
+  onOpenExactAlarmSettings,
   onOpenCreatePlan,
   onOpenReflection,
   onOpenReschedule,
@@ -140,6 +149,9 @@ export function ExpoTodayScreen({
         return "#ea765a";
     }
   }
+
+  const canOpenExactAlarmSettings =
+    shouldPromptForExpoExactAlarmAccess(exactAlarmAccessState);
 
   return (
     <SafeAreaView edges={["top"]} style={expoTheme.routeSafeArea}>
@@ -217,6 +229,26 @@ export function ExpoTodayScreen({
                         </View>
                       </Pressable>
                     ))}
+                  </View>
+                  <View style={expoTheme.settingsMenuSection}>
+                    <Text style={expoTheme.settingsMenuSectionTitle}>알림</Text>
+                    <Pressable
+                      disabled={!canOpenExactAlarmSettings}
+                      onPress={() => {
+                        onOpenExactAlarmSettings();
+                        setIsTimeDisplayMenuOpen(false);
+                      }}
+                      style={[
+                        expoTheme.settingsMenuItem,
+                        exactAlarmAccessState === "granted"
+                          ? expoTheme.settingsMenuItemActive
+                          : null
+                      ]}
+                    >
+                      <Text style={expoTheme.settingsMenuText}>
+                        {getExpoExactAlarmAccessLabel(exactAlarmAccessState)}
+                      </Text>
+                    </Pressable>
                   </View>
                 </View>
               ) : null}

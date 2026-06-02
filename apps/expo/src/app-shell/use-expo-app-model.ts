@@ -1,3 +1,4 @@
+import { AppState } from "react-native";
 import { useEffect, useMemo, useState } from "react";
 
 import { getDailySummary } from "../../../../src/domains/plans/selectors/daily-summary";
@@ -19,6 +20,11 @@ import { createExpoAsyncPlansStore } from "../providers/plans/expo-async-plans-s
 import { createExpoAsyncPlannerRecordsStore } from "../providers/plans/expo-async-planner-records-store";
 import { createExpoStartReminderProvider } from "../providers/reminders/expo-start-reminder-provider";
 import {
+  type ExpoExactAlarmAccessState,
+  getExpoExactAlarmAccessState,
+  openExpoExactAlarmSettings
+} from "../providers/reminders/expo-exact-alarm-permission";
+import {
   buildExpoTodayPlanItems,
   getExpoCurrentPlanTimeText
 } from "./expo-planner-preview-presentation";
@@ -39,6 +45,8 @@ export function useExpoAppModel(): ExpoPlannerShellModel & {
 } {
   const [now, setNow] = useState(() => new Date());
   const [timeDisplayFormat, setTimeDisplayFormat] = useState<"12h" | "24h">("24h");
+  const [exactAlarmAccessState, setExactAlarmAccessState] =
+    useState<ExpoExactAlarmAccessState>("checking");
   const currentMinute = now.getHours() * 60 + now.getMinutes();
   const currentDate = getExpoPlannerDateKey(now);
   const monthKey = getExpoPlannerMonthKey(now);
@@ -57,6 +65,36 @@ export function useExpoAppModel(): ExpoPlannerShellModel & {
       window.clearInterval(timer);
     };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function refreshExactAlarmAccessState() {
+      const nextState = await getExpoExactAlarmAccessState().catch(() => "unavailable" as const);
+
+      if (isMounted) {
+        setExactAlarmAccessState(nextState);
+      }
+    }
+
+    void refreshExactAlarmAccessState();
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "active") {
+        void refreshExactAlarmAccessState();
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.remove();
+    };
+  }, []);
+
+  async function openExactAlarmSettings() {
+    await openExpoExactAlarmSettings();
+    const nextState = await getExpoExactAlarmAccessState().catch(() => "unavailable" as const);
+    setExactAlarmAccessState(nextState);
+  }
   const plansStore = useMemo(
     () => createExpoAsyncPlansStore({ recordsStore, timeSource: { now: () => new Date() } }),
     [recordsStore]
@@ -172,12 +210,14 @@ export function useExpoAppModel(): ExpoPlannerShellModel & {
     dismissEndRecovery: plannerActions.dismissEndRecovery,
     dismissReminder: plannerActions.dismissReminder,
     error: plannerState.error,
+    exactAlarmAccessState,
     fieldErrors: plannerState.fieldErrors,
     focusField: plannerState.focusField,
     focusRequest: plannerState.focusRequest,
     form: plannerState.form,
     monthlyCalendar,
     monthlySummary,
+    openExactAlarmSettings,
     planTitleMaxLength: plannerState.planTitleMaxLength,
     recoveryMode: plannerState.recoveryMode,
     recoveryPlan: plannerState.recoveryPlan,

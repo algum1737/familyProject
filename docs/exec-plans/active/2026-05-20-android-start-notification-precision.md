@@ -69,7 +69,31 @@ Android 실기기 `SM_S908N` / `R5CT31X2K2H`에서 시작 5분 전 알림은 not
 
 ## Open Work
 
-- Android exact alarm 권한/정책 조사
-- provider/manifest 변경 필요 여부 결정
-- 코드/테스트/문서 반영
+- 실기기 USB 디버깅 authorization 복구
 - 실기기 timing QA 재실행
+
+## Progress Log
+
+- `fix/android-start-notification-precision` 브랜치를 만들었다.
+- Expo notifications Android native 구현을 확인했다. `canScheduleExactAlarms()`가 true면 `setExactAndAllowWhileIdle`, false면 `setAndAllowWhileIdle`로 fallback한다.
+- Android 공식 문서 기준 `SCHEDULE_EXACT_ALARM`은 Android 13+ target fresh install에서 기본 거부될 수 있고, 앱은 `canScheduleExactAlarms()`로 상태를 확인해야 한다.
+- Play 정책 리스크 때문에 `USE_EXACT_ALARM`은 선언하지 않고, 사용자 승인형 `SCHEDULE_EXACT_ALARM`만 사용하기로 결정했다.
+- Android manifest에 `android.permission.SCHEDULE_EXACT_ALARM`을 추가했다.
+- React Native native module `ExactAlarmModule`을 추가해 Android exact alarm 접근 상태 확인과 `ACTION_REQUEST_SCHEDULE_EXACT_ALARM` 설정 화면 이동을 제공했다.
+- Today 설정 메뉴에 exact alarm 상태 항목을 추가했다. 접근이 없으면 `정확 알림 켜기`, 접근이 있으면 `정확 알림 켜짐`으로 표시한다.
+- `APP_LOCAL_REMINDER_PLAN`, `APP_EXPO_RELEASE_CHECKLIST`, `APP_PLAY_CONSOLE_SUBMISSION_PREP`, privacy policy에 exact alarm 목적과 정책 판단을 반영했다.
+
+## Validation Result
+
+### Automated tests
+
+- PASS: `npm test -- --run tests/expo-reminder-notification-config.test.ts tests/expo-start-reminder-sync.test.ts tests/expo-reminder-sync-queue.test.ts`
+- PASS: `npm run typecheck`
+- PASS: `npx tsc --noEmit -p apps/expo/tsconfig.json`
+- PASS: `bash scripts/validate-docs.sh`
+- PASS: `./gradlew assembleRelease`
+- PASS: release merged/packaged manifests contain `android.permission.SCHEDULE_EXACT_ALARM` and do not contain `android.permission.USE_EXACT_ALARM`.
+
+### Manual/Runtime QA
+
+- BLOCKED: `adb kill-server` / `adb start-server` 후에도 `adb devices -l` currently reports `R5CT31X2K2H unauthorized`. 실기기에서 USB 디버깅 허용이 필요하다.

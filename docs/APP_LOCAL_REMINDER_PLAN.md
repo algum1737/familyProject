@@ -162,6 +162,23 @@
 - 종료 5분 전 `완료 처리 유도`도 Expo 로컬 알림으로 보낸다
 - 종료 5분 전 `계속 진행` 배너는 인앱 UI로 유지한다
 
+## Android Exact Alarm Policy
+
+Android 실기기 QA에서 Expo notifications는 Android native에서 `canScheduleExactAlarms()`가 true일 때 `setExactAndAllowWhileIdle`을 사용하고, 그렇지 않으면 `setAndAllowWhileIdle`로 fallback하는 것을 확인했다. 기존 앱 manifest에는 exact alarm 권한이 없어 Samsung 실기기에서 start-5 목표보다 약 6~8분 늦는 window가 붙었다.
+
+현재 정책:
+
+- `SCHEDULE_EXACT_ALARM`을 Android manifest에 선언한다.
+- 앱 설정 메뉴에서 exact alarm 접근 상태를 확인하고, 접근이 없으면 Android의 정확한 알림 설정 화면으로 이동할 수 있게 한다.
+- `USE_EXACT_ALARM`은 설치 시 부여되지만 calendar/alarm clock 성격 앱에 가까운 권한이고 Play 정책 검토 리스크가 크므로 현재는 선언하지 않는다.
+- exact alarm 권한이 꺼져 있으면 Expo notifications는 inexact fallback을 쓰므로, start-5 알림은 OS 정책에 따라 몇 분 늦을 수 있다.
+
+제품 판단:
+
+- `시작 5분 전` 문구를 유지하려면 Android에서 exact alarm 접근이 켜져 있어야 한다.
+- exact alarm 접근을 켜지 않은 사용자에게는 알림이 도착하지 않는 문제가 아니라 “정확한 시각보다 늦을 수 있는 문제”로 안내한다.
+- 실제 배포 전에는 Play Console 권한 선언과 개인정보 처리방침의 알림/정확한 알림 설명을 함께 맞춘다.
+
 ## What To Track
 
 앱 전환 후에도 아래는 계속 본다.
