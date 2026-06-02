@@ -160,6 +160,23 @@ npx eas submit --platform android --profile production
 - Android 시작 5분 전 알림 정확도를 높이기 위해 `SCHEDULE_EXACT_ALARM`을 선언한다. 이 권한은 Android 13+ fresh install에서 기본 거부될 수 있으므로 앱 설정 메뉴의 exact alarm 상태 확인/설정 이동 UX와 함께 검증한다.
 - `USE_EXACT_ALARM`은 calendar/alarm clock 앱 정책 범위에 더 직접적으로 묶이므로 현재 manifest에는 넣지 않는다. Play Console 제출 전에는 `SCHEDULE_EXACT_ALARM` 권한 선언, store listing의 알림 설명, privacy policy 문구를 같은 의미로 맞춘다.
 
+### Android Notification Regression Guard
+
+아래 항목은 Android 알림 정확도 회귀 방지 조건으로 유지한다.
+
+- `tests/expo-reminder-notification-config.test.ts`는 native manifest에 `SCHEDULE_EXACT_ALARM`이 있고 `USE_EXACT_ALARM`이 없는지 확인한다.
+- 같은 테스트는 `ExactAlarmPackage`가 `MainApplication`에 등록됐는지, `ExactAlarmModule`이 `canScheduleExactAlarms()`와 `ACTION_REQUEST_SCHEDULE_EXACT_ALARM` 설정 이동을 유지하는지 확인한다.
+- `정확 알림 켜기` / `정확 알림 켜짐` 라벨과 설정 이동 가능 상태는 같은 테스트의 exact alarm access label 계약으로 보호한다.
+
+실기기 start-5 timing QA는 아래 경우 다시 실행한다.
+
+- Android manifest, `ExactAlarmModule`, `ExactAlarmPackage`, `MainApplication`, Expo reminder provider, Today 설정 메뉴 wiring 중 하나가 바뀔 때
+- target SDK, Expo SDK, `expo-notifications`, React Native, Android Gradle Plugin, EAS build profile 중 하나가 바뀔 때
+- Play Console 권한 선언 또는 store listing/privacy policy의 정확한 알림 설명을 제출 직전 확정할 때
+- Samsung/Android 실기기에서 exact alarm 접근이 꺼진 fresh install 경로를 다시 확인해야 할 때
+
+재실행 시 최소 증거는 standalone 설치, `adb reverse --list` empty, package permission, exact alarm 접근 상태, `dumpsys alarm`의 `window=0` / `exactAllowReason=permission`, notification shade 문구, `dumpsys notification --noredact`의 `when` timestamp, QA 일정 삭제 후 pending alarm 정리 상태다.
+
 ### Preflight Commands
 
 아래 명령은 production build 전에 실행한다.

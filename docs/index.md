@@ -52,6 +52,7 @@
 
 ## Completed Work
 
+- [Android Notification Regression Guard](./exec-plans/completed/2026-06-02-android-notification-regression-guard.md)
 - [Android Start Notification Precision](./exec-plans/completed/2026-05-20-android-start-notification-precision.md)
 - [Android Start Notification Shade Capture QA](./exec-plans/completed/2026-05-20-android-start-notification-shade-capture.md)
 - [Today Program Description HTML](./exec-plans/completed/2026-05-17-today-program-description-html.md)
