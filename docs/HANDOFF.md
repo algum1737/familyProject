@@ -30,11 +30,11 @@
 - `Android Start Notification Precision` 작업은 `fix/android-start-notification-precision`에서 완료됐고 PR #15로 `main`에 머지됐다.
 - `Android Notification Regression Guard` 작업은 `qa/android-notification-regression-guard`에서 완료됐고 PR #16으로 `main`에 머지됐다.
 - `Android Play Permission Blockers` 작업은 `docs/android-play-permission-blockers`에서 완료됐고 PR #17로 `main`에 머지됐다.
-- `CI Playwright System Chrome` 작업은 `fix/ci-playwright-system-chrome`에서 완료됐고 PR/merge 대기 상태다.
+- `CI Playwright System Chrome` 작업은 `fix/ci-playwright-system-chrome`에서 완료됐고 PR #18로 `main`에 머지됐다.
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
-- 현재 다음 우선 작업은 `fix/ci-playwright-system-chrome` 브랜치를 PR/merge한 뒤, 별도 구현 브랜치에서 production/release manifest의 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` 제거 가능성을 확인하는 것이다.
+- 현재 다음 우선 작업은 별도 구현 브랜치에서 production/release manifest의 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` 제거 가능성을 확인하는 것이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
@@ -57,7 +57,7 @@
 - `APP_PLAY_CONSOLE_SUBMISSION_PREP.md`에는 Android permission blocker matrix, 권한 제거 구현 후보, Play Console 입력 후보를 추가했다. `APP_EXPO_RELEASE_CHECKLIST.md`에는 overlay/storage 권한이 release merged manifest에 남으면 제거를 기본 경로로 둔다고 정리했다. 검증은 `bash scripts/validate-docs.sh`가 통과했다.
 - `fix/ci-playwright-system-chrome`에서 CI e2e browser install hang 대응을 진행했다. `b077cd7` push run의 `validate` job은 통과했지만 `e2e` job은 `npx playwright install --with-deps chromium`에서 Chrome download `100%` 이후 약 6시간 동안 종료되지 않아 cancelled 됐다.
 - Playwright 설정은 로컬과 CI 모두 system Chrome `channel: "chrome"`을 쓰도록 바꿨고, GitHub Actions e2e job에서는 Playwright browser install 단계를 제거했다. 대신 `google-chrome` 또는 `google-chrome-stable` 버전을 확인하는 `Verify system Chrome` step을 추가했다.
-- 이번 CI 수정 검증은 `npm run typecheck`, `npm test`, `bash scripts/validate-docs.sh`, 외부 권한 `npm run test:e2e`가 통과했다. sandbox 내부 `npm run test:e2e`는 Next server bind 제한으로 `listen EPERM: operation not permitted 0.0.0.0:3000` 실패했다.
+- 이번 CI 수정 검증은 `npm run typecheck`, `npm test`, `bash scripts/validate-docs.sh`, 외부 권한 `npm run test:e2e`가 통과했다. PR #18의 GitHub Actions `validate`와 `e2e`도 통과했고, `e2e`는 약 1분 안에 완료됐다. sandbox 내부 `npm run test:e2e`는 Next server bind 제한으로 `listen EPERM: operation not permitted 0.0.0.0:3000` 실패했다.
 - `Android Start Notification Shade Capture QA` 계획은 completed로 이동했다. 최신 `main` 기준 release APK를 `SM_S908N` / `R5CT31X2K2H`에 standalone으로 설치했고, `adb reverse --list`가 비어 있어 Metro 없는 상태를 확인했다. 설치 앱은 `versionCode=1`, `versionName=0.1.0`, `POST_NOTIFICATIONS granted=true`, channel `today-reminders-high` `importance=4` 상태였다.
 - QA 일정 `QAShade 14:30 - 14:58`을 저장하고 앱을 Home/background로 내린 뒤 start-5 목표 `2026-05-20 14:25:00 KST`를 관찰했다. AlarmManager history상 알림은 `2026-05-20 14:33:06.197 KST`에 발화해 약 8분 6초 지연됐지만, 15분 관찰 창 안에서 active notification으로 확인됐다.
 - notification shade 실제 카드에서 title `오늘 다 했니`, body `QAShade 시작 5분 전입니다.`를 캡처했다. 증거 파일은 `/private/tmp/qashade-shade-live.png`와 `/private/tmp/qashade-window-live.xml`이다.
