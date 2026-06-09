@@ -19,6 +19,10 @@ const androidManifestPath = resolve(
   process.cwd(),
   "apps/expo/android/app/src/main/AndroidManifest.xml"
 );
+const androidReleaseManifestPath = resolve(
+  process.cwd(),
+  "apps/expo/android/app/src/release/AndroidManifest.xml"
+);
 const mainApplicationPath = resolve(
   process.cwd(),
   "apps/expo/android/app/src/main/java/com/familyproject/todaydidyoufinish/MainApplication.kt"
@@ -38,6 +42,24 @@ describe("expo reminder notification config", () => {
 
     expect(manifest).toContain("android.permission.SCHEDULE_EXACT_ALARM");
     expect(manifest).not.toContain("android.permission.USE_EXACT_ALARM");
+  });
+
+  it("does not declare Android overlay or legacy external storage permissions in release manifest", () => {
+    const manifest = readFileSync(androidManifestPath, "utf8");
+    const releaseManifest = readFileSync(androidReleaseManifestPath, "utf8");
+
+    expect(manifest).not.toContain("android.permission.SYSTEM_ALERT_WINDOW");
+    expect(manifest).not.toContain("android.permission.READ_EXTERNAL_STORAGE");
+    expect(manifest).not.toContain("android.permission.WRITE_EXTERNAL_STORAGE");
+    expect(releaseManifest).toMatch(
+      /android\.permission\.SYSTEM_ALERT_WINDOW" tools:node="remove"/
+    );
+    expect(releaseManifest).toMatch(
+      /android\.permission\.READ_EXTERNAL_STORAGE" tools:node="remove"/
+    );
+    expect(releaseManifest).toMatch(
+      /android\.permission\.WRITE_EXTERNAL_STORAGE" tools:node="remove"/
+    );
   });
 
   it("keeps the Android exact alarm native bridge registered", () => {
