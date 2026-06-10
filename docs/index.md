@@ -52,6 +52,7 @@
 
 ## Completed Work
 
+- [Android Production Permission Summary](./exec-plans/completed/2026-06-10-android-production-permission-summary.md)
 - [Android Release Manifest Permissions](./exec-plans/completed/2026-06-04-android-release-manifest-permissions.md)
 - [CI Playwright System Chrome](./exec-plans/completed/2026-06-04-ci-playwright-system-chrome.md)
 - [Android Play Permission Blockers](./exec-plans/completed/2026-06-02-android-play-permission-blockers.md)
