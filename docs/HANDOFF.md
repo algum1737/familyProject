@@ -34,8 +34,8 @@
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
-- `Android Release Manifest Permissions` 작업은 `fix/android-release-manifest-permissions`에서 완료됐고 PR #19로 열렸으며 아직 main에 머지되지 않았다.
-- 현재 다음 우선 작업은 PR #19의 GitHub Actions/checks와 리뷰를 확인한 뒤, 사용자가 main 머지를 명시 승인하면 main에 머지하는 것이다. Play Console 제출 직전에는 production AAB 또는 Play Console permission summary에서 release 권한 목록을 다시 확인한다.
+- `Android Release Manifest Permissions` 작업은 `fix/android-release-manifest-permissions`에서 완료됐고 PR #19로 `main`에 머지됐다.
+- 현재 다음 우선 작업은 Play Console 제출 직전 production AAB 또는 Play Console permission summary에서 release 권한 목록을 다시 확인하는 것이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
