@@ -127,23 +127,24 @@ Privacy policy 초안에 반드시 들어갈 내용:
 | `VIBRATE` | 유지 후보 | 로컬 알림 진동 목적. store listing/privacy policy의 알림 설명과 맞춘다. |
 | `SCHEDULE_EXACT_ALARM` | 유지 후보 | 시작 5분 전/종료 5분 전 로컬 알림을 가능한 한 정해진 시각에 보내기 위한 special access. 앱 설정 메뉴의 `정확 알림 켜기` UX, privacy policy, store listing 설명과 맞춘다. |
 | `USE_EXACT_ALARM` | 금지/미선언 유지 | 현재 manifest에 없다. 추가되면 Play restricted permission review 리스크가 커지므로 자동 테스트로 금지한다. |
-| `SYSTEM_ALERT_WINDOW` | 제거 후보 | 현재 제품 기능에는 다른 앱 위 overlay가 없다. release/main manifest에서 제거하거나, Expo/debug 전용 필요라면 release merged manifest 기준으로 남지 않는지 확인한다. |
-| `READ_EXTERNAL_STORAGE` `maxSdkVersion=32` | 제거 후보 | 현재 앱에는 사진/미디어/공유 저장소 읽기 기능이 없다. 로컬 계획/회고 저장은 앱 내부 저장소 기준이므로 제출 전 제거 후보로 둔다. |
-| `WRITE_EXTERNAL_STORAGE` `maxSdkVersion=32` | 제거 후보 | 현재 앱에는 공유 저장소 쓰기/내보내기 기능이 없다. Android 앱 전용 디렉터리 저장은 별도 permission 없이 가능하므로 제출 전 제거 후보로 둔다. |
+| `SYSTEM_ALERT_WINDOW` | release 제거 적용 | 현재 제품 기능에는 다른 앱 위 overlay가 없다. main manifest 선언을 제거했고 release manifest override에서 `tools:node="remove"`로 차단한다. debug/debugOptimized manifest의 overlay 권한은 개발용으로 분리해 유지한다. |
+| `READ_EXTERNAL_STORAGE` `maxSdkVersion=32` | release 제거 적용 | 현재 앱에는 사진/미디어/공유 저장소 읽기 기능이 없다. `expo-image` library manifest에서 재유입되므로 release manifest override에서 `tools:node="remove"`로 차단한다. |
+| `WRITE_EXTERNAL_STORAGE` `maxSdkVersion=32` | release 제거 적용 | 현재 앱에는 공유 저장소 쓰기/내보내기 기능이 없다. `expo-file-system` library manifest에서 재유입되므로 release manifest override에서 `tools:node="remove"`로 차단한다. |
 
-권한 제거 구현 후보:
+권한 제거 구현 상태:
 
-1. Expo prebuild/native manifest 원천에서 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`가 왜 들어오는지 확인한다.
-2. production/release merged manifest에서 위 제거 후보 권한을 제거하거나 `tools:node="remove"`로 차단한다.
-3. 제거 후 `./gradlew :app:processReleaseMainManifest` 또는 `./gradlew :app:bundleRelease`로 merged manifest를 확인한다.
-4. Android standalone smoke와 알림 QA를 다시 실행한다. 정확 알림 관련 파일을 건드리지 않았더라도 final release permission summary가 바뀌므로 permission summary와 privacy policy를 재확인한다.
+1. `SYSTEM_ALERT_WINDOW`는 main manifest 선언을 제거했고, debug/debugOptimized manifest에만 개발용 선언이 남아 있다.
+2. `READ_EXTERNAL_STORAGE`는 `expo-image`, `WRITE_EXTERNAL_STORAGE`는 `expo-file-system` library manifest에서 재유입되는 것을 확인했다.
+3. `apps/expo/android/app/src/release/AndroidManifest.xml`에서 세 권한을 `tools:node="remove"`로 차단한다.
+4. `./gradlew :app:processReleaseManifestForPackage` 후 release merged/packaged manifest에는 `SCHEDULE_EXACT_ALARM`만 남고 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `USE_EXACT_ALARM`은 없다.
+5. Play Console 제출 직전에는 production AAB 또는 Play Console permission summary에서 같은 권한 목록을 다시 확인한다.
 
 Play Console 입력 후보:
 
 - Store listing short/full description에는 “시작 5분 전, 종료 5분 전 로컬 알림”과 “기기 안 로컬 저장”을 유지한다.
 - Data safety는 현재 구현 기준으로 계정 없음, 광고/분석 SDK 없음, 외부 서버 전송 없음, 사용자가 직접 입력한 계획/회고는 기기 로컬 저장을 기준으로 작성한다.
 - Permission declaration 또는 review warning이 뜨면 `SCHEDULE_EXACT_ALARM`은 사용자가 만든 계획의 시작/종료 전 리마인드를 정확한 시각에 전달하기 위한 special access라고 설명한다.
-- `SYSTEM_ALERT_WINDOW` 또는 external storage permission warning이 뜨면 현재 제품 기능에는 필요하지 않으므로 제출 전에 제거하는 것을 기본 경로로 둔다.
+- `SYSTEM_ALERT_WINDOW` 또는 external storage permission warning이 뜨면 release override가 누락됐거나 EAS production 산출물에서 재유입된 것으로 보고 제출 전에 다시 제거한다.
 
 ## Internal Testing Track
 

@@ -34,7 +34,8 @@
 - `User Facing Internal Copy Cleanup` 작업은 `fix/user-facing-internal-copy`에서 완료됐고 `main`에 머지됐다.
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
-- 현재 다음 우선 작업은 별도 구현 브랜치에서 production/release manifest의 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` 제거 가능성을 확인하는 것이다.
+- `Android Release Manifest Permissions` 작업은 `fix/android-release-manifest-permissions`에서 완료됐고 PR #19로 열렸으며 아직 main에 머지되지 않았다.
+- 현재 다음 우선 작업은 PR #19의 GitHub Actions/checks와 리뷰를 확인한 뒤, 사용자가 main 머지를 명시 승인하면 main에 머지하는 것이다. Play Console 제출 직전에는 production AAB 또는 Play Console permission summary에서 release 권한 목록을 다시 확인한다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
@@ -53,8 +54,11 @@
 - `APP_EXPO_RELEASE_CHECKLIST.md`에는 Android notification regression guard와 실기기 start-5 timing QA 재실행 트리거를 추가했다. 실기기 QA는 Android manifest/native exact alarm bridge/provider/Today 설정 wiring, target SDK/Expo SDK/`expo-notifications`/React Native/Android Gradle Plugin/EAS profile 변경, Play Console 권한/스토어 문구 제출 직전, exact alarm 접근 off fresh install 경로 확인 시 다시 실행한다.
 - 이번 guard 작업 검증은 `npm test -- --run tests/expo-reminder-notification-config.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `bash scripts/validate-docs.sh`가 통과했다. 새 실기기 runtime QA는 이전 precision QA 결과를 guardrail로 고정하는 범위라 실행하지 않았다.
 - `docs/android-play-permission-blockers`에서 Play Console 제출 전 Android 권한/스토어 문구 blocker를 분류했다. Google 공식 문서 기준 sensitive permission/API는 listing에 공개된 현재 기능에 필요한 경우에만 요청해야 하며, `USE_EXACT_ALARM`은 alarm/timer/calendar 핵심 기능 앱에 제한되는 restricted permission이라 계속 미선언으로 둔다.
-- 현재 manifest permission 판단은 `INTERNET`, `VIBRATE`, `SCHEDULE_EXACT_ALARM` 유지 후보, `USE_EXACT_ALARM` 금지/미선언 유지, `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` 제거 후보로 정리했다. 현재 앱에는 overlay나 공유 저장소 읽기/쓰기 기능이 없으므로 production 제출 전 제거 확인이 다음 구현 후보이다.
-- `APP_PLAY_CONSOLE_SUBMISSION_PREP.md`에는 Android permission blocker matrix, 권한 제거 구현 후보, Play Console 입력 후보를 추가했다. `APP_EXPO_RELEASE_CHECKLIST.md`에는 overlay/storage 권한이 release merged manifest에 남으면 제거를 기본 경로로 둔다고 정리했다. 검증은 `bash scripts/validate-docs.sh`가 통과했다.
+- `fix/android-release-manifest-permissions`에서 release manifest 권한 제거를 적용했다. main manifest의 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE` 선언을 제거했고, `apps/expo/android/app/src/release/AndroidManifest.xml`에서 세 권한을 `tools:node="remove"`로 차단한다.
+- 원천 확인 결과 `READ_EXTERNAL_STORAGE`는 `expo-image`, `WRITE_EXTERNAL_STORAGE`는 `expo-file-system` library manifest에서 재유입됐다. debug/debugOptimized manifest의 `SYSTEM_ALERT_WINDOW`는 개발용 overlay 권한으로 남기고 release에는 남기지 않는다.
+- `tests/expo-reminder-notification-config.test.ts`는 이제 `SCHEDULE_EXACT_ALARM` 유지, `USE_EXACT_ALARM` 금지, release override의 `SYSTEM_ALERT_WINDOW`/`READ_EXTERNAL_STORAGE`/`WRITE_EXTERNAL_STORAGE` 제거 계약을 함께 확인한다.
+- 이번 권한 제거 검증은 `npm test -- --run tests/expo-reminder-notification-config.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `bash scripts/validate-docs.sh`, `./gradlew :app:processReleaseMainManifest`, `./gradlew :app:processReleaseManifest`, `./gradlew :app:processReleaseManifestForPackage`가 통과했다. release merged/packaged manifest에는 `SCHEDULE_EXACT_ALARM`만 남고 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `USE_EXACT_ALARM`은 없다.
+- Play Console 실제 입력, EAS production AAB build/submit, 실기기 Android smoke/notification QA는 이번 범위가 로컬 release manifest 권한 정리라 실행하지 않았다. Play Console 제출 직전에는 production AAB 또는 Play Console permission summary에서 권한 목록을 다시 확인한다.
 - `fix/ci-playwright-system-chrome`에서 CI e2e browser install hang 대응을 진행했다. `b077cd7` push run의 `validate` job은 통과했지만 `e2e` job은 `npx playwright install --with-deps chromium`에서 Chrome download `100%` 이후 약 6시간 동안 종료되지 않아 cancelled 됐다.
 - Playwright 설정은 로컬과 CI 모두 system Chrome `channel: "chrome"`을 쓰도록 바꿨고, GitHub Actions e2e job에서는 Playwright browser install 단계를 제거했다. 대신 `google-chrome` 또는 `google-chrome-stable` 버전을 확인하는 `Verify system Chrome` step을 추가했다.
 - 이번 CI 수정 검증은 `npm run typecheck`, `npm test`, `bash scripts/validate-docs.sh`, 외부 권한 `npm run test:e2e`가 통과했다. PR #18의 GitHub Actions `validate`와 `e2e`도 통과했고, `e2e`는 약 1분 안에 완료됐다. sandbox 내부 `npm run test:e2e`는 Next server bind 제한으로 `listen EPERM: operation not permitted 0.0.0.0:3000` 실패했다.
