@@ -19,6 +19,7 @@ import {
   submitPlannerPlan,
   togglePlannerPlanStatus
 } from "../../../../src/features/planner/core/planner-state-transitions";
+import { PLAN_COLORS } from "../../../../src/ui/planner/planner-colors";
 import type { ExpoPlansStore } from "../providers/plans/expo-async-plans-store";
 import type { ExpoPlannerRecordsStore } from "../providers/plans/expo-async-planner-records-store";
 
@@ -35,7 +36,7 @@ export type ExpoPlanFormErrors = Partial<Record<ExpoPlanFormField, string>>;
 type RecoveryMode = "reflection" | "reschedule" | null;
 
 export const defaultExpoPlanFormState: ExpoPlanFormState = {
-  color: "#f07c61",
+  color: PLAN_COLORS[0].value,
   endTime: "09:00",
   startTime: "08:00",
   title: ""

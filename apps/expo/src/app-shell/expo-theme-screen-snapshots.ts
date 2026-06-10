@@ -263,32 +263,12 @@ export function buildExpoPlanEditorScreenThemeContract(palette: ExpoThemePalette
     selectOptionTextActive: {
       color: palette.bodyStrong
     },
-    selectOptionsPanel: {
-      backgroundColor: palette.surfaceBackground,
-      borderColor: palette.menuBorder,
-      borderRadius: 16,
-      borderWidth: 1,
-      elevation: 8,
+    colorOptionsContent: {
       gap: 8,
-      left: 0,
-      maxHeight: 220,
-      padding: 8,
-      position: "absolute",
-      right: 0,
-      shadowColor: palette.shadowColor,
-      shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: 0.12,
-      shadowRadius: 18,
-      top: 56,
-      zIndex: 20
-    },
-    selectOptionsSpacer: {
-      height: 236
+      paddingBottom: 8
     },
     selectStack: {
-      gap: 8,
-      position: "relative",
-      zIndex: 20
+      gap: 8
     },
     selectTrigger: {
       alignItems: "center",
@@ -677,11 +657,11 @@ export function buildExpoPlanEditorScreenStyleSnapshot(themeKey: ExpoThemeKey) {
       container: mergeStyles(contract.timePickerOption, contract.timePickerOptionActive),
       text: contract.timePickerOptionTextActive
     },
+    colorOptionsContent: contract.colorOptionsContent,
     primaryButton: contract.primaryButton,
     primaryButtonText: contract.primaryButtonText,
     secondaryButton: contract.secondaryButton,
     secondaryButtonText: contract.secondaryButtonText,
-    selectOptionsPanel: contract.selectOptionsPanel,
     selectRowActive: mergeStyles(contract.selectOptionRow, contract.selectOptionRowActive),
     selectTrigger: contract.selectTrigger,
     surfaceCard: contract.surfaceCard,
