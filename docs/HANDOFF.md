@@ -36,7 +36,8 @@
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
 - `Android Release Manifest Permissions` 작업은 `fix/android-release-manifest-permissions`에서 완료됐고 PR #19로 `main`에 머지됐다.
 - `Android Production Permission Summary` 작업은 `qa/android-production-permission-summary`에서 완료됐고 PR #20으로 `main`에 머지됐다.
-- 현재 다음 우선 작업은 EAS production AAB 또는 Play Console permission summary에서 release 권한 목록을 다시 확인하는 것이다.
+- `Expo Color Dropdown` 수정은 `fix/expo-color-dropdown`에서 완료됐고 아직 `main`에 머지되지 않았다.
+- 현재 다음 우선 작업은 `fix/expo-color-dropdown` PR/merge 후 EAS production AAB 또는 Play Console permission summary에서 release 권한 목록을 다시 확인하는 것이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
@@ -63,6 +64,9 @@
 - `qa/android-production-permission-summary`에서 `2026-06-10` 로컬 release permission preflight를 진행했다. `npm test -- --run tests/expo-reminder-notification-config.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `bash scripts/validate-docs.sh`, `./gradlew :app:processReleaseManifestForPackage`, `./gradlew :app:bundleRelease`가 통과했다.
 - 로컬 release AAB는 `apps/expo/android/app/build/outputs/bundle/release/app-release.aab`에 생성됐고 크기는 약 56 MB다. 이 산출물은 `android/app/build.gradle`의 release build type이 debug signingConfig를 쓰는 현재 prebuild 기본값 때문에 Play 제출물은 아니며, 권한 summary 사전 검증 증거로만 사용한다.
 - `bundle_manifest`, `merged_manifests`, `packaged_manifests`, AAB 내부 base manifest 문자열 확인 기준으로 `SCHEDULE_EXACT_ALARM`은 남고 `USE_EXACT_ALARM`, `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`는 없다. 전체 release permission summary에는 `INTERNET`, `SCHEDULE_EXACT_ALARM`, `VIBRATE`, `ACCESS_NETWORK_STATE`, `RECEIVE_BOOT_COMPLETED`, `POST_NOTIFICATIONS`, `WAKE_LOCK`, FCM receive, dynamic receiver, install referrer, launcher badge 계열 권한이 남는다.
+- `fix/expo-color-dropdown`에서 Expo 계획 편집 화면의 색상 선택기를 인라인 absolute 드롭다운에서 하단 모달 선택기로 바꿨다. 기존 구현은 실기기 `SM_S908N`에서 하단 색상 옵션 bounds가 비정상으로 잡히고 `브라운`/`로즈` 선택이 반영되지 않았으며, 새 구현은 modal sheet 안에서 스크롤한 뒤 `브라운, ▾` 선택 반영을 확인했다.
+- Expo 새 일정 기본 색상은 팔레트에 없는 `#f07c61`에서 `PLAN_COLORS[0].value`로 맞췄다. 이로써 새 일정 화면의 표시 색상과 실제 저장 색상 불일치가 사라졌다.
+- 이번 색상 선택기 수정 검증은 `npm test -- --run tests/expo-plan-editor-color.test.ts tests/expo-theme-screen-style-snapshots.test.ts tests/expo-router-route-actions.test.ts tests/expo-bootstrap-and-reminders.test.ts`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `npm run typecheck`, `npm run lint`, `bash scripts/validate-docs.sh`, `./gradlew :app:assembleRelease`, 실기기 release APK 설치 및 색상 모달 `브라운` 선택 확인이 통과했다. `npm run lint`에는 기존 웹 파일 `src/features/planner/app/app-flow-shell.tsx`의 `aria-selected` warning 1개만 남았다.
 - `fix/ci-playwright-system-chrome`에서 CI e2e browser install hang 대응을 진행했다. `b077cd7` push run의 `validate` job은 통과했지만 `e2e` job은 `npx playwright install --with-deps chromium`에서 Chrome download `100%` 이후 약 6시간 동안 종료되지 않아 cancelled 됐다.
 - Playwright 설정은 로컬과 CI 모두 system Chrome `channel: "chrome"`을 쓰도록 바꿨고, GitHub Actions e2e job에서는 Playwright browser install 단계를 제거했다. 대신 `google-chrome` 또는 `google-chrome-stable` 버전을 확인하는 `Verify system Chrome` step을 추가했다.
 - 이번 CI 수정 검증은 `npm run typecheck`, `npm test`, `bash scripts/validate-docs.sh`, 외부 권한 `npm run test:e2e`가 통과했다. PR #18의 GitHub Actions `validate`와 `e2e`도 통과했고, `e2e`는 약 1분 안에 완료됐다. sandbox 내부 `npm run test:e2e`는 Next server bind 제한으로 `listen EPERM: operation not permitted 0.0.0.0:3000` 실패했다.
