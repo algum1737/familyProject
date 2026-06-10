@@ -209,6 +209,8 @@ npx eas-cli submit --platform android --profile production
 - App record 생성 가능 여부: 개발자 계정 생성 전이므로 아직 확인 불가. 계정 생성, 결제/신원/2단계 인증 완료 후 실제 Play Console `Create app` 및 첫 AAB 업로드에서 확인한다.
 - Privacy policy URL: `/privacy` 페이지는 repo에 준비됨. 실제 공개 URL은 웹 배포 도메인 확정 후 완성
 - Contact email: 아직 TBD
+- Local release permission preflight: `2026-06-10`에 `./gradlew :app:bundleRelease`로 로컬 release AAB `apps/expo/android/app/build/outputs/bundle/release/app-release.aab`를 생성했다. `bundle_manifest`, `merged_manifests`, `packaged_manifests`, AAB 내부 base manifest 문자열 확인 기준으로 `SCHEDULE_EXACT_ALARM`은 남고 `USE_EXACT_ALARM`, `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`는 없다. 이 산출물은 debug signingConfig 기반이므로 Play 제출물은 아니며, EAS production AAB 또는 Play Console permission summary에서 같은 목록을 다시 확인해야 한다.
+- Release permission summary에 남는 주요 권한은 `INTERNET`, `SCHEDULE_EXACT_ALARM`, `VIBRATE`, `ACCESS_NETWORK_STATE`, `RECEIVE_BOOT_COMPLETED`, `POST_NOTIFICATIONS`, `WAKE_LOCK`, FCM receive, dynamic receiver, install referrer, launcher badge 계열 권한이다. Play Console metadata와 Data safety에서는 로컬 알림/부팅 후 알림 복구/네트워크 상태/앱 배지 관련 권한을 실제 기능 범위와 대조한다.
 
 ## References
 

@@ -238,6 +238,7 @@ npx eas-cli submit --platform android --profile production
 - `npx expo config --type public` 출력에서 `name`, `slug`, `version`, `android.package`, `extra.eas.projectId`, `owner`가 현재 baseline과 일치하는지 확인한다.
 - 루트 `npm run typecheck`와 `bash scripts/validate-docs.sh`가 통과하는지 확인한다.
 - production build detail에서 platform이 Android, profile이 `production`, status가 `FINISHED`, artifact가 Play 제출 가능한 AAB인지 확인한다.
+- 로컬 사전 검증으로 `./gradlew :app:bundleRelease`를 실행한 경우, 산출물은 debug signingConfig 기반이므로 Play 제출물로 쓰지 않고 manifest/package 권한 확인 증거로만 사용한다.
 - production 산출물을 Play Console internal testing track 또는 closed testing track에 올리고 versionCode 중복 오류가 없는지 확인한다.
 - Android 실제 기기 또는 Play internal testing 설치 경로에서 첫 실행, Today 화면 진입, 알림 권한 요청, 시작 리마인드 예약/수신, Today -> Editor -> Reflection -> Motivation 흐름을 확인한다.
 - 최종 merged manifest 또는 Play Console permission summary에서 알림/인터넷/진동 외 권한이 제출 메타데이터와 일치하는지 확인한다.
@@ -281,6 +282,8 @@ npx eas-cli submit --platform android --profile production
 
 - preview 빌드가 실제 기기 또는 테스트 환경에 설치된다.
 - production 빌드가 EAS에서 성공한다.
+- 로컬 release bundle 사전 검증 기준으로 `2026-06-10`에 `./gradlew :app:bundleRelease`가 통과했고 `apps/expo/android/app/build/outputs/bundle/release/app-release.aab`가 생성됐다. 이 산출물은 debug signingConfig 기반이므로 Play 제출물이 아니라 권한 summary 사전 검증 증거다.
+- 같은 로컬 release bundle manifest에는 `INTERNET`, `SCHEDULE_EXACT_ALARM`, `VIBRATE`, `ACCESS_NETWORK_STATE`, `RECEIVE_BOOT_COMPLETED`, `POST_NOTIFICATIONS`, `WAKE_LOCK`, FCM receive, dynamic receiver, install referrer, launcher badge 권한들이 남는다. `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `USE_EXACT_ALARM`은 없다.
 - 빌드 산출물의 앱 아이콘, 앱 이름, 초기 진입 화면이 기대와 일치한다.
 - `2026-05-13` 기준 Android `preview` build `505e6104-7c02-4c35-95a6-517325029d96`는 `FINISHED`이며, Emulator 설치 후 알림 권한 요청과 Today 메인 화면 기동까지 확인됐다.
 
@@ -288,7 +291,7 @@ npx eas-cli submit --platform android --profile production
 
 - 현재 문서 기준으로 실제 App Store Connect / Google Play Console 제출 기록은 없다.
 - Play Console app record 생성, store listing 입력, App content/Data Safety 제출, testing track 생성, Play App Signing 수락 기록은 아직 없다.
-- Android production `.aab` build와 Play Console 업로드 검증은 아직 없다.
+- EAS Android production `.aab` build와 Play Console 업로드 검증은 아직 없다. 로컬 `:app:bundleRelease` 권한 summary 사전 검증은 완료됐지만 Play 제출물 검증을 대체하지 않는다.
 - Google Play 계정 유형이 조직 계정인지, `2023-11-13` 이후 생성된 개인 계정인지 아직 확인되지 않았다. 개인 신규 계정이면 closed test 12명/14일 조건이 production 접근의 blocker가 될 수 있다.
 - Privacy policy 페이지는 [src/app/privacy/page.tsx](/Users/hun/workspace/familyProject/src/app/privacy/page.tsx)에 준비됐지만, Play Console에 넣을 실제 공개 URL은 웹 배포 도메인이 확정돼야 완성된다.
 - 실제 iPhone 연결이 없는 세션에서는 알림 배너 실기 QA를 닫지 못했다.

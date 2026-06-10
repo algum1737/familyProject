@@ -35,7 +35,8 @@
 - `Expo Route Adapter Boundary` 작업은 `feature/expo-route-adapter-boundary`에서 완료됐고 `main`에 머지됐다.
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
 - `Android Release Manifest Permissions` 작업은 `fix/android-release-manifest-permissions`에서 완료됐고 PR #19로 `main`에 머지됐다.
-- 현재 다음 우선 작업은 Play Console 제출 직전 production AAB 또는 Play Console permission summary에서 release 권한 목록을 다시 확인하는 것이다.
+- `Android Production Permission Summary` 작업은 `qa/android-production-permission-summary`에서 완료됐고 아직 main에 머지되지 않았다.
+- 현재 다음 우선 작업은 이 QA 문서 브랜치를 커밋/PR/머지한 뒤, EAS production AAB 또는 Play Console permission summary에서 release 권한 목록을 다시 확인하는 것이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
@@ -59,6 +60,9 @@
 - `tests/expo-reminder-notification-config.test.ts`는 이제 `SCHEDULE_EXACT_ALARM` 유지, `USE_EXACT_ALARM` 금지, release override의 `SYSTEM_ALERT_WINDOW`/`READ_EXTERNAL_STORAGE`/`WRITE_EXTERNAL_STORAGE` 제거 계약을 함께 확인한다.
 - 이번 권한 제거 검증은 `npm test -- --run tests/expo-reminder-notification-config.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `bash scripts/validate-docs.sh`, `./gradlew :app:processReleaseMainManifest`, `./gradlew :app:processReleaseManifest`, `./gradlew :app:processReleaseManifestForPackage`가 통과했다. release merged/packaged manifest에는 `SCHEDULE_EXACT_ALARM`만 남고 `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `USE_EXACT_ALARM`은 없다.
 - Play Console 실제 입력, EAS production AAB build/submit, 실기기 Android smoke/notification QA는 이번 범위가 로컬 release manifest 권한 정리라 실행하지 않았다. Play Console 제출 직전에는 production AAB 또는 Play Console permission summary에서 권한 목록을 다시 확인한다.
+- `qa/android-production-permission-summary`에서 `2026-06-10` 로컬 release permission preflight를 진행했다. `npm test -- --run tests/expo-reminder-notification-config.test.ts`, `npm run typecheck`, `npx tsc --noEmit -p apps/expo/tsconfig.json`, `bash scripts/validate-docs.sh`, `./gradlew :app:processReleaseManifestForPackage`, `./gradlew :app:bundleRelease`가 통과했다.
+- 로컬 release AAB는 `apps/expo/android/app/build/outputs/bundle/release/app-release.aab`에 생성됐고 크기는 약 56 MB다. 이 산출물은 `android/app/build.gradle`의 release build type이 debug signingConfig를 쓰는 현재 prebuild 기본값 때문에 Play 제출물은 아니며, 권한 summary 사전 검증 증거로만 사용한다.
+- `bundle_manifest`, `merged_manifests`, `packaged_manifests`, AAB 내부 base manifest 문자열 확인 기준으로 `SCHEDULE_EXACT_ALARM`은 남고 `USE_EXACT_ALARM`, `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`는 없다. 전체 release permission summary에는 `INTERNET`, `SCHEDULE_EXACT_ALARM`, `VIBRATE`, `ACCESS_NETWORK_STATE`, `RECEIVE_BOOT_COMPLETED`, `POST_NOTIFICATIONS`, `WAKE_LOCK`, FCM receive, dynamic receiver, install referrer, launcher badge 계열 권한이 남는다.
 - `fix/ci-playwright-system-chrome`에서 CI e2e browser install hang 대응을 진행했다. `b077cd7` push run의 `validate` job은 통과했지만 `e2e` job은 `npx playwright install --with-deps chromium`에서 Chrome download `100%` 이후 약 6시간 동안 종료되지 않아 cancelled 됐다.
 - Playwright 설정은 로컬과 CI 모두 system Chrome `channel: "chrome"`을 쓰도록 바꿨고, GitHub Actions e2e job에서는 Playwright browser install 단계를 제거했다. 대신 `google-chrome` 또는 `google-chrome-stable` 버전을 확인하는 `Verify system Chrome` step을 추가했다.
 - 이번 CI 수정 검증은 `npm run typecheck`, `npm test`, `bash scripts/validate-docs.sh`, 외부 권한 `npm run test:e2e`가 통과했다. PR #18의 GitHub Actions `validate`와 `e2e`도 통과했고, `e2e`는 약 1분 안에 완료됐다. sandbox 내부 `npm run test:e2e`는 Next server bind 제한으로 `listen EPERM: operation not permitted 0.0.0.0:3000` 실패했다.
