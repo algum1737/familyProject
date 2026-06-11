@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -92,6 +92,18 @@ export function ExpoPlanEditorScreen({
     ],
     [expoTheme.bottomSheetCard, safeAreaInsets.bottom]
   );
+  const openTimePicker = useCallback(
+    (field: "endTime" | "startTime") => {
+      setPickerMinute(
+        parseTimeOrFallback(
+          field === "startTime" ? form.startTime : form.endTime,
+          field === "startTime" ? 8 * 60 : 9 * 60
+        )
+      );
+      setActiveTimeField(field);
+    },
+    [form.endTime, form.startTime]
+  );
 
   const schedulePreviewText = useMemo(() => {
     try {
@@ -118,7 +130,7 @@ export function ExpoPlanEditorScreen({
     }
 
     openTimePicker(focusField);
-  }, [focusField, focusRequest]);
+  }, [focusField, focusRequest, openTimePicker]);
 
   useEffect(() => {
     if (!activeTimeField) {
@@ -152,18 +164,12 @@ export function ExpoPlanEditorScreen({
     timeDisplayFormat
   ]);
 
-  function openTimePicker(field: "endTime" | "startTime") {
-    setPickerMinute(
-      parseTimeOrFallback(
-        field === "startTime" ? form.startTime : form.endTime,
-        field === "startTime" ? 8 * 60 : 9 * 60
-      )
-    );
-    setActiveTimeField(field);
-  }
-
   function closeTimePicker() {
     setActiveTimeField(null);
+  }
+
+  function closeColorPicker() {
+    setIsColorOptionsOpen(false);
   }
 
   function confirmTimePicker() {
@@ -271,7 +277,7 @@ export function ExpoPlanEditorScreen({
             <Text style={expoTheme.inputLabel}>색상</Text>
             <View style={expoTheme.selectStack}>
               <Pressable
-                onPress={() => setIsColorOptionsOpen((current) => !current)}
+                onPress={() => setIsColorOptionsOpen(true)}
                 style={expoTheme.selectTrigger}
               >
                 <View style={expoTheme.selectTriggerValue}>
@@ -287,48 +293,7 @@ export function ExpoPlanEditorScreen({
                   {isColorOptionsOpen ? "▴" : "▾"}
                 </Text>
               </Pressable>
-              {isColorOptionsOpen ? (
-                <ScrollView
-                  nestedScrollEnabled
-                  style={expoTheme.selectOptionsPanel}
-                  showsVerticalScrollIndicator={false}
-                >
-                  {PLAN_COLORS.map((colorOption) => {
-                    const active = form.color === colorOption.value;
-
-                    return (
-                      <Pressable
-                        key={colorOption.value}
-                        onPress={() => {
-                          onUpdateForm({ color: colorOption.value });
-                          setIsColorOptionsOpen(false);
-                        }}
-                        style={[
-                          expoTheme.selectOptionRow,
-                          active ? expoTheme.selectOptionRowActive : null
-                        ]}
-                      >
-                        <View
-                          style={[
-                            expoTheme.selectColorPreview,
-                            { backgroundColor: colorOption.value }
-                          ]}
-                        />
-                        <Text
-                          style={[
-                            expoTheme.selectOptionText,
-                            active ? expoTheme.selectOptionTextActive : null
-                          ]}
-                        >
-                          {colorOption.label}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </ScrollView>
-              ) : null}
             </View>
-            {isColorOptionsOpen ? <View style={expoTheme.selectOptionsSpacer} /> : null}
           </View>
           <Text style={expoTheme.bodyText}>
             시간은 아래 선택기에서 바로 고를 수 있습니다. 자정을 넘기는 일정도 시작/종료
@@ -357,6 +322,59 @@ export function ExpoPlanEditorScreen({
           </View>
         </View>
       </ScrollView>
+      <Modal
+        animationType="slide"
+        onRequestClose={closeColorPicker}
+        transparent
+        visible={isColorOptionsOpen}
+      >
+        <View style={expoTheme.bottomSheetOverlay}>
+          <Pressable onPress={closeColorPicker} style={expoTheme.bottomSheetBackdrop} />
+          <View style={bottomSheetCardStyle}>
+            <View style={expoTheme.bottomSheetHeader}>
+              <Text style={expoTheme.sectionTitle}>색상 선택</Text>
+              <Text style={expoTheme.bodyText}>{selectedColorOption.label}</Text>
+            </View>
+            <ScrollView
+              contentContainerStyle={expoTheme.colorOptionsContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {PLAN_COLORS.map((colorOption) => {
+                const active = form.color === colorOption.value;
+
+                return (
+                  <Pressable
+                    key={colorOption.value}
+                    onPress={() => {
+                      onUpdateForm({ color: colorOption.value });
+                      closeColorPicker();
+                    }}
+                    style={[
+                      expoTheme.selectOptionRow,
+                      active ? expoTheme.selectOptionRowActive : null
+                    ]}
+                  >
+                    <View
+                      style={[
+                        expoTheme.selectColorPreview,
+                        { backgroundColor: colorOption.value }
+                      ]}
+                    />
+                    <Text
+                      style={[
+                        expoTheme.selectOptionText,
+                        active ? expoTheme.selectOptionTextActive : null
+                      ]}
+                    >
+                      {colorOption.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
       <Modal
         animationType="slide"
         onRequestClose={closeTimePicker}
