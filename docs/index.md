@@ -48,7 +48,7 @@
 
 ## Active Work
 
-현재 active work 없음.
+- [Android Production Permission Summary Refresh](./exec-plans/active/2026-06-11-android-production-permission-summary-refresh.md)
 
 ## Completed Work
 
