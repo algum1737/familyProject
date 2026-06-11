@@ -37,8 +37,8 @@
 - `Android Release Manifest Permissions` 작업은 `fix/android-release-manifest-permissions`에서 완료됐고 PR #19로 `main`에 머지됐다.
 - `Android Production Permission Summary` 작업은 `qa/android-production-permission-summary`에서 완료됐고 PR #20으로 `main`에 머지됐다.
 - `Expo Color Dropdown` 수정은 `fix/expo-color-dropdown`에서 완료됐고 PR #21로 `main`에 머지됐다.
-- `Android Production Permission Summary Refresh` 작업은 `qa/android-production-permission-summary-refresh`에서 진행 중이다. EAS production AAB 검증과 문서 갱신은 완료됐고 PR 생성/머지 전 상태다.
-- 현재 다음 우선 작업은 이 브랜치의 PR 검증을 통과시킨 뒤, 사용자 승인 후 main에 머지하는 것이다. 그 다음 릴리스 대기열은 Play Console app record 생성과 internal testing track 첫 업로드다.
+- `Android Production Permission Summary Refresh` 작업은 `qa/android-production-permission-summary-refresh`에서 완료됐고 PR #22가 열려 있다.
+- 현재 다음 우선 작업은 PR #22 검증을 통과시킨 뒤, 사용자 승인 후 main에 머지하는 것이다. 그 다음 릴리스 대기열은 Play Console app record 생성과 internal testing track 첫 업로드다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
