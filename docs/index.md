@@ -48,10 +48,11 @@
 
 ## Active Work
 
-- [Android Production Permission Summary Refresh](./exec-plans/active/2026-06-11-android-production-permission-summary-refresh.md)
+현재 활성화된 실행 계획 없음.
 
 ## Completed Work
 
+- [Android Production Permission Summary Refresh](./exec-plans/completed/2026-06-11-android-production-permission-summary-refresh.md)
 - [Android Production Permission Summary](./exec-plans/completed/2026-06-10-android-production-permission-summary.md)
 - [Android Release Manifest Permissions](./exec-plans/completed/2026-06-04-android-release-manifest-permissions.md)
 - [CI Playwright System Chrome](./exec-plans/completed/2026-06-04-ci-playwright-system-chrome.md)
