@@ -19,7 +19,8 @@
       "bundleIdentifier": "com.familyproject.todaydidyoufinish"
     },
     "android": {
-      "package": "com.familyproject.todaydidyoufinish"
+      "package": "com.familyproject.todaydidyoufinish",
+      "versionCode": 2
     },
     "extra": {
       "router": {},
