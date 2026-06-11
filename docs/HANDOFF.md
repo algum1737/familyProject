@@ -36,8 +36,8 @@
 - `Today Program Description HTML` 작업은 `docs/today-program-description-html`에서 완료됐고 main에 머지됐다.
 - `Android Release Manifest Permissions` 작업은 `fix/android-release-manifest-permissions`에서 완료됐고 PR #19로 `main`에 머지됐다.
 - `Android Production Permission Summary` 작업은 `qa/android-production-permission-summary`에서 완료됐고 PR #20으로 `main`에 머지됐다.
-- `Expo Color Dropdown` 수정은 `fix/expo-color-dropdown`에서 완료됐고 아직 `main`에 머지되지 않았다.
-- 현재 다음 우선 작업은 `fix/expo-color-dropdown` PR/merge 후 EAS production AAB 또는 Play Console permission summary에서 release 권한 목록을 다시 확인하는 것이다.
+- `Expo Color Dropdown` 수정은 `fix/expo-color-dropdown`에서 완료됐고 PR #21로 `main`에 머지됐다.
+- 현재 다음 우선 작업은 EAS production AAB 또는 Play Console permission summary에서 release 권한 목록을 다시 확인하는 것이다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 
 ### Latest Progress Snapshot
