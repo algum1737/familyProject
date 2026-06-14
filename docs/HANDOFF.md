@@ -38,7 +38,7 @@
 - `Android Production Permission Summary` 작업은 `qa/android-production-permission-summary`에서 완료됐고 PR #20으로 `main`에 머지됐다.
 - `Expo Color Dropdown` 수정은 `fix/expo-color-dropdown`에서 완료됐고 PR #21로 `main`에 머지됐다.
 - `Android Production Permission Summary Refresh` 작업은 `qa/android-production-permission-summary-refresh`에서 완료됐고 PR #22로 `main`에 머지됐다.
-- `Superpowers Integration Harness` 문서 정리는 `docs/superpowers-harness`에서 진행 중이며, 하네스 문서와 검증 스크립트 변경을 커밋했다.
+- `Superpowers Integration Harness` 문서 정리는 `docs/superpowers-harness`에서 완료됐고 PR #23으로 `main`에 머지됐다.
 - 현재 다음 우선 작업은 Play Console app record 생성과 internal testing track 첫 업로드 준비다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
 - Superpowers 설치 여부: Codex 재시작 후 skill 목록 또는 `~/.agents/skills/superpowers-*` 경로로 확인한다.
