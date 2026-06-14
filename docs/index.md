@@ -45,6 +45,7 @@
 - [RECOVERY_OBSERVATION_LOGBOOK.md](./RECOVERY_OBSERVATION_LOGBOOK.md)
 - [RELIABILITY.md](./RELIABILITY.md)
 - [SECURITY.md](./SECURITY.md)
+- [Superpowers Integration](./references/superpowers.md)
 
 ## Active Work
 
