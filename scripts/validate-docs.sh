@@ -18,6 +18,7 @@ required_files=(
   "docs/SECURITY.md"
   "docs/TECH_STACK.md"
   "docs/WEB_TO_APP_TRANSITION.md"
+  "docs/references/superpowers.md"
   "docs/design-docs/core-beliefs.md"
   "docs/product-specs/today-did-you-finish.md"
   "docs/exec-plans/completed/2026-04-17-bootstrap-harness.md"
