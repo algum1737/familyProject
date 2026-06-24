@@ -10,17 +10,18 @@
 2. `README.md`
 3. `ARCHITECTURE.md`
 4. `docs/index.md`
-5. `docs/MVP_SCOPE.md`
-6. `docs/TECH_STACK.md`
-7. `docs/WEB_TO_APP_TRANSITION.md`
-8. `docs/PLANS.md`
-9. `docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md`
-10. `docs/exec-plans/completed/2026-04-17-harness-template-kit.md`
-11. `docs/exec-plans/completed/2026-04-24-app-transition-decision.md`
-12. `docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md`
-13. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
-14. `apps/expo/src/screens/today-screen.tsx`
-15. `apps/expo/src/components/expo-circular-planner.tsx`
+5. `docs/AGENT_LOOP.md`
+6. `docs/MVP_SCOPE.md`
+7. `docs/TECH_STACK.md`
+8. `docs/WEB_TO_APP_TRANSITION.md`
+9. `docs/PLANS.md`
+10. `docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md`
+11. `docs/exec-plans/completed/2026-04-17-harness-template-kit.md`
+12. `docs/exec-plans/completed/2026-04-24-app-transition-decision.md`
+13. `docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md`
+14. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
+15. `apps/expo/src/screens/today-screen.tsx`
+16. `apps/expo/src/components/expo-circular-planner.tsx`
 
 ## Current Baseline
 
@@ -45,6 +46,7 @@
 
 ### Latest Progress Snapshot
 
+- `docs/agent-loop-harness-migration`에서 Codex agent loop 하네스 업데이트를 적용했다. `docs/AGENT_LOOP.md`가 추가됐고, `/goal`, `/plan`, active exec plan, `docs/HANDOFF.md`의 관계와 tool observation/validation 기록 기준이 `docs/PLANS.md` 및 `scripts/validate-docs.sh`에 반영됐다.
 - Superpowers 연동 프로파일을 familyProject 하네스 문서에 반영했다. `docs/references/superpowers.md`를 기준으로 Superpowers skill을 사용하되, 사용자 승인, 브랜치 생성, PR/merge 규칙은 `AGENTS.md`를 우선한다.
 - `fix/android-start-notification-precision`에서 Android manifest에 `SCHEDULE_EXACT_ALARM`을 추가했고 `USE_EXACT_ALARM`은 Play 정책 리스크 때문에 선언하지 않았다. Expo notifications Android native 구현은 `canScheduleExactAlarms()`가 true이면 `setExactAndAllowWhileIdle`, false이면 `setAndAllowWhileIdle`로 fallback하는 것을 확인했다.
 - React Native native module `ExactAlarmModule`과 JS wrapper를 추가해 Android exact alarm 접근 상태 확인과 `ACTION_REQUEST_SCHEDULE_EXACT_ALARM` 설정 화면 이동을 연결했다. Today 설정 메뉴에는 `정확 알림 켜기` / `정확 알림 켜짐` 상태 항목이 추가됐다.

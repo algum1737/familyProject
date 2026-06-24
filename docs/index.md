@@ -16,6 +16,7 @@
 
 ## Core Documents
 
+- [AGENT_LOOP.md](./AGENT_LOOP.md)
 - [DESIGN.md](./DESIGN.md)
 - [APP_SCREEN_TREE.md](./APP_SCREEN_TREE.md)
 - [APP_MOTIVATION_DATA_MODEL.md](./APP_MOTIVATION_DATA_MODEL.md)
@@ -53,6 +54,7 @@
 
 ## Completed Work
 
+- [Agent Loop Harness Migration](./exec-plans/completed/2026-06-24-agent-loop-harness-migration.md)
 - [Android Production Permission Summary Refresh](./exec-plans/completed/2026-06-11-android-production-permission-summary-refresh.md)
 - [Android Production Permission Summary](./exec-plans/completed/2026-06-10-android-production-permission-summary.md)
 - [Android Release Manifest Permissions](./exec-plans/completed/2026-06-04-android-release-manifest-permissions.md)

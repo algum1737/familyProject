@@ -15,8 +15,9 @@
 1. `README.md`
 2. `ARCHITECTURE.md`
 3. `docs/index.md`
-4. 관련 `docs/product-specs/*`
-5. 관련 `docs/exec-plans/active/*`
+4. `docs/AGENT_LOOP.md`
+5. 관련 `docs/product-specs/*`
+6. 관련 `docs/exec-plans/active/*`
 
 ## Operating Rules
 
@@ -63,6 +64,7 @@
 
 - 아키텍처 맵: `ARCHITECTURE.md`
 - 문서 인덱스: `docs/index.md`
+- 에이전트 루프: `docs/AGENT_LOOP.md`
 - 제품 가정: `docs/product-specs/today-did-you-finish.md`
 - 원본 기획서: `기획/오늘_다했니_기획서.txt`
 - 품질 기준: `docs/QUALITY_SCORE.md`
