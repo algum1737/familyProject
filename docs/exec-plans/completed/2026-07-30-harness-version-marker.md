@@ -50,9 +50,9 @@
 - [x] 버전 marker와 업데이트 문서 적용
 - [x] 문서 인덱스와 검증 스크립트 갱신
 - [x] 전체 자동 검증
-- [ ] HANDOFF 갱신
-- [ ] marker를 `passed`로 확정하고 중앙 감사 확인
-- [ ] 완료 계획 이동과 커밋
+- [x] HANDOFF 갱신
+- [x] marker를 `passed`로 확정하고 중앙 감사 확인
+- [x] 완료 계획 이동과 커밋
 
 ## Observation Log
 
@@ -60,6 +60,7 @@
 - agent loop, knowledge 계층, docs/knowledge/handoff 검증은 이미 적용돼 있다.
 - 현재 빠진 배포 계약 파일은 `.harness-version`과 `docs/HARNESS_UPDATE.md`다.
 - marker를 `pending`으로 둔 상태에서 자동 검증 계약이 모두 통과했다.
+- 구현 커밋 뒤 깨끗한 작업 트리에서 중앙 감사 결과가 `current`, `tracked`, installed/target `2026.07.30.1`로 확인됐다.
 
 ## Validation Result
 
@@ -70,4 +71,11 @@
 - `npm test`: 통과, test file 19개와 test 110개
 - `git diff --check`: 통과
 - 브라우저, Expo, Android 실기기 QA: 제품 코드를 변경하지 않아 실행하지 않음
-- 중앙 감사: 구현 커밋 후 깨끗한 작업 트리에서 실행 예정
+- 중앙 감사: 통과, `familyProject | 2026.07.30.1 | 2026.07.30.1 | current | tracked | no | yes`
+
+## Completion
+
+- 완료 범위: marker, 업데이트 절차, 진입 문서, marker 검증, 완료 계획과 HANDOFF
+- 남은 작업: 없음
+- 비범위: 제품 코드, 의존성, Ponytail 프로젝트별 knowledge, 브라우저/모바일 runtime
+- 구현 커밋: 해시는 `git log --oneline`으로 확인

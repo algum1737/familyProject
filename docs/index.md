@@ -54,10 +54,11 @@
 
 ## Active Work
 
-- [Harness Version Marker](./exec-plans/active/2026-07-30-harness-version-marker.md)
+현재 활성화된 실행 계획 없음.
 
 ## Completed Work
 
+- [Harness Version Marker](./exec-plans/completed/2026-07-30-harness-version-marker.md)
 - [Android And Play Release Knowledge](./exec-plans/completed/2026-07-30-android-play-release-knowledge.md)
 - [Harness Knowledge Layer Update](./exec-plans/completed/2026-07-30-harness-knowledge-layer.md)
 - [Agent Loop Harness Migration](./exec-plans/completed/2026-06-24-agent-loop-harness-migration.md)
