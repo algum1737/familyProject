@@ -3,10 +3,12 @@
 set -euo pipefail
 
 required_files=(
+  ".harness-version"
   "README.md"
   "AGENTS.md"
   "ARCHITECTURE.md"
   "docs/AGENT_LOOP.md"
+  "docs/HARNESS_UPDATE.md"
   "docs/index.md"
   "docs/DESIGN.md"
   "docs/FRONTEND.md"
@@ -38,6 +40,38 @@ for path in "${required_files[@]}"; do
     exit 1
   fi
 done
+
+marker_value() {
+  local key="$1"
+  awk -F= -v wanted="$key" '
+    $1 == wanted {
+      print substr($0, index($0, "=") + 1)
+      exit
+    }
+  ' .harness-version
+}
+
+marker_version="$(marker_value version)"
+marker_profile="$(marker_value profile)"
+marker_validation="$(marker_value validation)"
+
+if [[ ! "$marker_version" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+$ ]]; then
+  echo "invalid .harness-version version: $marker_version" >&2
+  exit 1
+fi
+
+if [[ "$marker_profile" != "tracked" ]]; then
+  echo "familyProject .harness-version profile must be tracked: $marker_profile" >&2
+  exit 1
+fi
+
+case "$marker_validation" in
+  pending|passed) ;;
+  *)
+    echo "invalid .harness-version validation: $marker_validation" >&2
+    exit 1
+    ;;
+esac
 
 agents_lines="$(wc -l < AGENTS.md | tr -d ' ')"
 if [[ "$agents_lines" -gt 120 ]]; then

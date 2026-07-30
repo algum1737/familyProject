@@ -7,29 +7,33 @@
 다음 순서로 읽는다.
 
 1. `AGENTS.md`
-2. `README.md`
-3. `ARCHITECTURE.md`
-4. `docs/index.md`
-5. `docs/knowledge/index.md`
-6. `docs/AGENT_LOOP.md`
-7. `docs/MVP_SCOPE.md`
-8. `docs/TECH_STACK.md`
-9. `docs/WEB_TO_APP_TRANSITION.md`
-10. `docs/PLANS.md`
-11. `docs/exec-plans/completed/2026-07-30-android-play-release-knowledge.md`
-12. `docs/exec-plans/completed/2026-07-30-harness-knowledge-layer.md`
-13. `docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md`
-14. `docs/exec-plans/completed/2026-04-17-harness-template-kit.md`
-15. `docs/exec-plans/completed/2026-04-24-app-transition-decision.md`
-16. `docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md`
-17. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
-18. `apps/expo/src/screens/today-screen.tsx`
-19. `apps/expo/src/components/expo-circular-planner.tsx`
+2. `.harness-version`
+3. `README.md`
+4. `ARCHITECTURE.md`
+5. `docs/index.md`
+6. `docs/knowledge/index.md`
+7. `docs/AGENT_LOOP.md`
+8. `docs/HARNESS_UPDATE.md`
+9. `docs/MVP_SCOPE.md`
+10. `docs/TECH_STACK.md`
+11. `docs/WEB_TO_APP_TRANSITION.md`
+12. `docs/PLANS.md`
+13. `docs/exec-plans/completed/2026-07-30-harness-version-marker.md`
+14. `docs/exec-plans/completed/2026-07-30-android-play-release-knowledge.md`
+15. `docs/exec-plans/completed/2026-07-30-harness-knowledge-layer.md`
+16. `docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md`
+17. `docs/exec-plans/completed/2026-04-17-harness-template-kit.md`
+18. `docs/exec-plans/completed/2026-04-24-app-transition-decision.md`
+19. `docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md`
+20. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
+21. `apps/expo/src/screens/today-screen.tsx`
+22. `apps/expo/src/components/expo-circular-planner.tsx`
 
 ## Current Baseline
 
 ### Branch Status
 
+- `Harness Version Marker`는 `codex/chore-harness-version-marker`에서 완료됐고 하네스 `2026.07.30.1` 중앙 감사의 `current` 판정을 확인했다.
 - `Android And Play Release Knowledge`는 `docs/android-play-release-knowledge`에서 완료됐고 PR #27로 `main`에 머지됐다.
 - `Harness Knowledge Layer Update`는 `docs/harness-knowledge-layer`에서 완료됐고 PR #26으로 `main`에 머지됐다.
 - `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐고 `main`에 머지됐다.
@@ -48,10 +52,12 @@
 - `Agent Loop Harness Migration` 문서 정리는 `docs/agent-loop-harness-migration`에서 완료됐고 PR #24로 `main`에 머지됐다.
 - 현재 다음 우선 작업은 Play Console app record 생성과 internal testing track 첫 업로드 준비다.
 - 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
+- 적용 하네스 버전은 `.harness-version`에서 확인한다.
 - Superpowers 설치 여부: Codex 재시작 후 skill 목록 또는 `~/.agents/skills/superpowers-*` 경로로 확인한다.
 
 ### Latest Progress Snapshot
 
+- 하네스 배포 버전 `2026.07.30.1`을 `tracked`, `validation=passed`로 기록했다. `docs/HARNESS_UPDATE.md`에 프로젝트별 업데이트 절차를 추가했고, `scripts/validate-docs.sh`가 marker 형식과 profile을 검증한다.
 - `docs/android-play-release-knowledge`에서 Android Developers, Expo와 Google Play Console Help의 공식 문서 8개를 source record와 source note로 등록했다.
 - `Android Notification Reliability` synthesis는 exact alarm 공식 기준과 Samsung 실기기 timing, native fallback, production AAB 권한 증거를 분리했고, `Google Play Release Readiness` synthesis는 app record, signing, internal testing, 신규 개인 계정과 Data Safety checkpoint를 연결했다.
 - 외부 정책값은 `2026-07-30` 수집 스냅샷으로 기록했고 실제 Play Console 작업일에 다시 확인하도록 했다. knowledge/docs validation, handoff-loop test, diff check와 `rg` 수동 추적이 통과했다.
@@ -376,6 +382,7 @@
 - 커밋 후에는 `docs/HANDOFF.md`의 최근 반영 작업, 현재 상태, 다음 작업을 검토하고 갱신한다.
 - 커밋 해시는 문서에 고정하지 말고 git 명령으로 확인하게 유지한다.
 - 리포지터리 밖에만 있는 지식은 없는 것으로 간주한다.
+- 하네스 업데이트는 `docs/HARNESS_UPDATE.md`를 따르고 전체 검증 전에 marker를 `passed`로 바꾸지 않는다.
 
 ## Suggested Next Work
 
@@ -392,26 +399,30 @@
 
 먼저 아래 파일을 읽고 현재 상태를 요약해라.
 1. AGENTS.md
-2. README.md
-3. ARCHITECTURE.md
-4. docs/index.md
-5. docs/knowledge/index.md
-6. docs/MVP_SCOPE.md
-7. docs/TECH_STACK.md
-8. docs/WEB_TO_APP_TRANSITION.md
-9. docs/PLANS.md
-10. docs/exec-plans/completed/2026-07-30-harness-knowledge-layer.md
-11. docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md
-12. docs/exec-plans/completed/2026-04-17-harness-template-kit.md
-13. docs/exec-plans/completed/2026-04-24-app-transition-decision.md
-14. docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md
-15. docs/exec-plans/completed/2026-04-23-plan-editing.md
-16. apps/expo/src/screens/today-screen.tsx
-17. apps/expo/src/components/expo-circular-planner.tsx
+2. .harness-version
+3. README.md
+4. ARCHITECTURE.md
+5. docs/index.md
+6. docs/knowledge/index.md
+7. docs/HARNESS_UPDATE.md
+8. docs/MVP_SCOPE.md
+9. docs/TECH_STACK.md
+10. docs/WEB_TO_APP_TRANSITION.md
+11. docs/PLANS.md
+12. docs/exec-plans/completed/2026-07-30-harness-version-marker.md
+13. docs/exec-plans/completed/2026-07-30-harness-knowledge-layer.md
+14. docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md
+15. docs/exec-plans/completed/2026-04-17-harness-template-kit.md
+16. docs/exec-plans/completed/2026-04-24-app-transition-decision.md
+17. docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md
+18. docs/exec-plans/completed/2026-04-23-plan-editing.md
+19. apps/expo/src/screens/today-screen.tsx
+20. apps/expo/src/components/expo-circular-planner.tsx
 
 현재 기준:
 - branch: `git branch --show-current`
 - commit: `git rev-parse --short HEAD`
+- harness: `.harness-version`
 - Superpowers: 설치된 경우 관련 skill을 먼저 검토
 - latest progress: Expo mobile shell and planner policy work pushed; harness template operations updated and completed exec plans moved out of active
 
@@ -485,6 +496,7 @@
 - 그 전에는 분석과 제안까지만 해라.
 - 새 실제 작업은 브랜치를 만들어서 진행하고, main 머지는 내가 요청할 때만 해라.
 - 커밋 후에는 docs/HANDOFF.md를 갱신하되, 커밋 해시는 git 명령으로 확인하게 유지해라.
+- 하네스 업데이트는 docs/HARNESS_UPDATE.md를 따르고 검증 전 marker를 passed로 바꾸지 마라.
 - Superpowers가 설치되어 있으면 brainstorming, writing-plans, test-driven-development, systematic-debugging, verification-before-completion을 이 리포지터리 문서 경로에 맞춰 사용해라.
 - CI 실패가 문서/계획 불일치와 연결되면 HANDOFF와 실행 계획도 함께 갱신해라.
 

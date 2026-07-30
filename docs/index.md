@@ -38,6 +38,7 @@
 - [APP_STORAGE_OPTIONS.md](./APP_STORAGE_OPTIONS.md)
 - [FRONTEND.md](./FRONTEND.md)
 - [HANDOFF.md](./HANDOFF.md)
+- [HARNESS_UPDATE.md](./HARNESS_UPDATE.md)
 - [Knowledge Layer](./knowledge/README.md)
 - [Knowledge Index](./knowledge/index.md)
 - [MVP_SCOPE.md](./MVP_SCOPE.md)
@@ -57,6 +58,7 @@
 
 ## Completed Work
 
+- [Harness Version Marker](./exec-plans/completed/2026-07-30-harness-version-marker.md)
 - [Android And Play Release Knowledge](./exec-plans/completed/2026-07-30-android-play-release-knowledge.md)
 - [Harness Knowledge Layer Update](./exec-plans/completed/2026-07-30-harness-knowledge-layer.md)
 - [Agent Loop Harness Migration](./exec-plans/completed/2026-06-24-agent-loop-harness-migration.md)
