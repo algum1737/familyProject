@@ -30,7 +30,7 @@
 
 ### Branch Status
 
-- `Android And Play Release Knowledge`는 `docs/android-play-release-knowledge`에서 완료됐고 PR #27이 열려 있다. `main` 머지는 사용자 승인 대기 상태다.
+- `Android And Play Release Knowledge`는 `docs/android-play-release-knowledge`에서 완료됐고 PR #27로 `main`에 머지됐다.
 - `Harness Knowledge Layer Update`는 `docs/harness-knowledge-layer`에서 완료됐고 PR #26으로 `main`에 머지됐다.
 - `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐고 `main`에 머지됐다.
 - `Android Start Notification Precision` 작업은 `fix/android-start-notification-precision`에서 완료됐고 PR #15로 `main`에 머지됐다.
