@@ -10,23 +10,26 @@
 2. `README.md`
 3. `ARCHITECTURE.md`
 4. `docs/index.md`
-5. `docs/AGENT_LOOP.md`
-6. `docs/MVP_SCOPE.md`
-7. `docs/TECH_STACK.md`
-8. `docs/WEB_TO_APP_TRANSITION.md`
-9. `docs/PLANS.md`
-10. `docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md`
-11. `docs/exec-plans/completed/2026-04-17-harness-template-kit.md`
-12. `docs/exec-plans/completed/2026-04-24-app-transition-decision.md`
-13. `docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md`
-14. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
-15. `apps/expo/src/screens/today-screen.tsx`
-16. `apps/expo/src/components/expo-circular-planner.tsx`
+5. `docs/knowledge/index.md`
+6. `docs/AGENT_LOOP.md`
+7. `docs/MVP_SCOPE.md`
+8. `docs/TECH_STACK.md`
+9. `docs/WEB_TO_APP_TRANSITION.md`
+10. `docs/PLANS.md`
+11. `docs/exec-plans/completed/2026-07-30-harness-knowledge-layer.md`
+12. `docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md`
+13. `docs/exec-plans/completed/2026-04-17-harness-template-kit.md`
+14. `docs/exec-plans/completed/2026-04-24-app-transition-decision.md`
+15. `docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md`
+16. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
+17. `apps/expo/src/screens/today-screen.tsx`
+18. `apps/expo/src/components/expo-circular-planner.tsx`
 
 ## Current Baseline
 
 ### Branch Status
 
+- `Harness Knowledge Layer Update`는 `docs/harness-knowledge-layer`에서 구현과 검증이 완료됐고 아직 `main`에는 머지되지 않았다.
 - `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐고 `main`에 머지됐다.
 - `Android Start Notification Precision` 작업은 `fix/android-start-notification-precision`에서 완료됐고 PR #15로 `main`에 머지됐다.
 - `Android Notification Regression Guard` 작업은 `qa/android-notification-regression-guard`에서 완료됐고 PR #16으로 `main`에 머지됐다.
@@ -47,6 +50,10 @@
 
 ### Latest Progress Snapshot
 
+- `docs/harness-knowledge-layer`에서 출처 기반 Markdown knowledge 계층을 추가했다. `docs/references/sources/`는 원본 포인터, `docs/knowledge/`는 source note·concept·entity·synthesis, `docs/generated/knowledge-lint/`는 비권위 검토 보고서를 맡는다.
+- 첫 출처로 Karpathy LLM Wiki를 등록하고 persistent knowledge, RAG, familyProject 하네스 적용 synthesis를 연결했다. 초기 탐색은 `docs/knowledge/index.md`와 `rg`를 사용하며 별도 웹 UI, 검색 서버나 벡터 데이터베이스는 도입하지 않았다.
+- `scripts/validate-knowledge.sh`는 frontmatter, 허용 상태, ID 중복, 출처 참조, 필수 섹션, 인덱스와 상대 링크 무결성을 검사한다. `npm run validate:docs`와 GitHub Actions의 하네스 검증 경로에도 연결됐다.
+- 이번 업데이트 검증은 `npm run validate:knowledge`, `npm run validate:docs`, `npm run test:handoff-loop`, `npm run typecheck`, `npm test`가 통과했다. Vitest 결과는 19 files, 110 tests다.
 - `docs/agent-loop-harness-migration`에서 Codex agent loop 하네스 업데이트를 적용했다. `docs/AGENT_LOOP.md`가 추가됐고, `/goal`, `/plan`, active exec plan, `docs/HANDOFF.md`의 관계와 tool observation/validation 기록 기준이 `docs/PLANS.md` 및 `scripts/validate-docs.sh`에 반영됐다.
 - Superpowers 연동 프로파일을 familyProject 하네스 문서에 반영했다. `docs/references/superpowers.md`를 기준으로 Superpowers skill을 사용하되, 사용자 승인, 브랜치 생성, PR/merge 규칙은 `AGENTS.md`를 우선한다.
 - `fix/android-start-notification-precision`에서 Android manifest에 `SCHEDULE_EXACT_ALARM`을 추가했고 `USE_EXACT_ALARM`은 Play 정책 리스크 때문에 선언하지 않았다. Expo notifications Android native 구현은 `canScheduleExactAlarms()`가 true이면 `setExactAndAllowWhileIdle`, false이면 `setAndAllowWhileIdle`로 fallback하는 것을 확인했다.
@@ -383,17 +390,19 @@
 2. README.md
 3. ARCHITECTURE.md
 4. docs/index.md
-5. docs/MVP_SCOPE.md
-6. docs/TECH_STACK.md
-7. docs/WEB_TO_APP_TRANSITION.md
-8. docs/PLANS.md
-9. docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md
-10. docs/exec-plans/completed/2026-04-17-harness-template-kit.md
-11. docs/exec-plans/completed/2026-04-24-app-transition-decision.md
-12. docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md
-13. docs/exec-plans/completed/2026-04-23-plan-editing.md
-14. apps/expo/src/screens/today-screen.tsx
-15. apps/expo/src/components/expo-circular-planner.tsx
+5. docs/knowledge/index.md
+6. docs/MVP_SCOPE.md
+7. docs/TECH_STACK.md
+8. docs/WEB_TO_APP_TRANSITION.md
+9. docs/PLANS.md
+10. docs/exec-plans/completed/2026-07-30-harness-knowledge-layer.md
+11. docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md
+12. docs/exec-plans/completed/2026-04-17-harness-template-kit.md
+13. docs/exec-plans/completed/2026-04-24-app-transition-decision.md
+14. docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md
+15. docs/exec-plans/completed/2026-04-23-plan-editing.md
+16. apps/expo/src/screens/today-screen.tsx
+17. apps/expo/src/components/expo-circular-planner.tsx
 
 현재 기준:
 - branch: `git branch --show-current`

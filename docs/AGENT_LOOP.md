@@ -19,11 +19,11 @@ User Intent
 | Loop stage | Repository surface | Purpose |
 | --- | --- | --- |
 | User Intent | 사용자 요청, `docs/product-specs/*`, `docs/MVP_SCOPE.md` | 목표, 제약, 제품 판단을 고정한다. |
-| Context Assembly | `AGENTS.md`, `README.md`, `ARCHITECTURE.md`, `docs/index.md`, `docs/HANDOFF.md` | 에이전트가 먼저 읽을 맥락을 제공한다. |
+| Context Assembly | `AGENTS.md`, `README.md`, `ARCHITECTURE.md`, `docs/index.md`, `docs/knowledge/index.md`, `docs/HANDOFF.md` | 에이전트가 먼저 읽을 맥락과 출처 기반 장기 지식을 제공한다. |
 | Plan | `docs/exec-plans/active/*`, `/plan` | 구현 전에 범위, 단계, 검증 계약을 정한다. |
 | Tool Action | shell, editor, browser, MCP, test runner, Android/Expo tooling | 계획에 따라 파일 수정, 명령 실행, 외부 도구 호출을 수행한다. |
 | Observation | tool output, logs, screenshots, device evidence, `Observation Log` | 실행 결과와 실패 원인을 기록한다. |
-| Validation | `scripts/validate-docs.sh`, lint, typecheck, tests, runtime QA | 완료 판단을 추측이 아니라 증거로 만든다. |
+| Validation | `scripts/validate-docs.sh`, `scripts/validate-knowledge.sh`, lint, typecheck, tests, runtime QA | 완료 판단과 지식 참조 무결성을 추측이 아니라 증거로 만든다. |
 | Handoff | `docs/HANDOFF.md`, completed exec plan | 다음 세션이 같은 상태에서 이어받게 한다. |
 
 ## Goal, Plan, And Repo State
@@ -32,8 +32,11 @@ User Intent
 - `/plan`은 구현 전 계획을 만들거나 다듬는 대화 모드다.
 - `docs/exec-plans/active/*`는 리포지터리에 남는 실제 작업 계획과 검증 계약이다.
 - `docs/HANDOFF.md`는 세션 전환, 컨텍스트 압축, 커밋 이후 재개를 위한 인계 상태다.
+- `docs/knowledge/*`는 여러 세션과 작업에서 재사용하는 출처 기반 장기 지식이다.
 
 긴 작업은 `/goal`만으로 관리하지 않는다. 목표는 `/goal`에 둘 수 있지만, 실행 범위와 검증 결과는 active exec plan과 HANDOFF에 남긴다.
+
+작업 상태와 장기 지식도 구분한다. 현재 진행 상황은 exec plan과 HANDOFF에 두고, 반복 사용할 수 있는 외부 근거와 분석만 knowledge 계층에 보존한다.
 
 ## Context Budget Rules
 

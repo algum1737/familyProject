@@ -11,6 +11,9 @@ required_files=(
   "docs/DESIGN.md"
   "docs/FRONTEND.md"
   "docs/HANDOFF.md"
+  "docs/knowledge/README.md"
+  "docs/knowledge/index.md"
+  "docs/knowledge/log.md"
   "docs/MVP_SCOPE.md"
   "docs/PLANS.md"
   "docs/PRODUCT_SENSE.md"
@@ -24,6 +27,7 @@ required_files=(
   "docs/product-specs/today-did-you-finish.md"
   "docs/exec-plans/completed/2026-04-17-bootstrap-harness.md"
   "scripts/check-handoff-loop.sh"
+  "scripts/validate-knowledge.sh"
   "package.json"
   "tsconfig.json"
 )
@@ -80,5 +84,7 @@ if ! grep -q 'check-handoff-loop.sh' .githooks/post-commit; then
   echo "post-commit hook must run scripts/check-handoff-loop.sh" >&2
   exit 1
 fi
+
+bash scripts/validate-knowledge.sh
 
 echo "docs validation passed"

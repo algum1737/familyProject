@@ -11,12 +11,14 @@
 - 중요한 맥락은 리포지터리 안에 문서로 남긴다.
 - `AGENTS.md`는 짧은 진입 맵으로 유지한다.
 - 상세 규칙과 지식은 `docs/` 아래에 구조화한다.
+- 외부 자료와 파생 분석은 `docs/references/sources/`와 `docs/knowledge/`로 분리한다.
 - 규칙은 문서로만 두지 않고 가능한 한 검증 스크립트로 승격한다.
 
 시작 지점:
 - [AGENTS.md](./AGENTS.md)
 - [ARCHITECTURE.md](./ARCHITECTURE.md)
 - [docs/index.md](./docs/index.md)
+- [docs/knowledge/index.md](./docs/knowledge/index.md)
 - [docs/TECH_STACK.md](./docs/TECH_STACK.md)
 - [docs/exec-plans/completed/2026-04-17-bootstrap-harness.md](./docs/exec-plans/completed/2026-04-17-bootstrap-harness.md)
 - [기획서 텍스트](./기획/오늘_다했니_기획서.txt)

@@ -15,14 +15,18 @@
 1. `README.md`
 2. `ARCHITECTURE.md`
 3. `docs/index.md`
-4. `docs/AGENT_LOOP.md`
-5. 관련 `docs/product-specs/*`
-6. 관련 `docs/exec-plans/active/*`
+4. `docs/knowledge/index.md`
+5. `docs/AGENT_LOOP.md`
+6. 관련 `docs/product-specs/*`
+7. 관련 `docs/exec-plans/active/*`
 
 ## Operating Rules
 
 - 우선순위는 사용자 명시 지시, 이 `AGENTS.md`, `docs/` 하네스 문서, 설치된 Superpowers skill, 기본 에이전트 동작 순서다.
 - 리포지터리 밖에만 있는 지식은 없는 것으로 간주한다.
+- 외부 자료는 `docs/references/sources/`에 출처를 등록하고, 재사용할 분석은 `docs/knowledge/`에 근거와 함께 저장한다.
+- 질문에 답할 때는 `docs/knowledge/index.md`와 `rg`로 관련 지식을 찾고 중요한 주장은 원본 포인터까지 역추적한다.
+- 파생 knowledge는 제품 명세, 보안 정책이나 승인된 설계를 자동으로 덮어쓰지 않는다.
 - 요구사항이 불명확하면 추정하지 말고 `Assumptions` 섹션에 기록한다.
 - 새 규칙이 반복되면 문서에 남기고, 가능하면 스크립트나 테스트로 승격한다.
 - 큰 작업은 구현 전에 먼저 `docs/exec-plans/active/` 계획을 작성하고, 작업 완료 시 완료 범위와 검증 결과를 기록한 뒤 `docs/exec-plans/completed/`로 이동한다.
@@ -64,6 +68,7 @@
 
 - 아키텍처 맵: `ARCHITECTURE.md`
 - 문서 인덱스: `docs/index.md`
+- 지식 인덱스: `docs/knowledge/index.md`
 - 에이전트 루프: `docs/AGENT_LOOP.md`
 - 제품 가정: `docs/product-specs/today-did-you-finish.md`
 - 원본 기획서: `기획/오늘_다했니_기획서.txt`
