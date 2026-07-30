@@ -33,7 +33,7 @@
 
 ### Branch Status
 
-- `Harness Version Marker`는 `codex/chore-harness-version-marker`에서 완료됐고 하네스 `2026.07.30.1` 중앙 감사의 `current` 판정을 확인했다.
+- `Harness Version Registry`는 중앙 하네스 PR #3으로, `Harness Version Marker`는 PR #29로 `main`에 머지됐고 하네스 `2026.07.30.1` 중앙 감사의 `current` 판정을 확인했다.
 - `Android And Play Release Knowledge`는 `docs/android-play-release-knowledge`에서 완료됐고 PR #27로 `main`에 머지됐다.
 - `Harness Knowledge Layer Update`는 `docs/harness-knowledge-layer`에서 완료됐고 PR #26으로 `main`에 머지됐다.
 - `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐고 `main`에 머지됐다.
