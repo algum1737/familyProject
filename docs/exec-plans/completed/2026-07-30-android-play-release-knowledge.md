@@ -44,8 +44,8 @@ Android 알림 신뢰성과 Google Play 출시 준비 경험을 공식 출처와
 - [x] Google Play 출시 준비 synthesis를 작성한다.
 - [x] knowledge index와 log를 갱신한다.
 - [x] 자동 검증과 수동 추적 검토를 수행한다.
-- [ ] 완료 범위와 검증 결과를 기록하고 completed로 이동한다.
-- [ ] `docs/index.md`와 `docs/HANDOFF.md`를 갱신한다.
+- [x] 완료 범위와 검증 결과를 기록하고 completed로 이동한다.
+- [x] `docs/index.md`와 `docs/HANDOFF.md`를 갱신한다.
 
 ## Automated tests
 
@@ -76,14 +76,22 @@ Android 알림 신뢰성과 Google Play 출시 준비 경험을 공식 출처와
 - 2026-07-30: Android 알림 synthesis에는 공식 권한 기준과 프로젝트 실기기·AAB 증거를 분리해 기록했다.
 - 2026-07-30: Google Play synthesis에는 app record, signing, internal testing, 신규 개인 계정, Data Safety checkpoint를 연결했다.
 - 2026-07-30: knowledge/docs validation, handoff-loop test, diff check와 `rg` 수동 검색이 통과했다.
+- 2026-07-30: 첫 구현 커밋을 원격 브랜치에 푸시하고 PR #27을 생성했다.
 
 ## Open Work
 
-- 완료 계획 이동, 문서 인덱스와 HANDOFF 갱신, PR 제출이 남아 있다.
+- PR #27의 `main` 머지는 사용자 승인 대기 상태다.
+- Play Console 계정 확인, app record 생성과 internal testing 첫 업로드는 이번 문서 범위 밖의 다음 제품 업무다.
 
 ## Completion
 
-- 상태: 진행 중
+- 상태: 완료
+- 완료 범위:
+  - Android, Expo와 Google Play 공식 출처 레코드 8개
+  - 출처별 source note 8개
+  - Android 알림 신뢰성과 Google Play 출시 준비 synthesis 2개
+  - knowledge index와 append-only log 갱신
+  - 외부 주장, 프로젝트 관찰과 시간에 민감한 정책값의 경계 기록
 
 ## Validation Result
 

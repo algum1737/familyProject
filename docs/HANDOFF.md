@@ -16,20 +16,22 @@
 8. `docs/TECH_STACK.md`
 9. `docs/WEB_TO_APP_TRANSITION.md`
 10. `docs/PLANS.md`
-11. `docs/exec-plans/completed/2026-07-30-harness-knowledge-layer.md`
-12. `docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md`
-13. `docs/exec-plans/completed/2026-04-17-harness-template-kit.md`
-14. `docs/exec-plans/completed/2026-04-24-app-transition-decision.md`
-15. `docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md`
-16. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
-17. `apps/expo/src/screens/today-screen.tsx`
-18. `apps/expo/src/components/expo-circular-planner.tsx`
+11. `docs/exec-plans/completed/2026-07-30-android-play-release-knowledge.md`
+12. `docs/exec-plans/completed/2026-07-30-harness-knowledge-layer.md`
+13. `docs/exec-plans/completed/2026-05-08-harness-template-operations-update.md`
+14. `docs/exec-plans/completed/2026-04-17-harness-template-kit.md`
+15. `docs/exec-plans/completed/2026-04-24-app-transition-decision.md`
+16. `docs/exec-plans/completed/2026-04-28-missed-plan-recovery.md`
+17. `docs/exec-plans/completed/2026-04-23-plan-editing.md`
+18. `apps/expo/src/screens/today-screen.tsx`
+19. `apps/expo/src/components/expo-circular-planner.tsx`
 
 ## Current Baseline
 
 ### Branch Status
 
-- `Harness Knowledge Layer Update`는 `docs/harness-knowledge-layer`에서 구현과 검증을 완료해 PR #26으로 제출했다. 현재 병합 상태는 `gh pr view 26 --json state,mergedAt,mergeCommit`으로 확인한다.
+- `Android And Play Release Knowledge`는 `docs/android-play-release-knowledge`에서 완료됐고 PR #27이 열려 있다. `main` 머지는 사용자 승인 대기 상태다.
+- `Harness Knowledge Layer Update`는 `docs/harness-knowledge-layer`에서 완료됐고 PR #26으로 `main`에 머지됐다.
 - `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐고 `main`에 머지됐다.
 - `Android Start Notification Precision` 작업은 `fix/android-start-notification-precision`에서 완료됐고 PR #15로 `main`에 머지됐다.
 - `Android Notification Regression Guard` 작업은 `qa/android-notification-regression-guard`에서 완료됐고 PR #16으로 `main`에 머지됐다.
@@ -50,6 +52,9 @@
 
 ### Latest Progress Snapshot
 
+- `docs/android-play-release-knowledge`에서 Android Developers, Expo와 Google Play Console Help의 공식 문서 8개를 source record와 source note로 등록했다.
+- `Android Notification Reliability` synthesis는 exact alarm 공식 기준과 Samsung 실기기 timing, native fallback, production AAB 권한 증거를 분리했고, `Google Play Release Readiness` synthesis는 app record, signing, internal testing, 신규 개인 계정과 Data Safety checkpoint를 연결했다.
+- 외부 정책값은 `2026-07-30` 수집 스냅샷으로 기록했고 실제 Play Console 작업일에 다시 확인하도록 했다. knowledge/docs validation, handoff-loop test, diff check와 `rg` 수동 추적이 통과했다.
 - `docs/harness-knowledge-layer`에서 출처 기반 Markdown knowledge 계층을 추가했다. `docs/references/sources/`는 원본 포인터, `docs/knowledge/`는 source note·concept·entity·synthesis, `docs/generated/knowledge-lint/`는 비권위 검토 보고서를 맡는다.
 - 첫 출처로 Karpathy LLM Wiki를 등록하고 persistent knowledge, RAG, familyProject 하네스 적용 synthesis를 연결했다. 초기 탐색은 `docs/knowledge/index.md`와 `rg`를 사용하며 별도 웹 UI, 검색 서버나 벡터 데이터베이스는 도입하지 않았다.
 - `scripts/validate-knowledge.sh`는 frontmatter, 허용 상태, ID 중복, 출처 참조, 필수 섹션, 인덱스와 상대 링크 무결성을 검사한다. `npm run validate:docs`와 GitHub Actions의 하네스 검증 경로에도 연결됐다.
