@@ -13,12 +13,14 @@
 작업 시작 전 아래 순서로 읽는다.
 
 1. `README.md`
-2. `ARCHITECTURE.md`
-3. `docs/index.md`
-4. `docs/knowledge/index.md`
-5. `docs/AGENT_LOOP.md`
-6. 관련 `docs/product-specs/*`
-7. 관련 `docs/exec-plans/active/*`
+2. `.harness-version`
+3. `ARCHITECTURE.md`
+4. `docs/index.md`
+5. `docs/knowledge/index.md`
+6. `docs/AGENT_LOOP.md`
+7. `docs/HARNESS_UPDATE.md`
+8. 관련 `docs/product-specs/*`
+9. 관련 `docs/exec-plans/active/*`
 
 ## Operating Rules
 
@@ -70,6 +72,7 @@
 - 문서 인덱스: `docs/index.md`
 - 지식 인덱스: `docs/knowledge/index.md`
 - 에이전트 루프: `docs/AGENT_LOOP.md`
+- 하네스 버전 업데이트: `docs/HARNESS_UPDATE.md`
 - 제품 가정: `docs/product-specs/today-did-you-finish.md`
 - 원본 기획서: `기획/오늘_다했니_기획서.txt`
 - 품질 기준: `docs/QUALITY_SCORE.md`

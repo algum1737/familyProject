@@ -38,6 +38,7 @@
 - [APP_STORAGE_OPTIONS.md](./APP_STORAGE_OPTIONS.md)
 - [FRONTEND.md](./FRONTEND.md)
 - [HANDOFF.md](./HANDOFF.md)
+- [HARNESS_UPDATE.md](./HARNESS_UPDATE.md)
 - [Knowledge Layer](./knowledge/README.md)
 - [Knowledge Index](./knowledge/index.md)
 - [MVP_SCOPE.md](./MVP_SCOPE.md)
@@ -53,7 +54,7 @@
 
 ## Active Work
 
-현재 활성화된 실행 계획 없음.
+- [Harness Version Marker](./exec-plans/active/2026-07-30-harness-version-marker.md)
 
 ## Completed Work
 
