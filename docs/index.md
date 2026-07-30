@@ -7,8 +7,9 @@
 - 설계 문서: `design-docs/`
 - 실행 계획: `exec-plans/`
 - 생성 문서: `generated/`
+- 파생 지식: `knowledge/`
 - 제품 명세: `product-specs/`
-- 참조 자료: `references/`
+- 원본 및 참조 자료: `references/`
 
 ## Generated Documents
 
@@ -37,6 +38,8 @@
 - [APP_STORAGE_OPTIONS.md](./APP_STORAGE_OPTIONS.md)
 - [FRONTEND.md](./FRONTEND.md)
 - [HANDOFF.md](./HANDOFF.md)
+- [Knowledge Layer](./knowledge/README.md)
+- [Knowledge Index](./knowledge/index.md)
 - [MVP_SCOPE.md](./MVP_SCOPE.md)
 - [TECH_STACK.md](./TECH_STACK.md)
 - [WEB_TO_APP_TRANSITION.md](./WEB_TO_APP_TRANSITION.md)
@@ -54,6 +57,7 @@
 
 ## Completed Work
 
+- [Harness Knowledge Layer Update](./exec-plans/completed/2026-07-30-harness-knowledge-layer.md)
 - [Agent Loop Harness Migration](./exec-plans/completed/2026-06-24-agent-loop-harness-migration.md)
 - [Android Production Permission Summary Refresh](./exec-plans/completed/2026-06-11-android-production-permission-summary-refresh.md)
 - [Android Production Permission Summary](./exec-plans/completed/2026-06-10-android-production-permission-summary.md)
