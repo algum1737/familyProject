@@ -29,7 +29,7 @@
 
 ### Branch Status
 
-- `Harness Knowledge Layer Update`는 `docs/harness-knowledge-layer`에서 구현과 검증이 완료됐고 아직 `main`에는 머지되지 않았다.
+- `Harness Knowledge Layer Update`는 `docs/harness-knowledge-layer`에서 구현과 검증을 완료해 PR #26으로 제출했다. 현재 병합 상태는 `gh pr view 26 --json state,mergedAt,mergeCommit`으로 확인한다.
 - `Android Start Notification Shade Capture QA` 작업은 `qa/android-start-notification-shade-capture`에서 완료됐고 `main`에 머지됐다.
 - `Android Start Notification Precision` 작업은 `fix/android-start-notification-precision`에서 완료됐고 PR #15로 `main`에 머지됐다.
 - `Android Notification Regression Guard` 작업은 `qa/android-notification-regression-guard`에서 완료됐고 PR #16으로 `main`에 머지됐다.
