@@ -57,6 +57,7 @@
 
 ## Completed Work
 
+- [Android And Play Release Knowledge](./exec-plans/completed/2026-07-30-android-play-release-knowledge.md)
 - [Harness Knowledge Layer Update](./exec-plans/completed/2026-07-30-harness-knowledge-layer.md)
 - [Agent Loop Harness Migration](./exec-plans/completed/2026-06-24-agent-loop-harness-migration.md)
 - [Android Production Permission Summary Refresh](./exec-plans/completed/2026-06-11-android-production-permission-summary-refresh.md)
