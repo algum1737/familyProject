@@ -58,6 +58,7 @@
 
 ## Completed Work
 
+- [중복·미사용 파일 정리](./exec-plans/completed/2026-11-13-remove-unused-files.md)
 - [Harness Version Marker](./exec-plans/completed/2026-07-30-harness-version-marker.md)
 - [Android And Play Release Knowledge](./exec-plans/completed/2026-07-30-android-play-release-knowledge.md)
 - [Harness Knowledge Layer Update](./exec-plans/completed/2026-07-30-harness-knowledge-layer.md)

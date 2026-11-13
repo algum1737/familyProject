@@ -1,5 +1,7 @@
 # Expo Navigator Decision
 
+Expo Router 채택 당시의 결정 기록이다. 현재 앱의 화면 이동은 `apps/expo/app/`의 Expo Router가 담당한다.
+
 ## Goal
 
 Expo 앱에 실제 네비게이터 라이브러리를 붙이기 전에, 어떤 라이브러리를 채택할지와 도입 순서를 고정한다.
