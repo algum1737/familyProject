@@ -1,5 +1,7 @@
 # Expo Navigation Contract
 
+도입 전 설계를 기록한 문서다. 현재 화면 경로와 파라미터는 `apps/expo/app/`과 `apps/expo/src/app-shell/expo-router-contract.ts`에 구현돼 있다.
+
 ## Goal
 
 Expo 앱에서 실제 네비게이터 라이브러리를 붙이기 전에, 화면 구조와 상태 전환 계약을 먼저 고정한다.

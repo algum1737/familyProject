@@ -1,5 +1,7 @@
 # Expo Bootstrap Data Strategy
 
+이 문서는 Expo Router 전환 전의 설계 기록이다. 현재 앱의 `useExpoAppBootstrap`은 저장 기록을 복구하고, 기존 계획을 마이그레이션하거나 빈 상태로 시작한다. 앱 모델은 `expo-planner-preview-seed.ts`의 날짜·기록 변환 함수만 사용한다.
+
 ## Goal
 
 Expo 프리뷰 런타임에서 쓰는 demo seed와 실제 앱 부트스트랩 데이터를 명확히 분리한다.
