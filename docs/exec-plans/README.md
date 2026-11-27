@@ -1,6 +1,6 @@
 # Exec Plans
 
-- `active/`: 진행 중인 계획
+- `active/`: 진행 중인 계획. 진행 중인 큰 작업이 없으면 비어 있을 수 있다.
 - `completed/`: 완료된 계획
 - `tech-debt-tracker.md`: 알려진 부채와 후속 작업
 

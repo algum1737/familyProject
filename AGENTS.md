@@ -22,6 +22,12 @@
 8. 관련 `docs/product-specs/*`
 9. 관련 `docs/exec-plans/active/*`
 
+## 하네스 도구 선택
+
+- 현재 프로젝트는 Codex 구성을 유지하며 루트 `.harness-version`의 `harness=codex`에 기록한다.
+- 도구를 처음 기록할 때 선택이 지정되지 않았다면 Codex와 Claude Code 중 무엇을 쓸지 한 번 묻는다. 사용자가 지정한 값이나 기존 설정 유지를 요청했다면 그 값을 사용한다.
+- 도구 선택 기록 요청에서는 생성용 값 파일의 `HARNESS` 또는 설치 구성이 일치하는 `.harness-version`의 `harness` 항목을 기록한다. 아직 구성되지 않은 도구는 생성용 값 파일에 기록한다. 일반 개발 작업은 기록된 도구로 시작한다.
+
 ## Operating Rules
 
 - 우선순위는 사용자 명시 지시, 이 `AGENTS.md`, `docs/` 하네스 문서, 설치된 Superpowers skill, 기본 에이전트 동작 순서다.

@@ -33,6 +33,8 @@
 
 ### Branch Status
 
+- 현재 적용 도구와 배포 버전은 `.harness-version`의 `harness`, `version`으로 확인한다. 하네스 최신화의 공개 변경은 검토와 로컬 검증을 마쳐 별도 작업 브랜치에 커밋했다. 현재 브랜치는 `git branch --show-current`, 기준 커밋은 `git rev-parse --short HEAD`로 확인한다.
+
 - `Harness Version Registry`는 중앙 하네스 PR #3으로, `Harness Version Marker`는 PR #29로 `main`에 머지됐고 하네스 `2026.07.30.1` 중앙 감사의 `current` 판정을 확인했다.
 - `Android And Play Release Knowledge`는 `docs/android-play-release-knowledge`에서 완료됐고 PR #27로 `main`에 머지됐다.
 - `Harness Knowledge Layer Update`는 `docs/harness-knowledge-layer`에서 완료됐고 PR #26으로 `main`에 머지됐다.
@@ -56,6 +58,10 @@
 - Superpowers 설치 여부: Codex 재시작 후 skill 목록 또는 `~/.agents/skills/superpowers-*` 경로로 확인한다.
 
 ### Latest Progress Snapshot
+
+- 하네스 공개 변경 11개 파일을 검토해 필요한 도구 선택 지침·검증·운영 기록만 작업 브랜치에 커밋했다. 로컬 백업 절대경로는 공개 본문에서 일반화했고 제품 코드·의존성·knowledge는 보존했다. 공개 반영 검토에서 PR #32의 `validate`·`e2e` 통과를 확인했다. 현재 main 반영 여부는 PR #32 상태에서 확인하고, 현재 브랜치와 기준 커밋은 `git branch --show-current`, `git rev-parse --short HEAD`로 확인한다.
+
+- [Harness Tool Selection Update](./exec-plans/completed/2026-11-25-harness-update.md)로 하네스를 `2026.11.25.2/tracked/passed/harness=codex`로 업데이트했다. 최초 도구 선택·기록 지침, 도구 공통 작업 루프와 맞춤 marker/import 검증을 병합했다. 지식·문서·인계 회귀, 타입 검사와 Vitest 19 files/110 tests 및 도구 fixture 6종이 통과했다. 제품 코드와 기존 완료 기록은 보존했다. 초기 설치 검증 단계에서는 커밋·머지·푸시를 수행하지 않았으며 공개 반영 단계는 별도로 검토한다.
 
 - [중복·미사용 파일 정리](./exec-plans/completed/2026-11-13-remove-unused-files.md)를 `docs/remove-unused-files` 작업 브랜치에 기록했다. 기획서 PDF 중복본 1개, 미사용 코드 11개, Android 전경 아이콘 5개를 삭제했다. 웹·Expo 타입체크, 테스트 110개, Android 디버그 리소스 처리, 문서·인계 검증을 통과했다.
 - 하네스 배포 버전 `2026.07.30.1`을 `tracked`, `validation=passed`로 기록했다. `docs/HARNESS_UPDATE.md`에 프로젝트별 업데이트 절차를 추가했고, `scripts/validate-docs.sh`가 marker 형식과 profile을 검증한다.
@@ -425,7 +431,7 @@
 - commit: `git rev-parse --short HEAD`
 - harness: `.harness-version`
 - Superpowers: 설치된 경우 관련 skill을 먼저 검토
-- latest progress: Expo mobile shell and planner policy work pushed; harness template operations updated and completed exec plans moved out of active
+- latest progress: harness 2026.11.25.2 tool-choice update validated; Codex configuration and product baseline preserved; PR #32 validate/e2e passed in publication review; check PR status for main integration and git commands for branch/commit
 
 현재 구현 상태:
 - Next.js + TypeScript 기반 웹 MVP

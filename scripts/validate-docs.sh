@@ -54,6 +54,7 @@ marker_value() {
 marker_version="$(marker_value version)"
 marker_profile="$(marker_value profile)"
 marker_validation="$(marker_value validation)"
+marker_harness="$(marker_value harness)"
 
 if [[ ! "$marker_version" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+$ ]]; then
   echo "invalid .harness-version version: $marker_version" >&2
@@ -69,6 +70,34 @@ case "$marker_validation" in
   pending|passed) ;;
   *)
     echo "invalid .harness-version validation: $marker_validation" >&2
+    exit 1
+    ;;
+esac
+
+# Older Codex installs predate the harness field.
+if ! grep -q '^harness=' .harness-version; then
+  marker_harness=codex
+fi
+
+case "$marker_harness" in
+  codex) ;;
+  claude-code)
+    if [[ ! CLAUDE.md -ef AGENTS.md ]] && ! perl -ne '
+      if (/^ {0,3}(`{3,}|~{3,})(.*)$/) {
+        my ($marker, $rest) = ($1, $2);
+        if (!defined $fence) { $fence = $marker; }
+        elsif (index($marker, $fence) == 0 && $rest =~ /^\s*$/) { undef $fence; }
+        next;
+      }
+      $found = 1 if !defined($fence) && m{^@(?:\./)?AGENTS\.md\s*$};
+      END { exit !$found; }
+    ' CLAUDE.md 2>/dev/null; then
+      echo "Claude Code harness requires CLAUDE.md to load AGENTS.md" >&2
+      exit 1
+    fi
+    ;;
+  *)
+    echo "invalid .harness-version harness: $marker_harness" >&2
     exit 1
     ;;
 esac
@@ -93,6 +122,13 @@ if ! grep -q 'git rev-parse --short HEAD' docs/HANDOFF.md; then
   echo "handoff must reference git rev-parse command instead of hard-coded commit hash" >&2
   exit 1
 fi
+
+for plan_dir in docs/exec-plans/active docs/exec-plans/completed; do
+  if [[ ! -d "$plan_dir" ]]; then
+    echo "missing exec plan directory: $plan_dir" >&2
+    exit 1
+  fi
+done
 
 if ! find docs/exec-plans/completed -mindepth 1 -maxdepth 1 -type f -name '*.md' ! -name 'README.md' | grep -q .; then
   echo "missing completed exec plan history" >&2
