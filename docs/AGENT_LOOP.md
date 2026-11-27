@@ -1,12 +1,13 @@
 # Agent Loop
 
-이 문서는 Codex 스타일 에이전트 루프를 이 리포지터리의 하네스 구조에 맞춰 해석한 운영 맵이다. 내부 런타임을 재구현하지 않고, 에이전트가 읽고 검증할 수 있는 프로젝트 상태를 리포지터리에 남기는 것이 목적이다.
+이 문서는 Codex와 Claude Code에서 공통으로 사용하는 작업 흐름을 이 리포지터리의 하네스 구조에 맞춰 설명한다. 현재 프로젝트의 도구는 `.harness-version`의 `harness=codex`를 따른다. 에이전트가 읽고 검증할 수 있는 프로젝트 상태는 리포지터리에 남긴다.
 
 ## Loop Map
 
 ```text
 User Intent
   -> Context Assembly
+  -> Knowledge Query
   -> Plan
   -> Tool Action
   -> Observation
@@ -20,7 +21,8 @@ User Intent
 | --- | --- | --- |
 | User Intent | 사용자 요청, `docs/product-specs/*`, `docs/MVP_SCOPE.md` | 목표, 제약, 제품 판단을 고정한다. |
 | Context Assembly | `AGENTS.md`, `README.md`, `ARCHITECTURE.md`, `docs/index.md`, `docs/knowledge/index.md`, `docs/HANDOFF.md` | 에이전트가 먼저 읽을 맥락과 출처 기반 장기 지식을 제공한다. |
-| Plan | `docs/exec-plans/active/*`, `/plan` | 구현 전에 범위, 단계, 검증 계약을 정한다. |
+| Knowledge Query | `docs/knowledge/index.md`, `rg`, `docs/references/sources/*` | 축적된 분석을 찾고 중요한 근거를 원본까지 역추적한다. |
+| Plan | `docs/exec-plans/active/*`, 사용 도구의 계획 모드 | 구현 전에 범위, 단계, 검증 계약을 정한다. |
 | Tool Action | shell, editor, browser, MCP, test runner, Android/Expo tooling | 계획에 따라 파일 수정, 명령 실행, 외부 도구 호출을 수행한다. |
 | Observation | tool output, logs, screenshots, device evidence, `Observation Log` | 실행 결과와 실패 원인을 기록한다. |
 | Validation | `scripts/validate-docs.sh`, `scripts/validate-knowledge.sh`, lint, typecheck, tests, runtime QA | 완료 판단과 지식 참조 무결성을 추측이 아니라 증거로 만든다. |
@@ -28,13 +30,13 @@ User Intent
 
 ## Goal, Plan, And Repo State
 
-- `/goal`은 현재 Codex 스레드 안의 지속 목표다.
-- `/plan`은 구현 전 계획을 만들거나 다듬는 대화 모드다.
+- Codex의 `/goal`은 현재 세션의 지속 목표를 관리하는 데 사용할 수 있다.
+- 도구의 계획 모드에서는 구현 전 계획을 만들거나 다듬는다.
 - `docs/exec-plans/active/*`는 리포지터리에 남는 실제 작업 계획과 검증 계약이다.
 - `docs/HANDOFF.md`는 세션 전환, 컨텍스트 압축, 커밋 이후 재개를 위한 인계 상태다.
 - `docs/knowledge/*`는 여러 세션과 작업에서 재사용하는 출처 기반 장기 지식이다.
 
-긴 작업은 `/goal`만으로 관리하지 않는다. 목표는 `/goal`에 둘 수 있지만, 실행 범위와 검증 결과는 active exec plan과 HANDOFF에 남긴다.
+긴 작업의 목표, 실행 범위와 검증 결과는 active exec plan과 HANDOFF에 기록한다.
 
 작업 상태와 장기 지식도 구분한다. 현재 진행 상황은 exec plan과 HANDOFF에 두고, 반복 사용할 수 있는 외부 근거와 분석만 knowledge 계층에 보존한다.
 

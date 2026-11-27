@@ -6,7 +6,7 @@
 - Next.js + TypeScript 기반 웹 MVP와 검증 하네스가 있다.
 - 제품 요구사항은 초기 기획서 텍스트 기준으로 1차 확인했고, 웹 MVP는 앱 전환 전 검증 단계로 본다.
 - 제품명은 `오늘 다 했니?`다.
-- 적용된 하네스 버전은 [`.harness-version`](./.harness-version)에서 확인한다.
+- 적용된 하네스 버전과 도구는 [`.harness-version`](./.harness-version)의 `version`, `harness`에서 확인한다. 현재 도구는 Codex다.
 
 작업 원칙:
 - 중요한 맥락은 리포지터리 안에 문서로 남긴다.
